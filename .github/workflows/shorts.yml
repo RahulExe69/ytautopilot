@@ -1,0 +1,66 @@
+name: ytautopilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Start safely with dry-run; publishing is gated"
+        type: choice
+        required: true
+        default: dry-run
+        options:
+          - dry-run
+          - prepare
+          - publish
+      topic:
+        description: "Gaming topic for this run"
+        type: string
+        required: true
+        default: "Free Fire tips and lesser-known facts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ytautopilot-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          ENABLE_PUBLISH: ${{ vars.ENABLE_PUBLISH }}
+        run: |
+          python -m ytautopilot --mode "${{ inputs.mode }}" --topic "${{ inputs.topic }}"
+
+      - name: Upload generated script artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ytautopilot-output-${{ github.run_number }}
+          path: output/
+          if-no-files-found: ignore
+          retention-days: 7
