@@ -109,6 +109,8 @@ def record_upload(
     title: str,
     topic: str,
     status: str,
+    description_style: str = "default",
+    scheduled_publish_at: str | None = None,
 ) -> None:
     payload = load_upload_history()
     uploads = [
@@ -123,6 +125,8 @@ def record_upload(
             "title": title,
             "topic": topic,
             "status": status,
+            "description_style": description_style,
+            "scheduled_publish_at": scheduled_publish_at,
         }
     )
     # Keep the persistent file bounded while leaving enough history to guard
@@ -358,6 +362,8 @@ def upload_private_video(
             title=title,
             topic=str(metadata.get("topic") or ""),
             status="deduplicated_from_youtube",
+            description_style=str(metadata.get("description_style") or "default"),
+            scheduled_publish_at=str(metadata.get("publish_at") or "") or None,
         )
         metadata.update(
             {
@@ -409,6 +415,8 @@ def upload_private_video(
         title=title,
         topic=str(metadata.get("topic") or ""),
         status="uploaded_private",
+        description_style=str(metadata.get("description_style") or "default"),
+        scheduled_publish_at=publish_at or None,
     )
 
     metadata.update(
