@@ -89,7 +89,7 @@ def main() -> int:
         manifest = render_short(script)
         package = create_publish_package(script, manifest)
         print(
-            "\\nPublish-ready package complete: "
+            "\nPublish-ready package complete: "
             f"title={package['title']!r}, "
             f"thumbnail={package['thumbnail_candidate']}, "
             "privacy_status=private (upload not implemented)"
