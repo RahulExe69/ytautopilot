@@ -251,21 +251,17 @@ jobs:
         run: |
           python -m ytautopilot --mode "$PIPELINE_MODE" --topic "$PIPELINE_TOPIC"
 
-      - name: Record successful content and upload history
-        if: ${{ inputs.mode == 'prepare' || inputs.mode == 'publish' }}
+      - name: Persist generation and learning state
+        if: ${{ always() && (github.event_name == 'schedule' || inputs.mode == 'prepare' || inputs.mode == 'publish') }}
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/content_history.json data/upload_history.json
+          git add data/content_history.json data/upload_history.json data/media_history.json data/performance_history.json data/strategy_profile.json data/description_history.json
           if git diff --cached --quiet; then
-            echo "No content-history change to commit."
+            echo "No state changes to commit."
           else
-            if [ "${{ inputs.mode }}" = "publish" ]; then
-              git commit -m "chore: record generated Short and YouTube upload history"
-            else
-              git commit -m "chore: record generated Short topic history"
-            fi
+            git commit -m "chore: persist ytautopilot generation and learning state"
             git push
           fi
 
