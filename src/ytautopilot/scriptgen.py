@@ -90,7 +90,9 @@ Requirements:
 - Keep the title accurate, punchy, and non-misleading.
 - Do not reuse the same core idea, title, or hook from the recent history below. Choose a clearly different angle even when the broad weekly format is the same.
 - Recent Shorts to avoid repeating:
-${history_prompt_context()}
+{history_prompt_context()}
+Performance learning context (soft signal only):
+{strategy_prompt_context()}
 """
 
     def request_script(request_prompt: str, temperature: float) -> dict[str, Any]:
