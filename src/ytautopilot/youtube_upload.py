@@ -16,6 +16,8 @@ from googleapiclient.http import MediaFileUpload
 
 
 UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
+REQUIRED_SCOPES = [UPLOAD_SCOPE, READONLY_SCOPE]
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 UPLOAD_HISTORY_PATH = Path("data") / "upload_history.json"
 DEFAULT_CATEGORY_ID = "20"  # Gaming
@@ -49,7 +51,7 @@ def _credentials() -> Credentials:
             "refresh_token": refresh_token,
             "token_uri": TOKEN_URI,
         },
-        scopes=[UPLOAD_SCOPE],
+        scopes=REQUIRED_SCOPES,
     )
     try:
         credentials.refresh(Request())
@@ -61,10 +63,13 @@ def _credentials() -> Credentials:
         ) from exc
     if not credentials.valid:
         raise YouTubeUploadError("Google OAuth returned an invalid access token.")
-    if not credentials.has_scopes([UPLOAD_SCOPE]):
+    if not credentials.has_scopes(REQUIRED_SCOPES):
+        granted = sorted(str(scope) for scope in (credentials.granted_scopes or []))
         raise YouTubeUploadError(
-            "The refresh token does not grant the youtube.upload scope. "
-            "Re-authorize the same OAuth client with YouTube upload permission."
+            "The YouTube OAuth credential is missing a required scope. "
+            "This uploader needs both youtube.upload (for videos.insert) and "
+            "youtube.readonly (for the authenticated-channel/duplicate check). "
+            f"Granted scopes reported by Google: {granted}"
         )
     return credentials
 
