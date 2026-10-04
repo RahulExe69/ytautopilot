@@ -376,6 +376,16 @@ def upload_private_video(
         return metadata
 
     upload_tags = _add_marker_tag(list(metadata.get("tags") or []), marker)
+    publish_at = os.environ.get("YOUTUBE_PUBLISH_AT", "").strip()
+    status_body: dict[str, Any] = {
+        # Keep uploads private at insertion time so YouTube can validate/schedule
+        # them safely. An audited API project can publish them at publishAt.
+        "privacyStatus": "private",
+        "selfDeclaredMadeForKids": False,
+    }
+    if publish_at:
+        status_body["publishAt"] = publish_at
+
     body = {
         "snippet": {
             "title": title,
@@ -383,14 +393,13 @@ def upload_private_video(
             "tags": upload_tags,
             "categoryId": str(metadata.get("category_id") or DEFAULT_CATEGORY_ID),
         },
-        "status": {
-            # Hard safety gate: this module never accepts public/unlisted here.
-            "privacyStatus": "private",
-            "selfDeclaredMadeForKids": False,
-        },
+        "status": status_body,
     }
 
-    print(f"[youtube] Uploading private video: {title}")
+    if publish_at:
+        print(f"[youtube] Uploading private video scheduled for {publish_at}: {title}")
+    else:
+        print(f"[youtube] Uploading private video: {title}")
     response = _upload_resumable(youtube, body, video_path)
     video_id = str(response["id"])
 
@@ -408,6 +417,7 @@ def upload_private_video(
             "youtube_video_id": video_id,
             "upload_marker": marker,
             "upload_status": "uploaded_private",
+            "scheduled_publish_at": publish_at or None,
             "uploaded_at_utc": datetime.now(timezone.utc).isoformat(),
             "youtube_url": f"https://www.youtube.com/watch?v={video_id}",
             "thumbnail_upload": "not_attempted",
