@@ -129,7 +129,7 @@ def recent_history(limit: int = 16) -> list[dict[str, Any]]:
     return [item for item in entries if isinstance(item, dict)][-limit:]
 
 
-def choose_daily_topic(run_date: date | None = None) -> str:
+def choose_daily_topic(run_date: date | None = None, exclude_topics: set[str] | None = None) -> str:
     current = run_date or date.today()
     _, candidates = TOPIC_BANK[current.weekday()]
     used = {
@@ -137,6 +137,7 @@ def choose_daily_topic(run_date: date | None = None) -> str:
         for entry in load_content_history().get("entries", [])
         if isinstance(entry, dict)
     }
+    used.update(_normalise(str(topic)) for topic in (exclude_topics or set()))
 
     for topic in candidates:
         if _normalise(topic) not in used:
@@ -230,6 +231,10 @@ def record_content_history(
     entries = [item for item in payload.get("entries", []) if isinstance(item, dict)]
     now = datetime.now(timezone.utc)
 
+    fingerprint = content_fingerprint(script)
+    if any(str(item.get("fingerprint", "")) == fingerprint for item in entries):
+        return
+
     entries.append(
         {
             "generated_at": now.isoformat(),
@@ -237,8 +242,9 @@ def record_content_history(
             "topic": str(script.get("topic", "")).strip(),
             "title": str(script.get("title", "")).strip(),
             "hook": str(script.get("hook", "")).strip(),
-            "fingerprint": content_fingerprint(script),
+            "fingerprint": fingerprint,
             "gameplay_files": [str(path) for path in (gameplay_files or [])],
+            "status": "generated",
         }
     )
     payload = {"version": 1, "entries": entries[-MAX_HISTORY:]}
