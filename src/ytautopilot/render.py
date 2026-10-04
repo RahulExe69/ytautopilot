@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -432,21 +433,9 @@ def build_gameplay_track(
             f"setsar=1,trim=duration={segment:.3f},setpts=PTS-STARTPTS[v{index}]"
         )
 
-        if has_audio(path):
-            filters.append(
-                f"[{index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
-                f"atrim=duration={segment:.3f},asetpts=PTS-STARTPTS,volume=0.10[a{index}]"
-            )
-        else:
-            filters.append(
-                f"anullsrc=r=48000:cl=stereo:d={segment:.3f}[a{index}]"
-            )
-
     count = len(selected)
     video_inputs = "".join(f"[v{i}]" for i in range(count))
-    audio_inputs = "".join(f"[a{i}]" for i in range(count))
     filters.append(f"{video_inputs}concat=n={count}:v=1:a=0[vg]")
-    filters.append(f"{audio_inputs}concat=n={count}:v=0:a=1[ag]")
 
     total = sum(float(item["duration"]) for item in selected)
     if total < duration - 0.05:
@@ -459,17 +448,12 @@ def build_gameplay_track(
     ffmpeg_args += [
         "-filter_complex", ";".join(filters),
         "-map", "[gameplay]",
-        "-map", "[ag]",
         "-t", f"{duration:.3f}",
         "-r", "30",
         "-c:v", "libx264",
         "-preset", "veryfast",
         "-crf", "20",
         "-pix_fmt", "yuv420p",
-        "-c:a", "aac",
-        "-b:a", "96k",
-        "-ar", "48000",
-        "-ac", "2",
         str(destination),
     ]
 
@@ -481,9 +465,16 @@ def build_gameplay_track(
     return [Path(item["path"]) for item in selected], selected
 
 
-def find_primary_music() -> Path | None:
+def choose_background_music(seed: str) -> Path:
     files = find_music()
-    return files[0] if files else None
+    if not files:
+        raise RuntimeError(
+            "No background music found in assets/music/. Add at least one supported audio file."
+        )
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    chosen = files[int(digest[:8], 16) % len(files)]
+    print(f"[render] Selected background music: {chosen.name}")
+    return chosen
 
 
 def render_final_video(
@@ -492,26 +483,14 @@ def render_final_video(
     animated_captions: Path,
     duration: float,
     destination: Path,
+    music_seed: str,
 ) -> dict[str, Any]:
-    music = find_primary_music()
+    music = choose_background_music(music_seed)
     filter_parts = [
         "[0:v]null[v]",
-        "[0:a]volume=0.90[ga]",
         "[1:a]loudnorm=I=-15:TP=-1.5:LRA=8[narr]",
-    ]
-
-    mix_inputs = "[narr][ga]"
-    input_count = 2
-    if music is not None:
-        filter_parts += [
-            f"[2:a]volume=0.045,atrim=duration={duration:.3f}[bgm]"
-        ]
-        mix_inputs += "[bgm]"
-        input_count = 3
-
-    filter_parts += [
-        f"{mix_inputs}amix=inputs={input_count}:duration=longest:dropout_transition=0,"
-        "loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
+        f"[2:a]volume=0.055,atrim=duration={duration:.3f},afade=t=in:st=0:d=0.35,afade=t=out:st={max(0.0, duration-0.45):.3f}:d=0.45[bgm]",
+        "[narr][bgm]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
         f"[v]subtitles={animated_captions.resolve()}:si=0[vout]",
     ]
 
@@ -522,9 +501,11 @@ def render_final_video(
         str(gameplay_track),
         "-i",
         str(narration_audio),
+        "-stream_loop",
+        "-1",
+        "-i",
+        str(music),
     ]
-    if music is not None:
-        command += ["-stream_loop", "-1", "-i", str(music)]
 
     command += [
         "-filter_complex",
@@ -560,7 +541,7 @@ def render_final_video(
     return {
         "music": str(music) if music else None,
         "caption_track": str(animated_captions),
-        "mix": "narration + low-volume gameplay audio" + (" + optional background music" if music else ""),
+        "mix": "narration + selected background music; gameplay audio muted",
     }
 
 
@@ -646,6 +627,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         animated_ass,
         duration,
         final_video,
+        music_seed=str(script.get("topic") or script.get("title") or "ytautopilot"),
     )
 
     output_audio = OUTPUT_DIR / "narration.mp3"
