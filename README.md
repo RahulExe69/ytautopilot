@@ -6,13 +6,13 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 3 creator-style rendering is now in place.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
+**Stage 4 free/local voice + scene-safe rendering is now in place.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
 
 The prepare mode currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
-2. Generates narration plus timed subtitle cues with edge-tts using Microsoft's online Edge text-to-speech service.
-3. Breaks the timed speech into 1-3 word caption events and renders them as animated lower-middle pop-ins with highlighted keywords.
-4. Detects gameplay videos in assets/gameplay/ and builds a fast-cut 1080x1920, 30 fps montage across six visual beats.
+2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model and a Devanagari TTS text layer, avoiding paid TTS APIs.
+3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
+4. Detects scene boundaries in gameplay and builds the 1080x1920, 30 fps montage only from complete detected scenes, avoiding arbitrary mid-action cuts.
 5. Keeps gameplay audio very low under the voiceover and can mix an optional track from assets/music/.
 6. Burns the animated caption track into the video.
 7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, and a render manifest as a GitHub Actions artifact.
@@ -33,8 +33,8 @@ The prepare mode currently:
 2. Add a repository secret named GEMINI_API_KEY using your own Gemini API key. Never place API keys in source files or commit them.
 3. Optionally add a repository variable named GEMINI_MODEL with a model currently available to your Gemini API project.
 4. Optional TTS tuning variables:
-   - EDGE_TTS_VOICE — defaults to hi-IN-MadhurNeural.
-   - EDGE_TTS_RATE — defaults to +5%.
+   - INDICVOICE_VOICE — defaults to am_adam.
+   - INDICVOICE_MODEL — defaults to Bindkushal/IndicVoice-82M.
 5. Put your own/licensed gameplay videos in assets/gameplay/. One clip is enough for the first test; multiple clips give the renderer more visual variety.
 6. Open **Actions → ytautopilot → Run workflow**.
 
@@ -66,10 +66,10 @@ The rendered MP4 is a preview only. Review its factual accuracy, audio, captions
 
 ## Local prepare
 
-Requires Python 3.11+, FFmpeg, and a working network connection for Gemini and Edge TTS.
+Requires Python 3.11+, FFmpeg, espeak-ng, and a working network connection for Gemini script generation plus the first model download.
 
     pip install -r requirements.txt
-    sudo apt-get install ffmpeg fonts-noto-core
+    sudo apt-get install ffmpeg fonts-noto-core espeak-ng
     PYTHONPATH=src python -m ytautopilot --mode prepare --topic "Free Fire tips"
 
 The generated files are written to output/.
