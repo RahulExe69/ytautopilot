@@ -11,7 +11,6 @@ on:
         options:
           - dry-run
           - prepare
-          - publish
       topic:
         description: "Gaming topic for this run"
         type: string
