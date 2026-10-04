@@ -10,6 +10,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from scenedetect import ContentDetector, SceneManager, open_video
+from .tts import generate_indicvoice_tts
+
 
 ROOT = Path.cwd()
 GAMEPLAY_DIR = ROOT / "assets" / "gameplay"
@@ -73,7 +76,7 @@ def command_output(command: list[str]) -> str:
 
 
 def require_tools() -> None:
-    for name in ("ffmpeg", "ffprobe", "edge-tts"):
+    for name in ("ffmpeg", "ffprobe"):
         if shutil.which(name) is None:
             raise RuntimeError(
                 f"Required tool '{name}' was not found on PATH. "
