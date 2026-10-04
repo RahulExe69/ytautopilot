@@ -1,4 +1,13 @@
 {
   "version": 1,
-  "uploads": []
+  "uploads": [
+    {
+      "uploaded_at_utc": "2026-10-04T21:45:13.336395+00:00",
+      "fingerprint": "6efdff09f2aef04d",
+      "youtube_video_id": "G71SEmF1Ciw",
+      "title": "Cover Ke Saath Yeh Positioning Mistake Mat Karo",
+      "topic": "One positioning detail that changes how enemies can peek you",
+      "status": "uploaded_private"
+    }
+  ]
 }
