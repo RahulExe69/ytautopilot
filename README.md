@@ -6,7 +6,7 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 5 publish-ready packaging is now in place, building on the Stage 4 free/local voice + scene-safe renderer.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short and a publish-ready content package from gameplay assets.
+**Stage 6 private publishing is now wired in, building on the Stage 5 publish-ready package and Stage 4 free/local voice + scene-safe renderer.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode that uploads a validated Short through the official YouTube Data API with privacyStatus=private.
 
 The prepare mode currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
@@ -17,7 +17,7 @@ The prepare mode currently:
 6. Burns the animated caption track into the video.
 7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, a render manifest, a generated vertical thumbnail candidate, and validated output/publish_metadata.json as a GitHub Actions artifact.
 
-**YouTube publishing is still not implemented. Nothing is uploaded to YouTube.** Prepare mode now creates a publish-ready metadata file and a thumbnail candidate from the rendered video; it does not claim the candidate was applied as a YouTube Shorts cover.
+**YouTube private upload is implemented.** Publish mode refreshes the OAuth access token from the existing GitHub Actions secrets, validates the output package, uploads through videos.insert as **private**, records the returned video ID, and keeps a persistent upload history for duplicate prevention. The workflow does not upload public or unlisted videos.
 
 ## Planned pipeline
 
@@ -59,14 +59,22 @@ Choose **prepare** to generate the script and render a reviewable Short. The wor
 
 The rendered MP4 is a preview only. Review its factual accuracy, audio, captions, footage rights, and overall quality before publishing anywhere.
 
+### Publish
+
+Choose **publish** only for an intentional upload run. The same generation, render, and validation pipeline runs first. The upload module has hard safety gates that refuse anything except private visibility, and it never requests public or unlisted status.
+
+A successful run writes the YouTube video ID to output/publish_metadata.json and updates data/upload_history.json. The upload module uses resumable uploads with retry handling for transient server and network failures. It also checks recent owned uploads for a deterministic topic marker before creating a new video, so a retry after an ambiguous upload response can be deduplicated.
+
+The generated thumbnail remains a candidate artifact. This implementation intentionally does not call thumbnails.set because custom thumbnail support can vary by channel.
+
 ## Safety defaults
 
 - The workflow runs only when manually triggered; no schedule is enabled.
-- Publishing is disabled and not implemented in this stage.
+- Publishing is implemented, but the workflow remains manual-only until the first real private upload run is verified.
 - Never commit OAuth client files, refresh tokens, API keys, or generated media.
 - Do not scrape or reuse a creator's footage based only on an assumption. Verify the creator's actual reuse terms and retain evidence, or use your own gameplay.
 - Review facts, narration, captions, audio, and rights before publishing.
-- YouTube API projects in the unverified state may be restricted from making uploaded videos public; verify current Google requirements before enabling future upload functionality.
+- YouTube API projects in the unverified state can be restricted to private uploads; this project intentionally keeps the automation private.
 
 ## Local prepare
 
