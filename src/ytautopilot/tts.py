@@ -97,23 +97,12 @@ def write_srt_from_sentence_timings(
     pause_seconds: float,
     duration_seconds: float,
 ) -> str:
-    """Create subtitle cues from the real duration of each synthesized sentence.
-
-    The old renderer estimated sentence timing from character counts. That can
-    drift badly because a neural voice does not speak every sentence at a fixed
-    rate. This version uses the measured audio length of each generated sentence,
-    so the caption boundaries follow the actual narration.
-    """
+    """Build caption cues from measured TTS duration without requiring equal sentence counts."""
     caption_sentences = _split_tts_sentences(caption_text)
     if not caption_sentences:
         caption_sentences = [caption_text.strip()]
-
-    if len(caption_sentences) != len(sentence_durations):
-        raise RuntimeError(
-            "Caption/TTS sentence alignment failed: "
-            f"{len(caption_sentences)} caption sentences vs "
-            f"{len(sentence_durations)} spoken sentences."
-        )
+    if not sentence_durations:
+        raise RuntimeError("Measured sentence timing is empty.")
 
     def stamp(value: float) -> str:
         total_ms = max(0, int(round(value * 1000)))
@@ -123,22 +112,23 @@ def write_srt_from_sentence_timings(
         millis = total_ms % 1_000
         return f"{hours:02d}:{minutes:02d}:{seconds:02d},{millis:03d}"
 
-    raw_total = sum(sentence_durations) + pause_seconds * max(
-        0, len(sentence_durations) - 1
-    )
-    if raw_total <= 0:
+    spoken_total = sum(sentence_durations) + pause_seconds * max(0, len(sentence_durations) - 1)
+    if spoken_total <= 0:
         raise RuntimeError("Measured sentence timing is empty.")
 
-    scale = duration_seconds / raw_total
-    cursor = 0.0
+    # The measured audio defines the trustworthy overall duration. Caption
+    # sentences are then distributed across that exact duration by text weight.
+    weights = [max(1, len(re.sub(r"\s+", "", sentence))) for sentence in caption_sentences]
+    total_weight = sum(weights)
     blocks: list[str] = []
+    cursor = 0.0
 
-    for index, (sentence, sentence_duration) in enumerate(
-        zip(caption_sentences, sentence_durations),
-        start=1,
-    ):
-        scaled_duration = sentence_duration * scale
-        end = min(duration_seconds, cursor + scaled_duration)
+    for index, (sentence, weight) in enumerate(zip(caption_sentences, weights), start=1):
+        end = (
+            duration_seconds
+            if index == len(caption_sentences)
+            else min(duration_seconds, cursor + duration_seconds * (weight / total_weight))
+        )
         if end <= cursor:
             end = min(duration_seconds, cursor + 0.20)
 
@@ -147,10 +137,7 @@ def write_srt_from_sentence_timings(
             f"{stamp(cursor)} --> {stamp(end)}\n"
             f"{sentence}\n"
         )
-
         cursor = end
-        if index < len(caption_sentences):
-            cursor = min(duration_seconds, cursor + pause_seconds * scale)
 
     return "\n".join(blocks).strip() + "\n"
 
@@ -354,9 +341,12 @@ def generate_indicvoice_tts(
 
     pipeline = IndicPipeline(lang_code="hi", repo_id=repo_id)
     spoken_sentences = _split_tts_sentences(prepared_text)
-    caption_sentences = _split_tts_sentences(caption_text)
     if not spoken_sentences:
         spoken_sentences = [prepared_text]
+
+    # The model can normalize punctuation or merge very short sentences, so the
+    # caption track must not require identical sentence counts.
+    caption_sentences = _split_tts_sentences(caption_text)
     if not caption_sentences:
         caption_sentences = [caption_text]
 
@@ -372,18 +362,9 @@ def generate_indicvoice_tts(
             candidate_chunks: list[np.ndarray] = []
             candidate_sentence_durations: list[float] = []
 
-            if len(spoken_sentences) != len(caption_sentences):
-                raise RuntimeError(
-                    "Caption/TTS sentence count differs before synthesis: "
-                    f"{len(caption_sentences)} vs {len(spoken_sentences)}."
-                )
-
             for index, spoken_sentence in enumerate(spoken_sentences):
                 sentence_arrays: list[np.ndarray] = []
                 for _, _, audio in pipeline(spoken_sentence, voice=candidate_voice):
-                    # IndicVoice may yield numpy arrays, tensors, or other array-like values.
-                    # Normalize them immediately so downstream JSON/debug tooling never sees
-                    # a Path/tensor object accidentally.
                     if hasattr(audio, "detach"):
                         audio = audio.detach().cpu().numpy()
                     array = np.asarray(audio, dtype=np.float32)
