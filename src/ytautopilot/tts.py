@@ -105,8 +105,54 @@ def generate_indicvoice_tts(
     try:
         import numpy as np
         import soundfile as sf
+        import torch
+        from huggingface_hub import hf_hub_download
         from indicvoice import IndicPipeline
         _configure_system_espeak()
+
+        def _load_voice_compat(self, voice):
+            """Load IndicVoice's legacy .pt voice pack with explicit safe-mode opt-out.
+
+            The upstream loader passes weights_only=True, but the published voice
+            packs are legacy pickle archives that PyTorch's restricted unpickler
+            rejects. These files are downloaded from the configured Hugging Face
+            model repository, then loaded explicitly with weights_only=False.
+            """
+            if voice in self.voices:
+                return self.voices[voice]
+
+            if voice.endswith(".pt"):
+                voice_file = voice
+            else:
+                voice_file = hf_hub_download(
+                    repo_id=self.repo_id,
+                    filename=f"voices/{voice}.pt",
+                )
+
+            try:
+                pack = torch.load(
+                    voice_file,
+                    map_location="cpu",
+                    weights_only=True,
+                )
+            except Exception as exc:
+                if "Weights only load failed" not in str(exc) and "WeightsUnpickler" not in str(exc):
+                    raise
+                print(
+                    "[tts] Voice pack uses a legacy pickle format; "
+                    "loading the trusted downloaded voice with weights_only=False."
+                )
+                pack = torch.load(
+                    voice_file,
+                    map_location="cpu",
+                    weights_only=False,
+                )
+
+            self.voices[voice] = pack
+            return pack
+
+        # Compatibility shim for the current upstream IndicVoice release.
+        IndicPipeline.load_single_voice = _load_voice_compat
     except ImportError as exc:
         raise RuntimeError(
             "IndicVoice dependencies are missing. Install requirements.txt before rendering."
