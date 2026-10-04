@@ -112,6 +112,48 @@ jobs:
           print(f"espeak_data={data_path}")
           PY
 
+      - name: Verify a real IndicVoice voice tensor
+        env:
+          INDICVOICE_VOICE: ${{ vars.INDICVOICE_VOICE }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          import torch
+          from huggingface_hub import hf_hub_download
+
+          voice = (os.getenv("INDICVOICE_VOICE") or "am_adam").strip()
+          revision = "b000adea5df849c41d49d8aac3aa50f9bc736afa"
+          path = hf_hub_download(
+              repo_id="Bindkushal/IndicVoice-82M",
+              revision=revision,
+              filename=f"voices/{voice}.pt",
+          )
+          file = Path(path)
+          head = file.read_bytes()[:512]
+
+          if len(head) < 4096 and (
+              b"version https://git-lfs.github.com/spec/v1" in head
+              or b"oid sha256:" in head
+          ):
+              raise SystemExit(f"IndicVoice voice download is still a pointer file: {file}")
+
+          size = file.stat().st_size
+          if size < 100_000:
+              raise SystemExit(f"IndicVoice voice file is unexpectedly small: {size} bytes")
+
+          pack = torch.load(str(file), map_location="cpu", weights_only=True)
+          if not torch.is_tensor(pack):
+              raise SystemExit(
+                  f"IndicVoice voice archive did not resolve to a tensor: {type(pack).__name__}"
+              )
+
+          print(f"voice={voice}")
+          print(f"voice_file={file}")
+          print(f"voice_size={size}")
+          print(f"voice_shape={tuple(pack.shape)}")
+          PY
       - name: Cache IndicVoice model
         uses: actions/cache@v4
         with:
