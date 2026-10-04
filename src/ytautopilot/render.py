@@ -485,13 +485,21 @@ def render_final_video(
     destination: Path,
     music_seed: str,
 ) -> dict[str, Any]:
+    # Keep one clean second after narration/captions finish so the Short
+    # does not feel like it gets cut off. The last gameplay frame continues
+    # underneath while music fades out smoothly during the tail.
+    tail_seconds = 1.0
+    final_duration = duration + tail_seconds
+
     music = choose_background_music(music_seed)
     filter_parts = [
         "[0:v]null[v]",
         "[1:a]loudnorm=I=-15:TP=-1.5:LRA=8[narr]",
-        f"[2:a]volume=0.055,atrim=duration={duration:.3f},afade=t=in:st=0:d=0.35,afade=t=out:st={max(0.0, duration-0.45):.3f}:d=0.45[bgm]",
-        "[narr][bgm]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
-        f"[v]subtitles={animated_captions.resolve()}:si=0[vout]",
+        f"[2:a]volume=0.055,atrim=duration={final_duration:.3f},afade=t=in:st=0:d=0.35,afade=t=out:st={max(0.0, final_duration-0.75):.3f}:d=0.75[bgm]",
+        f"[v]tpad=stop_mode=clone:stop_duration={tail_seconds:.3f}[vpad]",
+        f"[1:a]apad=pad_dur={tail_seconds:.3f},volume=enable='between(t,{duration:.3f},{final_duration:.3f})':volume=0[narr_tail]",
+        "[narr_tail][bgm]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
+        f"[vpad]subtitles={animated_captions.resolve()}:si=0:force_style='Fade=0'[vout]",
     ]
 
     command = [
@@ -515,7 +523,7 @@ def render_final_video(
         "-map",
         "[aout]",
         "-t",
-        f"{duration:.3f}",
+        f"{final_duration:.3f}",
         "-c:v",
         "libx264",
         "-preset",
@@ -640,7 +648,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     manifest = {
         "renderer": "ytautopilot-stage-4-free-local-tts-scene-safe",
         "video": str(final_video),
-        "duration_seconds": round(duration, 3),
+        "duration_seconds": round(final_duration, 3),
         "resolution": "1080x1920",
         "fps": 30,
         "voice": tts_meta.get("voice"),
@@ -669,7 +677,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     )
 
     print(f"\n[render] Final video: {final_video}")
-    print(f"[render] Duration: {duration:.1f}s")
+    print(f"[render] Duration: {final_duration:.1f}s (includes {tail_seconds:.1f}s smooth tail)")
     print(f"[render] TTS: {tts_meta.get('engine')} / {tts_meta.get('voice')}")
     print(f"[render] Scene-safe segments: {len(selected_segments)}")
     return manifest
