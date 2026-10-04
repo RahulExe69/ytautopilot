@@ -59,3 +59,20 @@ YouTube Data API v3 was enabled. An OAuth Desktop client JSON was downloaded, th
 - Never put API keys, OAuth client secrets, refresh tokens, or personal account data in this file.
 - Distinguish clearly between **committed**, **workflow-tested**, and **visually verified**.
 - If a workflow run is needed but cannot be triggered through available tools, say so plainly and give Rahul the single action needed—don't pretend the run happened.
+
+
+## 2026-10-05 private YouTube publishing implementation
+
+The repository now includes the first real YouTube upload path:
+- `src/ytautopilot/youtube_upload.py`: OAuth refresh from the existing `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` secrets; scope verification; resumable `videos.insert`; private-only safety gate; transient retry handling; upload-history deduplication; recent-owned-upload marker check; no credential logging.
+- `src/ytautopilot/validate_output.py`: validates final MP4 resolution (1080x1920), duration (10-60s), audio presence, thumbnail dimensions (1080x1920), metadata presence, and private privacy status.
+- `data/upload_history.json`: persistent upload history written after successful or deduplicated uploads.
+- `src/ytautopilot/publish_package.py`: publish metadata now includes a script fingerprint, stable topic key, upload marker, and category 20.
+- `src/ytautopilot/__main__.py`: `publish` mode now renders, validates, and uploads privately. The code requires `YOUTUBE_PUBLISH_ENABLED=true`.
+- `.github/workflows/shorts.yml`: workflow_dispatch now offers `dry-run`, `prepare`, and `publish`; existing YouTube secrets are passed only through the Actions environment; upload runs get 35 minutes. Workflow remains manual-only; no schedule has been enabled yet.
+- Custom thumbnails are intentionally not sent through `thumbnails.set`; `thumbnail_candidate.jpg` remains an artifact.
+- Latest commit: `6bb2b05c872d45f39d7ca2142ac20c34ead42a2d`.
+
+Important: the new upload path has NOT been workflow-tested yet because the available GitHub integration can edit/fetch workflow files but cannot dispatch a new workflow run. Do not claim a private upload succeeded until an actual GitHub Actions run proves it.
+
+OAuth note: Google currently documents that external OAuth apps left in Publishing status `Testing` issue test-user refresh tokens that expire after 7 days. Moving the app to production/in-production is the long-term fix for unattended publishing. See the current Google Cloud OAuth testing guidance before relying on the existing refresh token for daily automation.
