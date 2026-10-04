@@ -1,4 +1,21 @@
 {
   "version": 1,
-  "entries": []
+  "entries": [
+    {
+      "generated_at": "2026-10-04T17:11:43.259643+00:00",
+      "weekday": 6,
+      "topic": "Free Fire fight positioning habit",
+      "title": "Yeh Ek Aadat Free Fire Fights Asaan Kar Degi",
+      "hook": "Free Fire mein har fight se pehle yeh ek choti si aadat daal lo.",
+      "fingerprint": "d8b733de3d63b080",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ]
+    }
+  ]
 }
