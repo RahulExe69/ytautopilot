@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "dry-run generates JSON only; prepare also renders a reviewable Short"
+        description: "dry-run generates JSON only; prepare renders a reviewable Short; publish uploads it privately"
         type: choice
         required: true
         default: dry-run
         options:
           - dry-run
           - prepare
+          - publish
       topic:
         description: "Gaming topic for this run"
         type: string
@@ -183,22 +184,29 @@ jobs:
           INDICVOICE_SPEED: "1.28"
           INDICVOICE_VOICE_FALLBACK_REPO: "hexgrad/Kokoro-82M"
           INCLUDE_HOOK_IN_NARRATION: "true"
-          ENABLE_PUBLISH: ${{ vars.ENABLE_PUBLISH }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PUBLISH_ENABLED: ${{ inputs.mode == 'publish' && 'true' || 'false' }}
           PYTHONPATH: src
         run: |
           python -m ytautopilot --mode "${{ inputs.mode }}" --topic "${{ inputs.topic }}"
 
-      - name: Record successful content history
-        if: ${{ inputs.mode == 'prepare' }}
+      - name: Record successful content and upload history
+        if: ${{ inputs.mode == 'prepare' || inputs.mode == 'publish' }}
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/content_history.json
+          git add data/content_history.json data/upload_history.json
           if git diff --cached --quiet; then
             echo "No content-history change to commit."
           else
-            git commit -m "chore: record generated Short topic history"
+            if [ "${{ inputs.mode }}" = "publish" ]; then
+              git commit -m "chore: record generated Short and YouTube upload history"
+            else
+              git commit -m "chore: record generated Short topic history"
+            fi
             git push
           fi
 
