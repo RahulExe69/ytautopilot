@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -245,10 +246,12 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
         raise RuntimeError("Publish metadata validation failed: thumbnail candidate is missing.")
 
     fingerprint = content_fingerprint(script)
+    topic_key = hashlib.sha256(_clean_text(script.get("topic")).lower().encode("utf-8")).hexdigest()[:16]
     metadata = {
         "schema_version": 2,
         "fingerprint": fingerprint,
-        "upload_marker": f"ytautopilot-{fingerprint}",
+        "topic_key": topic_key,
+        "upload_marker": f"ytautopilot-topic-{topic_key}",
         "status": "ready_for_private_upload",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "topic": _clean_text(script.get("topic")),
