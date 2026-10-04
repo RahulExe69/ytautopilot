@@ -121,7 +121,9 @@ def generate_indicvoice_tts(
             or "b000adea5df849c41d49d8aac3aa50f9bc736afa"
         )
         voice_source_repo = (
-            os.getenv("INDICVOICE_VOICE_REPO") or repo_id
+            os.getenv("INDICVOICE_VOICE_REPO")
+            or os.getenv("INDICVOICE_MODEL")
+            or "Bindkushal/IndicVoice-82M"
         ).strip()
         voice_fallback_repo = (
             os.getenv("INDICVOICE_VOICE_FALLBACK_REPO")
