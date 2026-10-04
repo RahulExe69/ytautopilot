@@ -28,7 +28,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
 
     steps:
       - name: Check out source
@@ -187,7 +187,7 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          YOUTUBE_PUBLISH_ENABLED: ${{ inputs.mode == 'publish' && 'true' || 'false' }}
+          YOUTUBE_PUBLISH_ENABLED: "true"
           PYTHONPATH: src
         run: |
           python -m ytautopilot --mode "${{ inputs.mode }}" --topic "${{ inputs.topic }}"
