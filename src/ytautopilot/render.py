@@ -434,6 +434,9 @@ def build_gameplay_track(
     remaining = duration
     last_file: Path | None = None
     source_use_count: dict[Path, int] = {}
+    rng = random.SystemRandom()
+    usage_counts = media_usage_counts()
+    recent_sources = recent_media_sources()
 
     while remaining >= 1.2 and len(selected) < max_scene_count:
         available = [
@@ -445,31 +448,31 @@ def build_gameplay_track(
         if not available:
             break
 
+        non_recent = [item for item in available if str(item["path"]) not in recent_sources]
+        if len(non_recent) >= max(2, min(4, len(available))):
+            available = non_recent
+
         def score(item: dict[str, Any]) -> float:
             source_path = Path(item["path"])
             use_count = source_use_count.get(source_path, 0)
+            historical_penalty = 2.5 * usage_counts.get(str(source_path), 0)
             same_file_penalty = 4.0 if last_file == source_path else 0.0
             diversity_penalty = 5.0 * use_count
             return (
                 abs(float(item["duration"]) - target)
                 + same_file_penalty
                 + diversity_penalty
+                + historical_penalty
+                + rng.random() * 0.75
             )
 
-        chosen = min(available, key=score)
+        ranked = sorted(available, key=score)
+        chosen = rng.choice(ranked[: min(5, len(ranked))])
         selected.append(chosen)
         remaining -= float(chosen["duration"])
         last_file = Path(chosen["path"])
         chosen_path = Path(chosen["path"])
         source_use_count[chosen_path] = source_use_count.get(chosen_path, 0) + 1
-
-    if not selected:
-        chosen = dict(min(candidates, key=lambda item: abs(float(item["duration"]) - target)))
-        if float(chosen["duration"]) > duration:
-            chosen["end"] = round(float(chosen["start"]) + duration, 3)
-            chosen["duration"] = round(duration, 3)
-        selected = [chosen]
-        remaining = max(0.0, duration - float(chosen["duration"]))
 
     ffmpeg_args: list[str] = ["ffmpeg", "-y"]
     filters: list[str] = []
