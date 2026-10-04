@@ -3,4 +3,7 @@ google-auth>=2.35.0
 google-auth-oauthlib>=1.2.1
 google-auth-httplib2>=0.2.0
 requests>=2.32.3
-edge-tts>=7.2.8,<8
+google-genai>=1.60.0
+scenedetect[opencv]>=0.7.1,<0.8
+git+https://github.com/Bindkushal/indic-g2p.git
+git+https://github.com/Bindkushal/indic-voice.git
