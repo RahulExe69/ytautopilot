@@ -18,6 +18,12 @@ on:
         required: true
         default: "auto"
 
+  schedule:
+    - cron: "0 12 * * *"
+      timezone: "Asia/Kolkata"
+    - cron: "30 19 * * *"
+      timezone: "Asia/Kolkata"
+
 permissions:
   contents: write
 
