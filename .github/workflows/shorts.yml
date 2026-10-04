@@ -190,10 +190,10 @@ jobs:
             echo "PIPELINE_TOPIC=auto" >> "$GITHUB_ENV"
 
             if [ "${{ github.event.schedule }}" = "0 12 * * *" ]; then
-              publish_at="$(TZ=Asia/Kolkata date '+%Y-%m-%dT13:00:00+05:30')"
+              publish_at="$(PYTHONPATH=src python -c 'from ytautopilot.scheduler import scheduled_publish_at; print(scheduled_publish_at("midday"))')"
               echo "PUBLISH_SLOT=midday" >> "$GITHUB_ENV"
             else
-              publish_at="$(TZ=Asia/Kolkata date '+%Y-%m-%dT20:30:00+05:30')"
+              publish_at="$(PYTHONPATH=src python -c 'from ytautopilot.scheduler import scheduled_publish_at; print(scheduled_publish_at("evening"))')"
               echo "PUBLISH_SLOT=evening" >> "$GITHUB_ENV"
             fi
 
