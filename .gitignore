@@ -21,3 +21,11 @@ state/
 *.mp3
 *.wav
 *.srt
+
+# User-supplied background music is intentionally tracked for GitHub Actions.
+!assets/music/
+!assets/music/*.mp3
+!assets/music/*.wav
+!assets/music/*.m4a
+!assets/music/*.aac
+!assets/music/*.ogg
