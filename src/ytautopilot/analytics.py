@@ -244,3 +244,7 @@ def strategy_prompt_context() -> str:
         f"Description style scores: {json.dumps(profile.get('description_style_scores', {}), ensure_ascii=False)}",
     ]
     return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    collect_performance()
