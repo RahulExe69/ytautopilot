@@ -47,12 +47,15 @@ def _font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
     ]
     layout = getattr(ImageFont, "Layout", None)
     engine = getattr(layout, "RAQM", None) if layout else None
+    if engine is None:
+        raise RuntimeError(
+            "Pillow was installed without RAQM text shaping; Hindi thumbnail text "
+            "cannot be rendered reliably. Use a Pillow build with libraqm support."
+        )
     for candidate in candidates:
         if Path(candidate).is_file():
             try:
-                if engine is not None:
-                    return ImageFont.truetype(candidate, size=size, layout_engine=engine)
-                return ImageFont.truetype(candidate, size=size)
+                return ImageFont.truetype(candidate, size=size, layout_engine=engine)
             except (OSError, ValueError):
                 continue
     raise RuntimeError(
