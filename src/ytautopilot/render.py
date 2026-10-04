@@ -599,6 +599,17 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
 
     duration = ffprobe_duration(narration_audio)
 
+    gameplay_files = find_gameplay()
+    available_gameplay_seconds = sum(ffprobe_duration(path) for path in gameplay_files)
+    safe_gameplay_limit = max(0.0, available_gameplay_seconds - 0.5)
+    if duration > safe_gameplay_limit:
+        raise RuntimeError(
+            f"Narration is {duration:.1f}s but the available gameplay totals "
+            f"only {available_gameplay_seconds:.1f}s. Refusing to render a Short "
+            "that outlasts its footage. Add more gameplay clips and rerun; the "
+            "next script will automatically target the available footage length."
+        )
+
     if duration > 52:
         raise RuntimeError(
             f"Narration is {duration:.1f}s long. Keep the creator-style Short at 52 seconds or less."
@@ -608,7 +619,6 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
             f"Narration is only {duration:.1f}s long. Generate a fuller script before rendering."
         )
 
-    gameplay_files = find_gameplay()
     caption_meta = write_animated_ass(
         narration_srt,
         animated_ass,
@@ -668,7 +678,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
             "fast_cut": True,
             "scene_safe": True,
             "caption_position": "lower-middle",
-            "caption_behavior": "short phrase pop-ins synced to estimated speech timing",
+            "caption_behavior": "short phrase pop-ins synced to audio-duration-based timing",
         },
     }
     (OUTPUT_DIR / "render_manifest.json").write_text(
