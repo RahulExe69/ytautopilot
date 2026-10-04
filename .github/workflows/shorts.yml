@@ -53,7 +53,7 @@ jobs:
               if [[ "$base" =~ ^music_[0-9]{2}. ]]; then
                 continue
               fi
-              while [ -e "assets/music/music_$(printf '%02d' "$next").$ext" ]; do
+              while compgen -G "assets/music/music_$(printf '%02d' "$next").*" > /dev/null; do
                 next=$((next + 1))
               done
               mv "$f" "assets/music/music_$(printf '%02d' "$next").$ext"
