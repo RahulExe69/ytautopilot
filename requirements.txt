@@ -7,3 +7,5 @@ scenedetect[opencv]>=0.7.1,<0.8
 spacy>=3.7,<4
 git+https://github.com/Bindkushal/indic-g2p.git
 git+https://github.com/Bindkushal/indic-voice.git
+huggingface-hub>=0.32.0
+hf-xet>=1.6.0
