@@ -90,6 +90,38 @@ def _thumbnail_frame_source(video_path: Path, manifest: dict[str, Any]) -> tuple
     return video_path, 0.8
 
 
+def _detect_thumbnail_crop(path: Path) -> str | None:
+    """Return a conservative crop for obvious black bars in source gameplay."""
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg", "-hide_banner", "-loglevel", "info", "-ss", "0.5",
+                "-i", str(path), "-vf", "cropdetect=limit=24:round=2:reset=0",
+                "-frames:v", "180", "-an", "-f", "null", "-",
+            ],
+            check=False, capture_output=True, text=True, timeout=30,
+        )
+        matches = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", result.stderr)
+        if not matches:
+            return None
+        width, height, x, y = map(int, matches[-1])
+        probe = subprocess.run(
+            ["ffprobe", "-v", "error", "-select_streams", "v:0",
+             "-show_entries", "stream=width,height", "-of", "csv=s=x:p=0", str(path)],
+            check=True, capture_output=True, text=True, timeout=15,
+        ).stdout.strip()
+        source_w, source_h = map(int, probe.split("x", 1))
+        if width < source_w * 0.94 or height < source_h * 0.60:
+            return None
+        if height >= source_h * 0.97 or (y < 8 and source_h - y - height < 8):
+            return None
+        if x < 0 or y < 0 or x + width > source_w or y + height > source_h:
+            return None
+        return f"{width}:{height}:{x}:{y}"
+    except (OSError, subprocess.SubprocessError, ValueError, subprocess.TimeoutExpired):
+        return None
+
+
 def create_thumbnail_candidate(
     video_path: Path,
     script: dict[str, Any],
@@ -101,11 +133,13 @@ def create_thumbnail_candidate(
     raw_frame = OUTPUT_DIR / "thumbnail_frame_tmp.jpg"
     thumbnail = OUTPUT_DIR / "thumbnail_candidate.jpg"
     frame_source, frame_time = _thumbnail_frame_source(video_path, manifest or {})
+    detected_crop = _detect_thumbnail_crop(frame_source)
+    crop_filter = f"crop={detected_crop}," if detected_crop else ""
     subprocess.run(
         [
             "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
             "-ss", f"{frame_time:.3f}", "-i", str(frame_source), "-frames:v", "1",
-            "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+            "-vf", f"{crop_filter}scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
             "-q:v", "2", str(raw_frame),
         ],
         check=True,
