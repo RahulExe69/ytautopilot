@@ -20,7 +20,7 @@ This repository and its source code are proprietary. No permission is granted to
 
 1. Open **Settings → Secrets and variables → Actions**.
 2. Add a repository secret named `GEMINI_API_KEY` using your own Gemini API key. Never place API keys in source files or commit them.
-3. Optionally add a repository variable named `GEMINI_MODEL` with value `gemini-2.5-flash`. If omitted, the code uses that default.
+3. Optionally add a repository variable named `GEMINI_MODEL` with value `gemini-3.5-flash-lite`. If omitted, the code uses that default.
 4. Open **Actions → ytautopilot → Run workflow**.
 5. Choose `dry-run` and run it. This uses a sample script if the Gemini key is not configured, and does not publish anything.
 6. Download the workflow artifact to inspect `script.json`.
