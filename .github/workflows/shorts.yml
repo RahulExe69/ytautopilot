@@ -67,13 +67,39 @@ jobs:
       - name: Verify IndicVoice runtime dependencies
         run: |
           python - <<'PY'
+          from pathlib import Path
           import spacy
           import torch
+          from phonemizer.backend.espeak.wrapper import EspeakWrapper
           import indicvoice
+
+          candidates = [
+              Path("/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"),
+              Path("/usr/lib/aarch64-linux-gnu/libespeak-ng.so.1"),
+              Path("/usr/lib64/libespeak-ng.so.1"),
+          ]
+          library = next((path for path in candidates if path.is_file()), None)
+          if library is None:
+              raise SystemExit("System eSpeak-NG shared library not found")
+
+          data_path = Path("/usr/share/espeak-ng-data")
+          if not data_path.is_dir():
+              raise SystemExit("System eSpeak-NG data directory not found")
+
+          EspeakWrapper.set_library(str(library))
+          if hasattr(EspeakWrapper, "set_data_path"):
+              EspeakWrapper.set_data_path(str(data_path))
+
+          from phonemizer.backend import EspeakBackend
+          backend = EspeakBackend(language="hi")
+          print("espeak_test=", backend.phonemize(["नमस्ते"], strip=True))
+
           print(f"spaCy={spacy.__version__}")
           print(f"torch={torch.__version__}")
           print(f"cuda_available={torch.cuda.is_available()}")
           print(f"indicvoice={indicvoice.__file__}")
+          print(f"espeak_library={library}")
+          print(f"espeak_data={data_path}")
           PY
 
       - name: Cache IndicVoice model
