@@ -52,7 +52,7 @@ jobs:
           fi
           if [ "$missing" -eq 1 ]; then
             sudo apt-get update
-            sudo apt-get install -y ffmpeg fonts-noto-core espeak-ng
+            sudo apt-get install -y ffmpeg fonts-noto-core espeak-ng espeak-ng-data libespeak-ng1
           else
             echo "FFmpeg, ffprobe, and Devanagari font already available; skipping apt install."
           fi
@@ -82,8 +82,14 @@ jobs:
           if library is None:
               raise SystemExit("System eSpeak-NG shared library not found")
 
-          data_path = Path("/usr/share/espeak-ng-data")
-          if not data_path.is_dir():
+          data_candidates = [
+              Path("/usr/lib/x86_64-linux-gnu/espeak-ng-data"),
+              Path("/usr/lib/aarch64-linux-gnu/espeak-ng-data"),
+              Path("/usr/lib/arm-linux-gnueabihf/espeak-ng-data"),
+              Path("/usr/share/espeak-ng-data"),
+          ]
+          data_path = next((path for path in data_candidates if path.is_dir()), None)
+          if data_path is None:
               raise SystemExit("System eSpeak-NG data directory not found")
 
           EspeakWrapper.set_library(str(library))
