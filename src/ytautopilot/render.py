@@ -316,31 +316,15 @@ def write_animated_ass(srt_path: Path, ass_path: Path, duration_ms: int) -> dict
     }
 
 
-def generate_tts(text: str, audio_path: Path, subtitle_path: Path) -> None:
-    voice = os.getenv("EDGE_TTS_VOICE", "").strip() or "hi-IN-MadhurNeural"
-    rate = os.getenv("EDGE_TTS_RATE", "").strip() or "+8%"
-
-    run(
-        [
-            "edge-tts",
-            "--voice",
-            voice,
-            "--rate",
-            rate,
-            "--text",
-            text,
-            "--write-media",
-            str(audio_path),
-            "--write-subtitles",
-            str(subtitle_path),
-        ],
-        label=f"Generate natural Hinglish narration with {voice}",
+def generate_tts(text: str, caption_text: str, audio_path: Path, subtitle_path: Path) -> dict[str, Any]:
+    meta = generate_indicvoice_tts(
+        text=text,
+        audio_path=audio_path,
+        caption_text=caption_text,
+        subtitle_path=subtitle_path,
     )
-
-    if not audio_path.exists() or audio_path.stat().st_size == 0:
-        raise RuntimeError("TTS completed without producing an audio file.")
-    if not subtitle_path.exists() or subtitle_path.stat().st_size == 0:
-        raise RuntimeError("TTS completed without producing subtitle cues.")
+    meta["audio_path"] = str(audio_path.with_suffix(".mp3"))
+    return meta
 
 
 def build_gameplay_track(
