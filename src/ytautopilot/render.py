@@ -532,8 +532,13 @@ def choose_background_music(seed: str) -> Path:
         raise RuntimeError(
             "No background music found in assets/music/. Add at least one supported audio file."
         )
-    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
-    chosen = files[int(digest[:8], 16) % len(files)]
+
+    usage_counts = media_usage_counts()
+    recent_sources = recent_media_sources()
+    non_recent = [path for path in files if str(path) not in recent_sources]
+    candidates = non_recent if non_recent else files
+    weights = [1.0 / (1.0 + usage_counts.get(str(path), 0)) for path in candidates]
+    chosen = random.SystemRandom().choices(candidates, weights=weights, k=1)[0]
     print(f"[render] Selected background music: {chosen.name}")
     return chosen
 
@@ -717,6 +722,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         "tts_engine": tts_meta.get("engine"),
         "tts_model": tts_meta.get("model"),
         "spoken_text": spoken_text,
+        "narration_audio": str(output_audio),
         "caption_text": caption_text,
         "source_gameplay": [str(path) for path in selected_paths],
         "selected_segments": selected_segments,
