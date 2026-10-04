@@ -2,7 +2,7 @@
 
 This guide documents how to set up the current YTAutoPilot stages, troubleshoot them, and help another creator build a separate project inspired by the workflow.
 
-> **Current status:** Stage 2 is implemented. The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation. Prepare mode also renders a reviewable 9:16 Short with Edge TTS + FFmpeg. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
+> **Current status:** Stage 3 creator-style rendering is implemented. The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation. Prepare mode also renders a reviewable 9:16 Short with conversational narration, fast-cut gameplay, and animated pop-up captions using Edge TTS + FFmpeg. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
 
 ## 1. What you need
 
@@ -96,7 +96,7 @@ The current Stage 2 workflow intentionally does not use those YouTube secrets.
 |---|---|---|
 | GEMINI_MODEL | Project-supported model | Gemini script generation |
 | EDGE_TTS_VOICE | hi-IN-MadhurNeural | Hindi narration voice |
-| EDGE_TTS_RATE | +5% | Narration speaking rate |
+| EDGE_TTS_RATE | +8% | Narration speaking rate |
 
 EDGE_TTS_VOICE and EDGE_TTS_RATE are not secrets.
 
@@ -111,7 +111,7 @@ Recommended:
 - Multiple clips give the renderer more visual variety.
 - Filenames do not need to follow a special pattern. The renderer discovers supported video extensions automatically.
 
-The Stage 2 renderer uses four visual beats and cycles through the available clips. One clip is enough for the first test.
+The Stage 3 renderer uses six fast visual beats and cycles through the available clips. One clip is enough for the first test.
 
 ## 6. Run the safe dry-run
 
@@ -125,7 +125,7 @@ The Stage 2 renderer uses four visual beats and cycles through the available cli
 
 This confirms script generation only.
 
-## 7. Run Stage 2 prepare mode
+## 7. Run Stage 3 prepare mode
 
 1. Open **Actions → ytautopilot → Run workflow**.
 2. Keep your topic, for example Free Fire tips and lesser-known facts.
@@ -140,21 +140,22 @@ The artifact should contain:
 - short_preview.mp4
 - narration.mp3
 - captions.srt
+- captions.ass
 - render_manifest.json
 
 Prepare mode does **not** publish to YouTube.
 
-## 8. How Stage 2 works
+## 8. How Stage 3 works
 
-1. Gemini creates the script JSON.
+1. Gemini creates the script JSON in conversational Hindi/Hinglish, using short spoken beats and casual "tum" phrasing.
 2. The renderer combines the hook and narration into the spoken text.
-3. edge-tts sends that text to Microsoft's online Edge text-to-speech service and produces MP3 audio plus subtitle cues.
-4. FFmpeg probes the narration duration.
-5. Three gameplay beats are created from files found in assets/gameplay/.
-6. Gameplay is scaled/cropped to 1080x1920 at 30 fps.
-7. Captions are burned into the video with Noto Sans Devanagari.
-8. Narration is added as AAC audio and normalized.
-9. output/short_preview.mp4 is created.
+3. edge-tts produces MP3 audio plus timed subtitle cues.
+4. The renderer converts those cues into short 1-3 word caption events.
+5. Each caption event pops up from below, scales into place, fades out, and highlights important gaming keywords rather than leaving a paragraph on screen.
+6. Six fast gameplay beats are created from files found in assets/gameplay/, cycling through the available clips.
+7. Gameplay is scaled/cropped to 1080x1920 at 30 fps with a small visual grade.
+8. Low-volume gameplay audio sits under the narration. An optional background track can be placed in assets/music/.
+9. output/short_preview.mp4 is created with animated ASS captions burned into the video.
 10. GitHub Actions uploads the output folder as an artifact so you can review it.
 
 The renderer intentionally does not:
@@ -162,7 +163,7 @@ The renderer intentionally does not:
 - automatically fact-check the generated claims,
 - fetch external gameplay,
 - remove watermarks,
-- generate background music,
+- provide a built-in music library; optional tracks must be supplied in assets/music/,
 - generate thumbnails,
 - schedule publishing.
 
@@ -184,7 +185,7 @@ The workflow installs FFmpeg and fonts-noto-core. Inspect captions.srt in the ar
 
 ### Video is too short or too long
 
-The renderer accepts narration from 8 to 58 seconds. Shorten or expand the script rather than hard-coding video duration.
+The creator-style renderer targets 10-52 seconds. The Gemini prompt aims for roughly 30-45 seconds. Shorten or expand the script rather than hard-coding video duration.
 
 ### Video is black or heavily cropped
 
@@ -192,7 +193,7 @@ Landscape gameplay is center-cropped into portrait. Vertical recordings usually 
 
 ### Captions look wrong
 
-The renderer uses Noto Sans Devanagari. Inspect captions.srt separately. Future iterations can add word-level animated captions.
+The renderer uses Noto Sans Devanagari and converts the Edge TTS timing into short animated ASS caption events. Inspect captions.ass for the exact event timing. If captions are still too large, reduce the ASS font size in render.py.
 
 ### Workflow succeeds but no YouTube video appears
 
