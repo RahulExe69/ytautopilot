@@ -10,9 +10,9 @@ This repository and its source code are proprietary. No permission is granted to
 
 The prepare mode currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
-2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model and a Devanagari TTS text layer, avoiding paid TTS APIs.
+2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using a Hindi voice preset (default `hm_omega`) and a Devanagari TTS text layer, avoiding paid TTS APIs.
 3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
-4. Detects scene boundaries in gameplay and builds the 1080x1920, 30 fps montage only from complete detected scenes, avoiding arbitrary mid-action cuts.
+4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
 5. Keeps gameplay audio very low under the voiceover and can mix an optional track from assets/music/.
 6. Burns the animated caption track into the video.
 7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, and a render manifest as a GitHub Actions artifact.
@@ -33,10 +33,11 @@ The prepare mode currently:
 2. Add a repository secret named GEMINI_API_KEY using your own Gemini API key. Never place API keys in source files or commit them.
 3. Optionally add a repository variable named GEMINI_MODEL with a model currently available to your Gemini API project.
 4. Optional TTS tuning variables:
-   - INDICVOICE_VOICE — defaults to am_adam.
-   - INDICVOICE_MODEL — defaults to Bindkushal/IndicVoice-82M.
+   - INDICVOICE_VOICE — defaults to `hm_omega`, with `hm_psi` and `af_heart` fallback presets.
+   - INDICVOICE_MODEL — defaults to `Bindkushal/IndicVoice-82M`.
+   - Hindi voice tensors are sourced from `hexgrad/Kokoro-82M` when the IndicVoice repository does not contain a usable copy.
 5. Put your own/licensed gameplay videos in assets/gameplay/. One clip is enough for the first test; multiple clips give the renderer more visual variety.
-6. Open **Actions → ytautopilot → Run workflow**.
+6. Open **Actions → ytautopilot → Run workflow**. Use topic `auto` for the next unused topic from the weekly Free Fire content rotation. Successful prepare runs are recorded in `data/content_history.json`, allowing the generator to avoid repeating recent titles, hooks, and topics.
 
 ### Dry-run
 

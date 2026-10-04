@@ -15,10 +15,10 @@ on:
         description: "Gaming topic for this run"
         type: string
         required: true
-        default: "Free Fire tips and lesser-known facts"
+        default: "auto"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ytautopilot-${{ github.ref }}
@@ -112,7 +112,7 @@ jobs:
           print(f"espeak_data={data_path}")
           PY
 
-      - name: Verify a real IndicVoice voice tensor
+      - name: Verify Hindi voice tensor
         env:
           INDICVOICE_VOICE: ${{ vars.INDICVOICE_VOICE }}
         run: |
@@ -123,36 +123,52 @@ jobs:
           import torch
           from huggingface_hub import hf_hub_download
 
-          voice = (os.getenv("INDICVOICE_VOICE") or "am_adam").strip()
-          revision = "b000adea5df849c41d49d8aac3aa50f9bc736afa"
-          path = hf_hub_download(
-              repo_id="Bindkushal/IndicVoice-82M",
-              revision=revision,
-              filename=f"voices/{voice}.pt",
-          )
-          file = Path(path)
-          head = file.read_bytes()[:512]
+          preferred = (os.getenv("INDICVOICE_VOICE") or "hm_omega").strip()
+          voices = []
+          for candidate in (preferred, "hm_omega", "hm_psi", "af_heart"):
+              if candidate and candidate not in voices:
+                  voices.append(candidate)
 
-          if len(head) < 4096 and (
-              b"version https://git-lfs.github.com/spec/v1" in head
-              or b"oid sha256:" in head
-          ):
-              raise SystemExit(f"IndicVoice voice download is still a pointer file: {file}")
+          candidates = []
+          for voice in voices:
+              candidates.extend([
+                  ("hexgrad/Kokoro-82M", None, voice),
+                  ("Bindkushal/IndicVoice-82M", "b000adea5df849c41d49d8aac3aa50f9bc736afa", voice),
+              ])
 
-          size = file.stat().st_size
-          if size < 100_000:
-              raise SystemExit(f"IndicVoice voice file is unexpectedly small: {size} bytes")
-
-          pack = torch.load(str(file), map_location="cpu", weights_only=True)
-          if not torch.is_tensor(pack):
-              raise SystemExit(
-                  f"IndicVoice voice archive did not resolve to a tensor: {type(pack).__name__}"
-              )
-
-          print(f"voice={voice}")
-          print(f"voice_file={file}")
-          print(f"voice_size={size}")
-          print(f"voice_shape={tuple(pack.shape)}")
+          errors = []
+          for repo_id, revision, voice in candidates:
+              try:
+                  kwargs = {
+                      "repo_id": repo_id,
+                      "filename": f"voices/{voice}.pt",
+                  }
+                  if revision:
+                      kwargs["revision"] = revision
+                  path = hf_hub_download(**kwargs)
+                  file = Path(path)
+                  head = file.read_bytes()[:512]
+                  if len(head) < 4096 and (
+                      b"version https://git-lfs.github.com/spec/v1" in head
+                      or b"oid sha256:" in head
+                  ):
+                      raise RuntimeError("download resolved to a Git-LFS/Xet pointer")
+                  size = file.stat().st_size
+                  if size < 100_000:
+                      raise RuntimeError(f"voice file is unexpectedly small: {size} bytes")
+                  pack = torch.load(str(file), map_location="cpu", weights_only=True)
+                  if not torch.is_tensor(pack):
+                      raise RuntimeError(f"archive resolved to {type(pack).__name__}, not a tensor")
+                  print(f"voice={voice}")
+                  print(f"voice_repo={repo_id}")
+                  print(f"voice_revision={revision or 'main'}")
+                  print(f"voice_size={size}")
+                  print(f"voice_shape={tuple(pack.shape)}")
+                  break
+              except Exception as exc:
+                  errors.append(f"{repo_id}@{revision or 'main'}:{voice}: {exc}")
+          else:
+              raise SystemExit("No usable Hindi voice tensor was found. " + " | ".join(errors[-6:]))
           PY
       - name: Cache IndicVoice model
         uses: actions/cache@v4
@@ -168,11 +184,26 @@ jobs:
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           INDICVOICE_VOICE: ${{ vars.INDICVOICE_VOICE }}
           INDICVOICE_MODEL: ${{ vars.INDICVOICE_MODEL }}
+          INDICVOICE_VOICE_FALLBACK_REPO: "hexgrad/Kokoro-82M"
           INCLUDE_HOOK_IN_NARRATION: "true"
           ENABLE_PUBLISH: ${{ vars.ENABLE_PUBLISH }}
           PYTHONPATH: src
         run: |
           python -m ytautopilot --mode "${{ inputs.mode }}" --topic "${{ inputs.topic }}"
+
+      - name: Record successful content history
+        if: ${{ inputs.mode == 'prepare' }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/content_history.json
+          if git diff --cached --quiet; then
+            echo "No content-history change to commit."
+          else
+            git commit -m "chore: record generated Short topic history"
+            git push
+          fi
 
       - name: Upload generated output
         if: always()

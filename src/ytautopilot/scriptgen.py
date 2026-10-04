@@ -5,6 +5,8 @@ import os
 import re
 from typing import Any
 
+from .content import choose_daily_topic, history_prompt_context, is_duplicate_script
+
 import requests
 
 
@@ -37,6 +39,9 @@ def fallback_script(topic: str) -> dict[str, Any]:
 
 
 def generate_script(topic: str, allow_fallback: bool = False) -> dict[str, Any]:
+    if topic.strip().lower() in {"", "auto", "daily"}:
+        topic = choose_daily_topic()
+
     api_key = os.getenv("GEMINI_API_KEY", "").strip()
     if not api_key:
         if allow_fallback:
@@ -52,8 +57,9 @@ topic, language, hook, narration, tts_text, visual_plan, title, description, has
 Requirements:
 - Write like a real Indian gaming creator speaking to viewers, not like an article or translated script.
 - Address the viewer as "tum/tumhara/tumhe", never "tu/tujhe/tera/teri"; keep it friendly and respectful, not over-familiar.
-- Also output a separate "tts_text" field containing the exact same spoken words converted into natural Devanagari for Hindi words. Keep gaming/product names such as Free Fire, Gloo Wall, scope, sniper, AWM, ranked, gameplay, headshot, etc. in Latin script when that gives a natural Indian gaming pronunciation.
-- Example pronunciation spelling: "अक्सर हमें लगता है" rather than "aksar hume lagta hai". The tts_text must never be Roman-Hinglish for ordinary Hindi words.
+- Also output a separate "tts_text" field containing the exact same spoken content as hook + narration, converted into natural Devanagari for Hindi words. Do not omit the hook from tts_text.
+- Prefer Devanagari for ordinary Hindi and for common gaming terms when that improves Indian-Hindi pronunciation, for example "फ्री फायर", "ग्लू वॉल", "हेडशॉट", "रैंक्ड", "स्कोप", "स्नाइपर", and "गेमप्ले". Keep product or weapon names in Latin only when their pronunciation is clearly better that way.
+- Example pronunciation spelling: "अक्सर हमें लगता है" rather than "aksar hume lagta hai". The tts_text must not contain Roman-Hinglish for ordinary Hindi words.
 - Sound like a genuine Indian gaming creator casually explaining something to a friend. Avoid robotic hype, fake urgency, repeated "secret trick" hooks, forced slang, and generic lines like "gameplay next level ho jayega".
 - Use everyday spoken Hinglish with varied sentence lengths, natural pauses, and a little personality; don't cram "bhai", "sun", "dekho", "matlab", and "na" into every script.
 - Start with a specific curiosity or gameplay situation, not a generic clickbait promise. Keep the hook around 6-12 spoken words.
@@ -66,28 +72,52 @@ Requirements:
 - Do not imitate a named creator's voice or copy another video's script. Match only the broad pacing and editing conventions of professional gaming Shorts.
 - Suggest practical visual beats that can be created from owned/licensed gameplay footage.
 - Keep the title accurate, punchy, and non-misleading.
+- Do not reuse the same core idea, title, or hook from the recent history below. Choose a clearly different angle even when the broad weekly format is the same.
+- Recent Shorts to avoid repeating:
+${history_prompt_context()}
 """
 
-    response = requests.post(
-        url,
-        params={"key": api_key},
-        json={
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.7, "responseMimeType": "application/json"},
-        },
-        timeout=60,
-    )
-    response.raise_for_status()
-    payload = response.json()
-    try:
-        raw = payload["candidates"][0]["content"]["parts"][0]["text"]
-        data = json.loads(raw)
-    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
-        raise RuntimeError("Gemini returned an unexpected response; inspect the API response and retry.") from exc
+    def request_script(request_prompt: str, temperature: float) -> dict[str, Any]:
+        response = requests.post(
+            url,
+            params={"key": api_key},
+            json={
+                "contents": [{"parts": [{"text": request_prompt}]}],
+                "generationConfig": {
+                    "temperature": temperature,
+                    "responseMimeType": "application/json",
+                },
+            },
+            timeout=60,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        try:
+            raw = payload["candidates"][0]["content"]["parts"][0]["text"]
+            return json.loads(raw)
+        except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                "Gemini returned an unexpected response; inspect the API response and retry."
+            ) from exc
+
+    data = request_script(prompt, 0.7)
+    if is_duplicate_script(data):
+        retry_prompt = prompt + """
+The first draft was too similar to a recent Short. Discard that angle and create a genuinely different topic, hook, title, and narration while staying inside the same Free Fire content strategy. Do not mention that you are avoiding duplicates.
+"""
+        data = request_script(retry_prompt, 0.82)
+        if is_duplicate_script(data):
+            raise RuntimeError(
+                "Gemini produced a Short that is too similar to a recent run twice. "
+                "Choose a different topic seed and retry."
+            )
 
     required = ("topic", "hook", "narration", "tts_text", "title", "description")
     missing = [key for key in required if not isinstance(data.get(key), str) or not data[key].strip()]
     if missing:
         raise RuntimeError("Generated script is missing required fields: " + ", ".join(missing))
+    data["topic"] = re.sub(r"\s+", " ", str(data["topic"])).strip()
+    data["hook"] = re.sub(r"\s+", " ", str(data["hook"])).strip()
     data["narration"] = re.sub(r"\s+", " ", data["narration"]).strip()
+    data["tts_text"] = re.sub(r"\s+", " ", str(data["tts_text"])).strip()
     return data

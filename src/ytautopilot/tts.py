@@ -7,6 +7,44 @@ from pathlib import Path
 from typing import Any
 
 
+_DEVANAGARI_PRONUNCIATIONS = (
+    ("training ground", "ट्रेनिंग ग्राउंड"),
+    ("clash squad", "क्लैश स्क्वाड"),
+    ("free fire", "फ्री फायर"),
+    ("gloo wall", "ग्लू वॉल"),
+    ("headshot", "हेडशॉट"),
+    ("shotgun", "शॉटगन"),
+    ("sniper", "स्नाइपर"),
+    ("scope", "स्कोप"),
+    ("enemy", "एनिमी"),
+    ("gameplay", "गेमप्ले"),
+    ("ranked", "रैंक्ड"),
+    ("movement", "मूवमेंट"),
+    ("damage", "डैमेज"),
+    ("reload", "रीलोड"),
+    ("clutch", "क्लच"),
+    ("weapon", "वेपन"),
+    ("weapons", "वेपन्स"),
+    ("ability", "एबिलिटी"),
+    ("abilities", "एबिलिटीज"),
+    ("solo", "सोलो"),
+    ("squad", "स्क्वाड"),
+    ("smg", "एसएमजी"),
+    ("awm", "एडब्ल्यूएम"),
+)
+
+def _prepare_hindi_tts_text(text: str) -> str:
+    prepared = text.strip()
+    for source, replacement in _DEVANAGARI_PRONUNCIATIONS:
+        prepared = re.sub(
+            rf"(?<![A-Za-z]){re.escape(source)}(?![A-Za-z])",
+            replacement,
+            prepared,
+            flags=re.IGNORECASE,
+        )
+    return re.sub(r"\s+", " ", prepared).strip()
+
+
 def _split_tts_sentences(text: str) -> list[str]:
     parts = re.split(r"(?<=[.!?।！？])\s+", text.strip())
     return [part.strip() for part in parts if part.strip()]
@@ -239,30 +277,53 @@ def generate_indicvoice_tts(
             "IndicVoice dependencies are missing. Install requirements.txt before rendering."
         ) from exc
 
-    voice = (os.getenv("INDICVOICE_VOICE") or "am_adam").strip()
+    preferred_voice = (os.getenv("INDICVOICE_VOICE") or "hm_omega").strip()
+    voice_candidates = []
+    for candidate in (preferred_voice, "hm_omega", "hm_psi", "af_heart"):
+        if candidate and candidate not in voice_candidates:
+            voice_candidates.append(candidate)
+
     repo_id = (os.getenv("INDICVOICE_MODEL") or "Bindkushal/IndicVoice-82M").strip()
     sample_rate = 24_000
+    prepared_text = _prepare_hindi_tts_text(text)
+    print(f"[tts] Hindi TTS input: {prepared_text}")
 
-    print(f"[tts] Loading IndicVoice model: {repo_id} / voice={voice}")
     pipeline = IndicPipeline(lang_code="hi", repo_id=repo_id)
-
     chunks: list[np.ndarray] = []
-    for _, _, audio in pipeline(text, voice=voice):
-        # IndicVoice may yield numpy arrays, tensors, or other array-like values.
-        # Normalize them immediately so downstream JSON/debug tooling never sees
-        # a Path/tensor object accidentally.
-        if hasattr(audio, "detach"):
-            audio = audio.detach().cpu().numpy()
-        array = np.asarray(audio, dtype=np.float32)
-        if array.ndim > 1:
-            array = np.squeeze(array)
-        chunks.append(array)
-        # A tiny natural pause between generated chunks keeps the delivery from
-        # sounding like one long synthetic block.
-        chunks.append(np.zeros(int(sample_rate * 0.025), dtype=np.float32))
+    voice = None
+    voice_errors: list[str] = []
 
-    if not chunks:
-        raise RuntimeError("IndicVoice returned no audio chunks.")
+    for candidate_voice in voice_candidates:
+        try:
+            print(f"[tts] Trying Hindi voice: {candidate_voice}")
+            candidate_chunks: list[np.ndarray] = []
+            for _, _, audio in pipeline(prepared_text, voice=candidate_voice):
+                # IndicVoice may yield numpy arrays, tensors, or other array-like values.
+                # Normalize them immediately so downstream JSON/debug tooling never sees
+                # a Path/tensor object accidentally.
+                if hasattr(audio, "detach"):
+                    audio = audio.detach().cpu().numpy()
+                array = np.asarray(audio, dtype=np.float32)
+                if array.ndim > 1:
+                    array = np.squeeze(array)
+                candidate_chunks.append(array)
+                candidate_chunks.append(
+                    np.zeros(int(sample_rate * 0.025), dtype=np.float32)
+                )
+
+            if candidate_chunks:
+                chunks = candidate_chunks
+                voice = candidate_voice
+                break
+        except Exception as exc:
+            voice_errors.append(f"{candidate_voice}: {exc}")
+            print(f"[tts] Voice {candidate_voice} failed; trying next voice.")
+
+    if not chunks or voice is None:
+        raise RuntimeError(
+            "No configured Hindi IndicVoice preset produced audio. "
+            + " | ".join(voice_errors[-4:])
+        )
 
     audio = np.concatenate(chunks).astype(np.float32)
     audio = np.clip(audio, -1.0, 1.0)
@@ -297,6 +358,7 @@ def generate_indicvoice_tts(
         "engine": "indicvoice",
         "model": str(repo_id),
         "voice": str(voice),
+        "tts_input": prepared_text,
         "sample_rate": int(sample_rate),
         "caption_timing": "estimated-from-text-duration",
         "audio_file": str(mp3_path),

@@ -364,7 +364,9 @@ def build_gameplay_track(
     unit is a complete detected scene, so an action is much less likely to be
     chopped in the middle.
     """
-    target = max(2.5, min(6.5, duration / 6.0))
+    target_scene_count = max(6, min(len(gameplay_files), 10))
+    target = max(2.2, min(5.5, duration / target_scene_count))
+    max_scene_count = min(max(8, len(gameplay_files) * 2), 16)
     candidates: list[dict[str, Any]] = []
 
     for path in gameplay_files:
@@ -377,8 +379,9 @@ def build_gameplay_track(
     selected: list[dict[str, Any]] = []
     remaining = duration
     last_file: Path | None = None
+    source_use_count: dict[Path, int] = {}
 
-    while remaining >= 1.2 and len(selected) < 8:
+    while remaining >= 1.2 and len(selected) < max_scene_count:
         available = [
             item
             for item in candidates
@@ -389,13 +392,22 @@ def build_gameplay_track(
             break
 
         def score(item: dict[str, Any]) -> float:
-            same_file_penalty = 1.5 if last_file == item["path"] else 0.0
-            return abs(float(item["duration"]) - target) + same_file_penalty
+            source_path = Path(item["path"])
+            use_count = source_use_count.get(source_path, 0)
+            same_file_penalty = 4.0 if last_file == source_path else 0.0
+            diversity_penalty = 5.0 * use_count
+            return (
+                abs(float(item["duration"]) - target)
+                + same_file_penalty
+                + diversity_penalty
+            )
 
         chosen = min(available, key=score)
         selected.append(chosen)
         remaining -= float(chosen["duration"])
-        last_file = chosen["path"]
+        last_file = Path(chosen["path"])
+        chosen_path = Path(chosen["path"])
+        source_use_count[chosen_path] = source_use_count.get(chosen_path, 0) + 1
 
     if not selected:
         chosen = dict(min(candidates, key=lambda item: abs(float(item["duration"]) - target)))
@@ -651,6 +663,8 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
             **caption_meta,
             **audio_meta,
             "visual_beats": len(selected_segments),
+            "gameplay_file_count": len(gameplay_files),
+            "unique_gameplay_files_used": len({str(item["path"]) for item in selected_segments}),
             "fast_cut": True,
             "scene_safe": True,
             "caption_position": "lower-middle",
