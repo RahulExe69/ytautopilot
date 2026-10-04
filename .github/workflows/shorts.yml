@@ -57,8 +57,24 @@ jobs:
             echo "FFmpeg, ffprobe, and Devanagari font already available; skipping apt install."
           fi
 
+      - name: Install CPU-only PyTorch first
+        run: |
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.0"
+
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+
+      - name: Verify IndicVoice runtime dependencies
+        run: |
+          python - <<'PY'
+          import spacy
+          import torch
+          import indicvoice
+          print(f"spaCy={spacy.__version__}")
+          print(f"torch={torch.__version__}")
+          print(f"cuda_available={torch.cuda.is_available()}")
+          print(f"indicvoice={indicvoice.__file__}")
+          PY
 
       - name: Cache IndicVoice model
         uses: actions/cache@v4
