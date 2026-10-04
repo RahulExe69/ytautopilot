@@ -61,6 +61,11 @@ def _credentials() -> Credentials:
         ) from exc
     if not credentials.valid:
         raise YouTubeUploadError("Google OAuth returned an invalid access token.")
+    if not credentials.has_scopes([UPLOAD_SCOPE]):
+        raise YouTubeUploadError(
+            "The refresh token does not grant the youtube.upload scope. "
+            "Re-authorize the same OAuth client with YouTube upload permission."
+        )
     return credentials
 
 
@@ -364,10 +369,11 @@ def upload_private_video(
         print(f"[youtube] Duplicate prevented by recent owned upload: {video_id}")
         return metadata
 
+    uploaded_description = _append_marker(description, marker)
     body = {
         "snippet": {
             "title": title,
-            "description": _append_marker(description, marker),
+            "description": uploaded_description,
             "tags": metadata.get("tags") or [],
             "categoryId": str(metadata.get("category_id") or DEFAULT_CATEGORY_ID),
         },
@@ -398,6 +404,7 @@ def upload_private_video(
             "upload_status": "uploaded_private",
             "uploaded_at_utc": datetime.now(timezone.utc).isoformat(),
             "youtube_url": f"https://www.youtube.com/watch?v={video_id}",
+            "description": uploaded_description,
             "thumbnail_upload": "not_attempted",
             "note": (
                 "The generated thumbnail remains a candidate artifact. "
