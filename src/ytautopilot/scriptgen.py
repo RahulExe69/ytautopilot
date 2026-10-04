@@ -38,7 +38,11 @@ def fallback_script(topic: str) -> dict[str, Any]:
     }
 
 
-def generate_script(topic: str, allow_fallback: bool = False) -> dict[str, Any]:
+def generate_script(
+    topic: str,
+    allow_fallback: bool = False,
+    target_seconds: float | None = None,
+) -> dict[str, Any]:
     if topic.strip().lower() in {"", "auto", "daily"}:
         topic = choose_daily_topic()
 
@@ -53,6 +57,8 @@ def generate_script(topic: str, allow_fallback: bool = False) -> dict[str, Any]:
     for candidate in (configured_model, "gemini-2.5-flash-lite", "gemini-2.5-flash"):
         if candidate and candidate not in model_candidates:
             model_candidates.append(candidate)
+    target_seconds = max(10.0, min(52.0, float(target_seconds or 30.0)))
+    target_words = max(24, min(90, int(target_seconds * 1.8)))
     prompt = f"""
 Create an original Hindi/Hinglish gaming YouTube Short plan about: {topic!r}.
 Return ONLY valid JSON with these keys:
@@ -66,7 +72,7 @@ Requirements:
 - Sound like a genuine Indian gaming creator casually explaining something to a friend. Avoid robotic hype, fake urgency, repeated "secret trick" hooks, forced slang, and generic lines like "gameplay next level ho jayega".
 - Use everyday spoken Hinglish with varied sentence lengths, natural pauses, and a little personality; don't cram "bhai", "sun", "dekho", "matlab", and "na" into every script.
 - Start with a specific curiosity or gameplay situation, not a generic clickbait promise. Keep the hook around 6-12 spoken words.
-- Keep combined hook + narration around 65-85 spoken words for a roughly 30-42 second Short.
+- Keep combined hook + narration close to {target_words} spoken words for a target of about {target_seconds:.0f} seconds. The footage duration is a hard limit: be concise, do not add filler, and finish the thought naturally.
 - Build around 2-3 clear beats, and explain each in a way that sounds natural when read aloud by a Hindi TTS voice.
 - Prefer demonstrable, useful tips over vague "facts". Never invent percentages, hidden mechanics, pro-player habits, or guaranteed results. If a claim cannot be supported, omit it or clearly flag it in fact_check_notes.
 - Use punctuation for spoken rhythm, but don't write stage directions that the voice would read aloud.
