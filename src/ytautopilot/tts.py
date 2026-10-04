@@ -444,7 +444,7 @@ def generate_indicvoice_tts(
         "voice": str(voice),
         "tts_input": prepared_text,
         "sample_rate": int(sample_rate),
-        "caption_timing": "estimated-from-text-duration",
+        "caption_timing": "real-audio-duration-based",
         "audio_file": str(mp3_path),
     }
 
