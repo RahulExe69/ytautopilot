@@ -248,6 +248,11 @@ def generate_indicvoice_tts(
 
     chunks: list[np.ndarray] = []
     for _, _, audio in pipeline(text, voice=voice):
+        # IndicVoice may yield numpy arrays, tensors, or other array-like values.
+        # Normalize them immediately so downstream JSON/debug tooling never sees
+        # a Path/tensor object accidentally.
+        if hasattr(audio, "detach"):
+            audio = audio.detach().cpu().numpy()
         array = np.asarray(audio, dtype=np.float32)
         if array.ndim > 1:
             array = np.squeeze(array)
@@ -290,9 +295,9 @@ def generate_indicvoice_tts(
 
     return {
         "engine": "indicvoice",
-        "model": repo_id,
-        "voice": voice,
-        "sample_rate": sample_rate,
+        "model": str(repo_id),
+        "voice": str(voice),
+        "sample_rate": int(sample_rate),
         "caption_timing": "estimated-from-text-duration",
         "audio_file": str(mp3_path),
     }
