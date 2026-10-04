@@ -47,6 +47,10 @@ jobs:
           command -v ffmpeg >/dev/null 2>&1 || missing=1
           command -v ffprobe >/dev/null 2>&1 || missing=1
           command -v espeak-ng >/dev/null 2>&1 || missing=1
+          test -f /usr/lib/x86_64-linux-gnu/libespeak-ng.so.1 || missing=1
+          if [ ! -d /usr/lib/x86_64-linux-gnu/espeak-ng-data ] &&              [ ! -d /usr/lib/aarch64-linux-gnu/espeak-ng-data ] &&              [ ! -d /usr/lib/arm-linux-gnueabihf/espeak-ng-data ] &&              [ ! -d /usr/share/espeak-ng-data ]; then
+            missing=1
+          fi
           if ! fc-match "Noto Sans Devanagari" 2>/dev/null | grep -qi "Noto Sans Devanagari"; then
             missing=1
           fi
