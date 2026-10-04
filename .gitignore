@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Secrets and OAuth credentials
+.env.*
+client_secret*.json
+credentials*.json
+token*.json
+*.pem
+*.key
+
+# Generated media and run state
+output/
+work/
+state/
+*.mp4
+*.mp3
+*.wav
+*.srt
