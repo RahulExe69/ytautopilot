@@ -160,9 +160,9 @@ def _channel_and_uploads_playlist(youtube: Any) -> tuple[str, str]:
 def _find_existing_marker(youtube: Any, marker: str) -> dict[str, str] | None:
     """Look through recent owned uploads for the deterministic automation marker.
 
-    The marker is written into the description so a workflow retry after an
-    ambiguous network failure can find an already-created private video without
-    relying only on the local Git history commit having completed.
+    The marker is stored as a non-display YouTube tag so a workflow retry after
+    an ambiguous network failure can find an already-created private video
+    without changing the viewer-facing description.
     """
     _, uploads_playlist = _channel_and_uploads_playlist(youtube)
     page_token: str | None = None
@@ -196,8 +196,8 @@ def _find_existing_marker(youtube: Any, marker: str) -> dict[str, str] | None:
                 .execute()
             )
             for item in videos.get("items", []):
-                description = str(item.get("snippet", {}).get("description", ""))
-                if marker in description:
+                tags = item.get("snippet", {}).get("tags", [])
+                if isinstance(tags, list) and marker in {str(tag) for tag in tags}:
                     return {
                         "video_id": str(item.get("id")),
                         "title": str(item.get("snippet", {}).get("title", "")),
@@ -241,17 +241,18 @@ def _validate_private_package(metadata: dict[str, Any]) -> tuple[Path, str, str]
     return video_path, title, description
 
 
-def _append_marker(description: str, marker: str) -> str:
-    line = f"Automation ID: {marker}"
-    if line in description:
-        return description
-    combined = f"{description}\n\n{line}".strip()
-    if len(combined) > 5000:
+def _add_marker_tag(tags: list[Any], marker: str) -> list[str]:
+    normalized = [str(tag).strip() for tag in tags if str(tag).strip()]
+    if marker in normalized:
+        return normalized
+    candidate = normalized + [marker]
+    combined_length = sum(len(tag) for tag in candidate) + max(0, len(candidate) - 1)
+    if combined_length > 500:
         raise YouTubeUploadError(
-            "Adding the duplicate-protection marker would exceed YouTube's "
-            "5,000-character description limit."
+            "Adding the duplicate-protection tag would exceed YouTube's "
+            "500-character combined tag limit."
         )
-    return combined
+    return candidate
 
 
 def _upload_resumable(youtube: Any, body: dict[str, Any], video_path: Path) -> dict[str, Any]:
@@ -369,12 +370,12 @@ def upload_private_video(
         print(f"[youtube] Duplicate prevented by recent owned upload: {video_id}")
         return metadata
 
-    uploaded_description = _append_marker(description, marker)
+    upload_tags = _add_marker_tag(list(metadata.get("tags") or []), marker)
     body = {
         "snippet": {
             "title": title,
-            "description": uploaded_description,
-            "tags": metadata.get("tags") or [],
+            "description": description,
+            "tags": upload_tags,
             "categoryId": str(metadata.get("category_id") or DEFAULT_CATEGORY_ID),
         },
         "status": {
@@ -404,7 +405,6 @@ def upload_private_video(
             "upload_status": "uploaded_private",
             "uploaded_at_utc": datetime.now(timezone.utc).isoformat(),
             "youtube_url": f"https://www.youtube.com/watch?v={video_id}",
-            "description": uploaded_description,
             "thumbnail_upload": "not_attempted",
             "note": (
                 "The generated thumbnail remains a candidate artifact. "
