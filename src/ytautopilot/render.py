@@ -87,8 +87,8 @@ def find_gameplay() -> list[Path]:
 
 
 def generate_tts(text: str, audio_path: Path, subtitle_path: Path) -> None:
-    voice = os.getenv("EDGE_TTS_VOICE", "hi-IN-MadhurNeural").strip()
-    rate = os.getenv("EDGE_TTS_RATE", "+5%").strip()
+    voice = os.getenv("EDGE_TTS_VOICE", "").strip() or "hi-IN-MadhurNeural"
+    rate = os.getenv("EDGE_TTS_RATE", "").strip() or "+5%"
 
     run(
         [
