@@ -410,12 +410,21 @@ def generate_indicvoice_tts(
 
     # FFmpeg is used only for consistent MP3 output in the workflow artifact.
     mp3_path = audio_path.with_suffix(".mp3")
+    # A modest speed-up makes the narration feel more like a modern gaming
+    # creator without pitch-shifting the voice. Keep this configurable per run.
+    try:
+        speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.18"))
+    except ValueError:
+        speech_speed = 1.18
+    speech_speed = min(1.35, max(0.90, speech_speed))
     subprocess.run(
         [
             "ffmpeg",
             "-y",
             "-i",
             str(audio_path),
+            "-filter:a",
+            f"atempo={speech_speed:.3f}",
             "-codec:a",
             "libmp3lame",
             "-q:a",
@@ -424,6 +433,7 @@ def generate_indicvoice_tts(
         ],
         check=True,
     )
+    print(f"[tts] Speech speed: {speech_speed:.2f}x")
     if mp3_path != audio_path:
         audio_path.unlink(missing_ok=True)
 
@@ -445,6 +455,7 @@ def generate_indicvoice_tts(
         "tts_input": prepared_text,
         "sample_rate": int(sample_rate),
         "caption_timing": "real-audio-duration-based",
+        "speech_speed": speech_speed,
         "audio_file": str(mp3_path),
     }
 
