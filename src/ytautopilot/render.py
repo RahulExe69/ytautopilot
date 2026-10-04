@@ -445,7 +445,7 @@ def render_final_video(
     input_count = 2
     if music is not None:
         filter_parts += [
-            f"[2:a]aloop=loop=-1:size=2e+09,volume=0.045,atrim=duration={duration:.3f}[bgm]"
+            f"[2:a]volume=0.045,atrim=duration={duration:.3f}[bgm]"
         ]
         mix_inputs += "[bgm]"
         input_count = 3
