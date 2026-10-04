@@ -494,10 +494,9 @@ def render_final_video(
     music = choose_background_music(music_seed)
     filter_parts = [
         "[0:v]null[v]",
-        "[1:a]loudnorm=I=-15:TP=-1.5:LRA=8[narr]",
         f"[2:a]volume=0.055,atrim=duration={final_duration:.3f},afade=t=in:st=0:d=0.35,afade=t=out:st={max(0.0, final_duration-0.75):.3f}:d=0.75[bgm]",
         f"[v]tpad=stop_mode=clone:stop_duration={tail_seconds:.3f}[vpad]",
-        f"[1:a]apad=pad_dur={tail_seconds:.3f},volume=enable='between(t,{duration:.3f},{final_duration:.3f})':volume=0[narr_tail]",
+        f"[1:a]loudnorm=I=-15:TP=-1.5:LRA=8,apad=pad_dur={tail_seconds:.3f},volume=enable='between(t,{duration:.3f},{final_duration:.3f})':volume=0[narr_tail]",
         "[narr_tail][bgm]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
         f"[vpad]subtitles={animated_captions.resolve()}:si=0:force_style='Fade=0'[vout]",
     ]
