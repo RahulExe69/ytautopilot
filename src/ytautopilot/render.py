@@ -398,7 +398,10 @@ def build_gameplay_track(
         last_file = chosen["path"]
 
     if not selected:
-        chosen = min(candidates, key=lambda item: abs(float(item["duration"]) - target))
+        chosen = dict(min(candidates, key=lambda item: abs(float(item["duration"]) - target)))
+        if float(chosen["duration"]) > duration:
+            chosen["end"] = round(float(chosen["start"]) + duration, 3)
+            chosen["duration"] = round(duration, 3)
         selected = [chosen]
         remaining = max(0.0, duration - float(chosen["duration"]))
 
