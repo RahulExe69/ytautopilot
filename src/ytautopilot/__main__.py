@@ -15,8 +15,8 @@ def main() -> int:
     parser.add_argument("--topic", default="Free Fire tips and lesser-known facts")
     args = parser.parse_args()
 
-    if args.mode == "publish" and os.getenv("ENABLE_PUBLISH", "false").lower() != "true":
-        print("Publishing blocked: set ENABLE_PUBLISH=true only after testing and reviewing permissions.")
+    if args.mode == "publish":
+        print("Publishing is not implemented in this starter build. No upload was attempted.")
         return 2
 
     output_dir = Path("output")
