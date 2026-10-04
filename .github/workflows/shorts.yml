@@ -40,15 +40,24 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
-      - name: Install FFmpeg and Devanagari font
+      - name: Install FFmpeg and Devanagari font only if missing
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-noto-core
+          missing=0
+          command -v ffmpeg >/dev/null 2>&1 || missing=1
+          command -v ffprobe >/dev/null 2>&1 || missing=1
+          if ! fc-match "Noto Sans Devanagari" 2>/dev/null | grep -qi "Noto Sans Devanagari"; then
+            missing=1
+          fi
+          if [ "$missing" -eq 1 ]; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg fonts-noto-core
+          else
+            echo "FFmpeg, ffprobe, and Devanagari font already available; skipping apt install."
+          fi
 
       - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run pipeline
         env:
