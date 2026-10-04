@@ -12,7 +12,7 @@ The prepare mode currently:
 1. Generates a script with Gemini.
 2. Generates Hindi narration and subtitle cues with the edge-tts package using Microsoft's online Edge text-to-speech service.
 3. Detects gameplay videos in assets/gameplay/.
-4. Builds a 1080x1920, 30 fps gameplay track with three visual beats.
+4. Builds a 1080x1920, 30 fps gameplay track with four visual beats.
 5. Burns the generated captions into the video.
 6. Exports output/short_preview.mp4 plus the script, narration, captions, and a render manifest as a GitHub Actions artifact.
 
