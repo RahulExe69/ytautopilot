@@ -12,8 +12,8 @@ IST = ZoneInfo("Asia/Kolkata")
 def _best_hour(slot: str, now: datetime) -> int:
     defaults = {"midday": 13, "evening": 20}
     windows = {
-        "midday": {12, 13, 14},
-        "evening": {19, 20, 21},
+        "midday": {13, 14},
+        "evening": {20, 21},
     }
     try:
         profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8")) if PROFILE_PATH.exists() else {}
