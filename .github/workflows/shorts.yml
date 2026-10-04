@@ -16,25 +16,6 @@ on:
         type: string
         required: true
         default: "auto"
-      voice:
-        description: "Narrator voice preset"
-        type: choice
-        required: true
-        default: hm_omega
-        options:
-          - hm_omega
-          - hm_psi
-          - af_heart
-      speech_speed:
-        description: "Narration speed"
-        type: choice
-        required: true
-        default: "1.18"
-        options:
-          - "1.08"
-          - "1.12"
-          - "1.18"
-          - "1.22"
 
 permissions:
   contents: write
@@ -133,7 +114,7 @@ jobs:
 
       - name: Verify Hindi voice tensor
         env:
-          INDICVOICE_VOICE: ${{ inputs.voice || vars.INDICVOICE_VOICE }}
+          INDICVOICE_VOICE: hf_beta
         run: |
           python - <<'PY'
           import os
@@ -142,11 +123,7 @@ jobs:
           import torch
           from huggingface_hub import hf_hub_download
 
-          preferred = (os.getenv("INDICVOICE_VOICE") or "hm_omega").strip()
-          voices = []
-          for candidate in (preferred, "hm_omega", "hm_psi", "af_heart"):
-              if candidate and candidate not in voices:
-                  voices.append(candidate)
+          voices = ["hf_beta"]
 
           candidates = []
           for voice in voices:
@@ -201,9 +178,9 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
-          INDICVOICE_VOICE: ${{ vars.INDICVOICE_VOICE }}
+          INDICVOICE_VOICE: hf_beta
           INDICVOICE_MODEL: ${{ vars.INDICVOICE_MODEL }}
-          INDICVOICE_SPEED: ${{ inputs.speech_speed }}
+          INDICVOICE_SPEED: "1.28"
           INDICVOICE_VOICE_FALLBACK_REPO: "hexgrad/Kokoro-82M"
           INCLUDE_HOOK_IN_NARRATION: "true"
           ENABLE_PUBLISH: ${{ vars.ENABLE_PUBLISH }}
