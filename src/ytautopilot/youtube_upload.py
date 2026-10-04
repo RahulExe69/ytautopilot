@@ -363,7 +363,7 @@ def upload_private_video(
             topic=str(metadata.get("topic") or ""),
             status="deduplicated_from_youtube",
             description_style=str(metadata.get("description_style") or "default"),
-            scheduled_publish_at=str(metadata.get("publish_at") or "") or None,
+            scheduled_publish_at=str(metadata.get("scheduled_publish_at") or "") or None,
         )
         metadata.update(
             {
