@@ -110,24 +110,97 @@ def generate_indicvoice_tts(
         from indicvoice import IndicPipeline
         _configure_system_espeak()
 
-        def _load_voice_compat(self, voice):
-            """Load IndicVoice's legacy .pt voice pack with explicit safe-mode opt-out.
+        # IndicVoice's current HF repo has a packaging regression in its
+        # standard Kokoro voice files: several were re-uploaded as 131-byte
+        # Git-LFS pointer text instead of real voice tensors. The last known
+        # good IndicVoice revision (b000ade...) still points to the original
+        # ~523 KB voice objects. Public Kokoro integrations use the same
+        # voice tensors from hexgrad/Kokoro-82M, so keep a second fallback.
+        voice_legacy_revision = (
+            os.getenv("INDICVOICE_VOICE_REVISION")
+            or "b000adea5df849c41d49d8aac3aa50f9bc736afa"
+        )
+        voice_source_repo = (
+            os.getenv("INDICVOICE_VOICE_REPO") or repo_id
+        ).strip()
+        voice_fallback_repo = (
+            os.getenv("INDICVOICE_VOICE_FALLBACK_REPO")
+            or "hexgrad/Kokoro-82M"
+        ).strip()
 
-            The upstream loader passes weights_only=True, but the published voice
-            packs are legacy pickle archives that PyTorch's restricted unpickler
-            rejects. These files are downloaded from the configured Hugging Face
-            model repository, then loaded explicitly with weights_only=False.
-            """
+        def _is_pointer_file(path: str | Path) -> bool:
+            candidate = Path(path)
+            try:
+                size = candidate.stat().st_size
+                if size >= 4096:
+                    return False
+                head = candidate.read_bytes()[:512]
+            except OSError:
+                return False
+            return (
+                b"version https://git-lfs.github.com/spec/v1" in head
+                or b"oid sha256:" in head
+            )
+
+        def _download_voice(voice_name: str) -> str:
+            filename = f"voices/{voice_name}.pt"
+            candidates: list[tuple[str, str | None]] = [
+                (voice_source_repo, None),
+                (voice_source_repo, voice_legacy_revision),
+                (voice_fallback_repo, None),
+            ]
+            seen: set[tuple[str, str | None]] = set()
+            errors: list[str] = []
+
+            for candidate_repo, revision in candidates:
+                key = (candidate_repo, revision)
+                if key in seen:
+                    continue
+                seen.add(key)
+                try:
+                    kwargs = {
+                        "repo_id": candidate_repo,
+                        "filename": filename,
+                    }
+                    if revision:
+                        kwargs["revision"] = revision
+                    voice_file = hf_hub_download(**kwargs)
+                    if _is_pointer_file(voice_file):
+                        errors.append(
+                            f"{candidate_repo}@{revision or 'main'} returned a Git-LFS/Xet pointer "
+                            f"for {filename}"
+                        )
+                        continue
+                    size = Path(voice_file).stat().st_size
+                    if size < 100_000:
+                        errors.append(
+                            f"{candidate_repo}@{revision or 'main'} returned an unexpectedly small "
+                            f"voice file ({size} bytes)"
+                        )
+                        continue
+                    print(
+                        f"[tts] Voice pack source: {candidate_repo}@{revision or 'main'} "
+                        f"({size} bytes)"
+                    )
+                    return voice_file
+                except Exception as exc:
+                    errors.append(f"{candidate_repo}@{revision or 'main'}: {exc}")
+
+            detail = " | ".join(errors[-3:])
+            raise RuntimeError(
+                f"Could not obtain a real IndicVoice voice tensor for '{voice_name}'. "
+                f"Tried the current model repo, the last known-good IndicVoice revision, "
+                f"and the upstream Kokoro voice repo. {detail}"
+            )
+
+        def _load_voice_compat(self, voice):
             if voice in self.voices:
                 return self.voices[voice]
 
             if voice.endswith(".pt"):
                 voice_file = voice
             else:
-                voice_file = hf_hub_download(
-                    repo_id=self.repo_id,
-                    filename=f"voices/{voice}.pt",
-                )
+                voice_file = _download_voice(voice)
 
             try:
                 pack = torch.load(
@@ -139,20 +212,20 @@ def generate_indicvoice_tts(
                 if "Weights only load failed" not in str(exc) and "WeightsUnpickler" not in str(exc):
                     raise
                 print(
-                    "[tts] Voice pack is a legacy pickle archive. "
-                    "Loading the trusted Hugging Face voice pack with "
-                    "weights_only=False."
+                    "[tts] Voice tensor uses a legacy pickle format; loading the "
+                    "already-validated public checkpoint with weights_only=False."
                 )
-                # PyTorch 2.6+ cannot parse this legacy archive with the
-                # restricted weights-only unpickler. The exact checkpoint is
-                # fetched from the configured IndicVoice repo above, so this
-                # fallback is limited to that trusted source.
-                with open(voice_file, "rb") as handle:
-                    pack = torch.load(
-                        handle,
-                        map_location="cpu",
-                        weights_only=False,
-                    )
+                pack = torch.load(
+                    voice_file,
+                    map_location="cpu",
+                    weights_only=False,
+                )
+
+            if not isinstance(pack, torch.Tensor):
+                raise RuntimeError(
+                    f"IndicVoice voice pack '{voice}' did not contain a torch.Tensor "
+                    f"(got {type(pack).__name__})."
+                )
 
             self.voices[voice] = pack
             return pack
