@@ -11,6 +11,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_02.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.317,19.417,3.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",42.933,46.95,4.017],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.283,43.867,4.583],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",0.0,1.833,1.833],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.317,2.617],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.283,3.883],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",29.267,31.383,2.117],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267]]",
       "composite_fingerprint": "12e510e811d01441f8a0e08d"
+    },
+    {
+      "generated_at_utc": "2026-10-04T22:28:02.626021+00:00",
+      "script_fingerprint": "639ad460c52dd2a3",
+      "topic": "One small HUD or control habit worth testing - adjusting mini-map opacity for better screen awareness",
+      "status": "generated_prepare",
+      "video_sha256": "1c735269e191f71d28c497e696b3915df2d659b2501077cbdb2a8b35b11a9cd5",
+      "narration_sha256": "99f99fac510a9dc68302bc62042e649b3dc53404bf6de49dfceef1c808ec33e5",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.283,43.867,4.583],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",0.0,2.533,2.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.283,3.883],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",15.267,16.983,1.717],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",47.317,49.7,2.383],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.317,19.417,3.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",8.433,10.35,1.917],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733]]",
+      "composite_fingerprint": "2a234ae262f367b07790e0e2"
     }
   ]
 }

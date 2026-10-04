@@ -141,6 +141,25 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-04T22:28:02.626644+00:00",
+      "weekday": 6,
+      "topic": "One small HUD or control habit worth testing - adjusting mini-map opacity for better screen awareness",
+      "title": "Free Fire Mein Mini-Map Ki Yeh Setting Change Karo",
+      "hook": "Mini-map ki opacity check ki hai kabhi?",
+      "fingerprint": "639ad460c52dd2a3",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
