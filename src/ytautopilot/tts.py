@@ -13,6 +13,9 @@ _DEVANAGARI_PRONUNCIATIONS = (
     ("free fire", "फ्री फायर"),
     ("gloo wall", "ग्लू वॉल"),
     ("headshot", "हेडशॉट"),
+    ("crosshair", "क्रॉसहेयर"),
+    ("cross-hair", "क्रॉस हेयर"),
+    ("cross hair", "क्रॉस हेयर"),
     ("shotgun", "शॉटगन"),
     ("sniper", "स्नाइपर"),
     ("scope", "स्कोप"),
@@ -217,13 +220,16 @@ def write_srt_from_sentence_timings(
     sentence_durations: list[float],
     pause_seconds: float,
     duration_seconds: float,
+    speech_speed: float = 1.0,
 ) -> str:
-    """Build caption cues from measured TTS duration without requiring equal sentence counts."""
+    """Build captions from measured sentence timings so text cannot drift past the voice."""
     caption_sentences = _split_tts_sentences(caption_text)
     if not caption_sentences:
         caption_sentences = [caption_text.strip()]
     if not sentence_durations:
         raise RuntimeError("Measured sentence timing is empty.")
+    if speech_speed <= 0:
+        raise RuntimeError("Speech speed must be positive.")
 
     def stamp(value: float) -> str:
         total_ms = max(0, int(round(value * 1000)))
@@ -233,26 +239,46 @@ def write_srt_from_sentence_timings(
         millis = total_ms % 1_000
         return f"{hours:02d}:{minutes:02d}:{seconds:02d},{millis:03d}"
 
-    spoken_total = sum(sentence_durations) + pause_seconds * max(0, len(sentence_durations) - 1)
-    if spoken_total <= 0:
+    # sentence_durations are measured before the final atempo pass, while the
+    # rendered MP3 is shorter by speech_speed. Scale both speech and pauses so
+    # caption boundaries follow the actual encoded narration.
+    scaled_durations = [max(0.05, float(value) / speech_speed) for value in sentence_durations]
+    scaled_pause = max(0.0, float(pause_seconds) / speech_speed)
+    measured_total = sum(scaled_durations) + scaled_pause * max(0, len(scaled_durations) - 1)
+    if measured_total <= 0:
         raise RuntimeError("Measured sentence timing is empty.")
 
-    # The measured audio defines the trustworthy overall duration. Caption
-    # sentences are then distributed across that exact duration by text weight.
-    weights = [max(1, len(re.sub(r"\s+", "", sentence))) for sentence in caption_sentences]
-    total_weight = sum(weights)
+    # Gemini is asked to keep tts_text semantically identical to hook+narration,
+    # so matching sentence counts let us use the real per-sentence timings.
+    # If punctuation differs and counts do not match, use a conservative fallback.
+    if len(caption_sentences) == len(scaled_durations):
+        timings: list[float] = []
+        cursor = 0.0
+        for index, sentence_duration in enumerate(scaled_durations):
+            end = cursor + sentence_duration
+            if index < len(scaled_durations) - 1:
+                end += scaled_pause
+            timings.append(end)
+            cursor = end
+    else:
+        total = min(duration_seconds, measured_total)
+        weights = [max(1, len(re.sub(r"\s+", "", sentence))) for sentence in caption_sentences]
+        total_weight = sum(weights)
+        timings = []
+        cursor = 0.0
+        for index, weight in enumerate(weights):
+            end = total if index == len(weights) - 1 else cursor + total * (weight / total_weight)
+            timings.append(max(cursor + 0.05, min(total, end)))
+            cursor = timings[-1]
+
     blocks: list[str] = []
     cursor = 0.0
-
-    for index, (sentence, weight) in enumerate(zip(caption_sentences, weights), start=1):
-        end = (
-            duration_seconds
-            if index == len(caption_sentences)
-            else min(duration_seconds, cursor + duration_seconds * (weight / total_weight))
-        )
+    for index, sentence in enumerate(caption_sentences, start=1):
+        end = min(duration_seconds, timings[index - 1])
+        if index == len(caption_sentences):
+            end = min(duration_seconds, max(cursor + 0.05, measured_total))
         if end <= cursor:
             end = min(duration_seconds, cursor + 0.20)
-
         blocks.append(
             f"{index}\n"
             f"{stamp(cursor)} --> {stamp(end)}\n"
@@ -261,6 +287,7 @@ def write_srt_from_sentence_timings(
         cursor = end
 
     return "\n".join(blocks).strip() + "\n"
+
 
 def _configure_system_espeak() -> None:
     """Prefer Ubuntu's system eSpeak-NG over the broken bundled loader wheel."""
@@ -563,6 +590,7 @@ def generate_indicvoice_tts(
             sentence_durations=sentence_durations,
             pause_seconds=pause_seconds,
             duration_seconds=encoded_duration,
+            speech_speed=speech_speed,
         ),
         encoding="utf-8",
     )
