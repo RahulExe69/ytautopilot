@@ -61,7 +61,7 @@ YouTube Data API v3 was enabled. An OAuth Desktop client JSON was downloaded, th
 - If a workflow run is needed but cannot be triggered through available tools, say so plainly and give Rahul the single action needed—don't pretend the run happened.
 
 
-## 2026-10-05 private YouTube publishing implementation
+## 2026-10-05 scheduled publishing, deduplication, and learning implementation
 
 The repository now includes the first real YouTube upload path:
 - `src/ytautopilot/youtube_upload.py`: OAuth refresh from the existing `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` secrets; scope verification; resumable `videos.insert`; private-only safety gate; transient retry handling; upload-history deduplication; recent-owned-upload marker check; no credential logging.
@@ -76,3 +76,21 @@ The repository now includes the first real YouTube upload path:
 Important: the new upload path has NOT been workflow-tested yet because the available GitHub integration can edit/fetch workflow files but cannot dispatch a new workflow run. Do not claim a private upload succeeded until an actual GitHub Actions run proves it.
 
 OAuth note: Google currently documents that external OAuth apps left in Publishing status `Testing` issue test-user refresh tokens that expire after 7 days. Moving the app to production/in-production is the long-term fix for unattended publishing. See the current Google Cloud OAuth testing guidance before relying on the existing refresh token for daily automation.
+
+
+## Current automation state — 2026-10-05
+- The GitHub workflow now has two scheduled generation/upload anchors in Asia/Kolkata: 12:00 and 19:30, targeting YouTube publication at 13:00 and 20:30 by default.
+- The workflow uses YouTube `status.publishAt` while inserting the video as private. This is deliberate because YouTube documents that `publishAt` is valid only for a never-published private video. Public automated publication remains subject to the API-project audit restriction documented by YouTube; do not claim the scheduled video will become public until the project is eligible.
+- Gameplay scene selection is now randomized with recent-source avoidance and inverse-use weighting.
+- Background music selection is randomized with recent-source avoidance and inverse-use weighting instead of hashing the topic to one deterministic track.
+- Exact generated-video duplicate detection now hashes the final MP4 and a composite of narration/music/scene selection. Up to four generation attempts are made before publish/prepare; a duplicate is discarded and a fresh script/topic is generated.
+- Generation state is persisted even when YouTube upload fails. The workflow commits content history, upload history, media history, performance history, strategy profile, and description history with `if: always()`.
+- Added lightweight performance learning using YouTube Data API statistics for owned uploads: views, likes, comments, duration, publish hour, topic family, and description style. It builds a soft strategy profile and feeds that context back into Gemini script generation.
+- Added a rotating/adaptive description system with multiple CTA styles. Once at least five public videos have measurable data, the best-performing description style is preferred.
+- Added a learned publish-window selector. It keeps the initial 13:00 / 20:30 IST defaults and can softly shift to 14:00 or 21:30 after enough public data indicates a stronger hour.
+- Cache: pip caching was already enabled; Hugging Face cache now restores before Hindi voice verification so repeated runs can reuse the voice/model downloads.
+- Latest key commits:
+  - `2bcf273dd8ebbcadbd2122982634398d2bb93403`: cache ordering fix.
+  - `796682a184e3170e83a773b3a4e124b2406fd32f`: OAuth scope fix.
+  - `13fbb624e1b92019b45f1c382c3150c7c5fcde55`: OAuth scope fail-fast check.
+  - Current subsequent commits implement media rotation, duplicate regeneration, descriptions, analytics learning, learned scheduling, and scheduled publication.
