@@ -139,14 +139,20 @@ def generate_indicvoice_tts(
                 if "Weights only load failed" not in str(exc) and "WeightsUnpickler" not in str(exc):
                     raise
                 print(
-                    "[tts] Voice pack uses a legacy pickle format; "
-                    "loading the trusted downloaded voice with weights_only=False."
+                    "[tts] Voice pack is a legacy pickle archive. "
+                    "Loading the trusted Hugging Face voice pack with "
+                    "weights_only=False."
                 )
-                pack = torch.load(
-                    voice_file,
-                    map_location="cpu",
-                    weights_only=False,
-                )
+                # PyTorch 2.6+ cannot parse this legacy archive with the
+                # restricted weights-only unpickler. The exact checkpoint is
+                # fetched from the configured IndicVoice repo above, so this
+                # fallback is limited to that trusted source.
+                with open(voice_file, "rb") as handle:
+                    pack = torch.load(
+                        handle,
+                        map_location="cpu",
+                        weights_only=False,
+                    )
 
             self.voices[voice] = pack
             return pack
