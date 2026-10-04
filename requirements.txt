@@ -9,3 +9,4 @@ git+https://github.com/Bindkushal/indic-g2p.git
 git+https://github.com/Bindkushal/indic-voice.git
 huggingface-hub>=0.32.0
 hf-xet>=1.6.0
+Pillow>=10.4.0
