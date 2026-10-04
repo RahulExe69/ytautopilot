@@ -1,19 +1,15 @@
-# Upload your gameplay here
+# Gameplay assets
 
-This folder is reserved for your own Free Fire gameplay recording or footage you have permission to reuse.
+The Stage 2 renderer automatically discovers video files in this folder.
 
-## What to upload
+Use:
+- Your own self-recorded gameplay, or footage you have explicit permission/license to reuse.
+- `.mp4`, `.mov`, `.mkv`, or `.webm` files.
+- Vertical 9:16 footage where possible. Landscape footage is center-cropped to 1080x1920 by the renderer.
+- Several short clips for better visual variety. The first renderer uses three visual beats and cycles through the available clips.
 
-- Recommended filename: `gameplay.mp4`
-- Recommended length: 30–60 seconds for the first test
-- Prefer 9:16 vertical footage, or a clean 16:9 recording that can be cropped
-- Keep the file reasonably small; GitHub has upload limits and large video files make the repository heavy
+For the first test, one usable clip is enough.
 
-## Upload steps
+The renderer does not upload these clips anywhere. It reads them during the GitHub Actions job and produces a reviewable video artifact.
 
-1. Open this folder in GitHub.
-2. Tap **Add file** → **Upload files**.
-3. Select your gameplay video and upload it.
-4. Commit the change to `main`.
-
-The current pipeline does **not** yet read this video automatically. The renderer still needs to be connected to this path before a finished Short can be generated. Do not upload private clips or footage unless you own it or have permission to reuse it.
+Do not store private or unlicensed footage here.
