@@ -395,7 +395,7 @@ def detect_active_picture_crop(path: Path) -> str | None:
         return None
     # Only remove obvious letterboxing: preserve >= 94% of width and >= 72%
     # of height, and require meaningful vertical bars to avoid tiny crop noise.
-    if width < source_w * 0.94 or height < source_h * 0.72:
+    if width < source_w * 0.94 or height < source_h * 0.60:
         return None
     if height >= source_h * 0.97 or (y < 8 and source_h - (y + height) < 8):
         return None
