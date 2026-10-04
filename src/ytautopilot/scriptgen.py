@@ -13,11 +13,11 @@ def fallback_script(topic: str) -> dict[str, Any]:
     return {
         "topic": topic,
         "language": "Hindi",
-        "hook": "Free Fire ki ye baat shayad aapne notice nahi ki hogi!",
+        "hook": "Free Fire khelte ho? Toh ye trick shayad tumne notice hi nahi ki hogi!",
         "narration": (
-            "Aaj hum Free Fire ke ek interesting point ko samjhenge. "
-            "Kisi bhi tip ko ranked match mein use karne se pehle training ground mein test zaroor karein. "
-            "Aapki favourite trick kya hai? Comments mein batao."
+            "Sun, ek chhoti si Free Fire trick hai jo gameplay mein kaafi kaam aa sakti hai. "
+            "Pehle training ground mein test kar lena, phir ranked mein try karna. "
+            "Tumhari favourite trick kya hai? Comment mein batao."
         ),
         "visual_plan": [
             "Open with self-recorded or properly licensed gameplay.",
