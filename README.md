@@ -6,7 +6,7 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 4 free/local voice + scene-safe rendering is now in place.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
+**Stage 5 publish-ready packaging is now in place, building on the Stage 4 free/local voice + scene-safe renderer.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
 
 The prepare mode currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
@@ -15,9 +15,9 @@ The prepare mode currently:
 4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. The script word budget is automatically based on the total available gameplay duration, and rendering refuses to create a Short longer than its source footage. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
 5. Mutes gameplay audio completely and automatically selects one supplied track from `assets/music/` as low-volume background music. The workflow normalizes arbitrary music filenames to `music_01`, `music_02`, `music_03`, and so on.
 6. Burns the animated caption track into the video.
-7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, and a render manifest as a GitHub Actions artifact.
+7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, a render manifest, a generated vertical thumbnail candidate, and validated output/publish_metadata.json as a GitHub Actions artifact.
 
-**YouTube publishing is still not implemented. Nothing is uploaded to YouTube.**
+**YouTube publishing is still not implemented. Nothing is uploaded to YouTube.** Prepare mode now creates a publish-ready metadata file and a thumbnail candidate from the rendered video; it does not claim the candidate was applied as a YouTube Shorts cover.
 
 ## Planned pipeline
 
@@ -52,6 +52,8 @@ Choose **prepare** to generate the script and render a reviewable Short. The wor
 - captions.srt
 - captions.ass
 - render_manifest.json
+- publish_metadata.json (title, description, hashtags, optional tags, video path, cover candidate, and private-upload default)
+- thumbnail_candidate.jpg (generated from a frame of the rendered Short)
 
 The rendered MP4 is a preview only. Review its factual accuracy, audio, captions, footage rights, and overall quality before publishing anywhere.
 
