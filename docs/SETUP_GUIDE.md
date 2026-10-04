@@ -111,7 +111,7 @@ Recommended:
 - Multiple clips give the renderer more visual variety.
 - Filenames do not need to follow a special pattern. The renderer discovers supported video extensions automatically.
 
-The Stage 2 renderer uses three visual beats and cycles through the available clips. One clip is enough for the first test.
+The Stage 2 renderer uses four visual beats and cycles through the available clips. One clip is enough for the first test.
 
 ## 6. Run the safe dry-run
 
