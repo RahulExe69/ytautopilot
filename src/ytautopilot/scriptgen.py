@@ -38,7 +38,7 @@ def generate_script(topic: str, allow_fallback: bool = False) -> dict[str, Any]:
             return fallback_script(topic)
         raise RuntimeError("GEMINI_API_KEY is missing. Add it to GitHub Actions secrets before prepare/publish.")
 
-    model = (os.getenv("GEMINI_MODEL") or "gemini-2.5-flash").strip()
+    model = (os.getenv("GEMINI_MODEL") or "gemini-3.5-flash-lite").strip()
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     prompt = f"""
 Create a short, original Hindi/Hinglish gaming YouTube Short plan about: {topic!r}.
