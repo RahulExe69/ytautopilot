@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -11,28 +10,41 @@ from .scriptgen import generate_script
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="ytautopilot gaming Shorts pipeline")
-    parser.add_argument("--mode", choices=("dry-run", "prepare", "publish"), default="dry-run")
+    parser.add_argument(
+        "--mode",
+        choices=("dry-run", "prepare", "publish"),
+        default="dry-run",
+        help="dry-run only generates JSON; prepare also renders a reviewable Short; publish is still gated",
+    )
     parser.add_argument("--topic", default="Free Fire tips and lesser-known facts")
     args = parser.parse_args()
 
     if args.mode == "publish":
-        print("Publishing is not implemented in this starter build. No upload was attempted.")
+        print("Publishing is not implemented in this build. No upload was attempted.")
         return 2
 
     output_dir = Path("output")
     output_dir.mkdir(parents=True, exist_ok=True)
+
     script = generate_script(args.topic, allow_fallback=args.mode == "dry-run")
     output_path = output_dir / "script.json"
-    output_path.write_text(json.dumps(script, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_path.write_text(
+        json.dumps(script, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     print(f"Script saved to {output_path}")
     print(json.dumps(script, ensure_ascii=False, indent=2))
 
-    if args.mode != "dry-run":
-        print("This starter stage generates scripts only; rendering and upload are not wired yet.")
-        print("No video was uploaded. Next: validate footage rights, then implement rendering and YouTube OAuth.")
+    if args.mode == "prepare":
+        from .render import render_short
+
+        render_short(script)
+        print("\nPrepare mode complete.")
+        print("A reviewable 9:16 Short was rendered locally/in the workflow.")
+        print("No YouTube upload was attempted.")
         return 0
 
-    print("Dry-run complete. No video was uploaded and no YouTube account was changed.")
+    print("Dry-run complete. No video was rendered or uploaded.")
     return 0
 
 
