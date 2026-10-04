@@ -6,15 +6,16 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 2 is now in place.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
+**Stage 3 creator-style rendering is now in place.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
 
 The prepare mode currently:
-1. Generates a script with Gemini.
-2. Generates Hindi narration and subtitle cues with the edge-tts package using Microsoft's online Edge text-to-speech service.
-3. Detects gameplay videos in assets/gameplay/.
-4. Builds a 1080x1920, 30 fps gameplay track with four visual beats.
-5. Burns the generated captions into the video.
-6. Exports output/short_preview.mp4 plus the script, narration, captions, and a render manifest as a GitHub Actions artifact.
+1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
+2. Generates narration plus timed subtitle cues with edge-tts using Microsoft's online Edge text-to-speech service.
+3. Breaks the timed speech into 1-3 word caption events and renders them as animated lower-middle pop-ins with highlighted keywords.
+4. Detects gameplay videos in assets/gameplay/ and builds a fast-cut 1080x1920, 30 fps montage across six visual beats.
+5. Keeps gameplay audio very low under the voiceover and can mix an optional track from assets/music/.
+6. Burns the animated caption track into the video.
+7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, and a render manifest as a GitHub Actions artifact.
 
 **YouTube publishing is still not implemented. Nothing is uploaded to YouTube.**
 
@@ -49,6 +50,7 @@ Choose **prepare** to generate the script and render a reviewable Short. The wor
 - short_preview.mp4
 - narration.mp3
 - captions.srt
+- captions.ass
 - render_manifest.json
 
 The rendered MP4 is a preview only. Review its factual accuracy, audio, captions, footage rights, and overall quality before publishing anywhere.
