@@ -64,13 +64,19 @@ Create an original Hindi/Hinglish gaming YouTube Short plan about: {topic!r}.
 Return ONLY valid JSON with these keys:
 topic, language, hook, narration, tts_text, visual_plan, title, description, hashtags, fact_check_notes.
 Requirements:
-- Write like a real Indian gaming creator speaking to viewers, not like an article or translated script.
+- Write like a real Indian gaming creator speaking to viewers, not like an article, school essay, news script, or translated Hindi script.
+- The spoken narration must sound like the everyday Hindi/Hinglish people actually use while gaming with friends. Keep it casual and conversational rather than "shuddh Hindi".
 - Address the viewer as "tum/tumhara/tumhe", never "tu/tujhe/tera/teri"; keep it friendly and respectful, not over-familiar.
+- Use natural Hinglish freely: common English words such as "body", "use", "side", "aim", "enemy", "damage", "fight", "timing", "movement", "cover", "game", "match", "push", "try", and "practice" are welcome when they sound more natural than formal Hindi.
+- Avoid formal/bookish wording such as "sharir", "upayog/istamal" when "body/use" would sound natural, "dauran", "nuksan uthana", "prapt", "avsar", "pratyaksh", "sahayata", or other unnecessarily Sanskritised vocabulary. Prefer simple spoken forms like "body", "use", "karte waqt", "damage", "mil jata hai", "dikhta hai", and "try karna".
+- Do not force Hindi words just to make the script look Hindi. Natural Hinglish is the goal.
 - Also output a separate "tts_text" field containing the exact same spoken content as hook + narration, converted into natural Devanagari for Hindi words. Do not omit the hook from tts_text.
-- Prefer Devanagari for ordinary Hindi and for common gaming terms when that improves Indian-Hindi pronunciation, for example "फ्री फायर", "ग्लू वॉल", "हेडशॉट", "रैंक्ड", "स्कोप", "स्नाइपर", and "गेमप्ले". Keep product or weapon names in Latin only when their pronunciation is clearly better that way.
-- Example pronunciation spelling: "अक्सर हमें लगता है" rather than "aksar hume lagta hai". The tts_text must not contain Roman-Hinglish for ordinary Hindi words.
+- In tts_text, transliterate the actual spoken Hinglish naturally for pronunciation, for example "बॉडी", "यूज़", "साइड", "एम", "एनेमी", "डैमेज", "फाइट", "टाइमिंग", "मूवमेंट", "कवर", "गेम", "मैच", and "ट्राय" when those are used in narration. Do not rewrite the meaning into more formal Hindi while converting to Devanagari.
+- Prefer Devanagari for ordinary Hindi and common gaming terms when that improves Indian-Hindi pronunciation, for example "फ्री फायर", "ग्लू वॉल", "हेडशॉट", "रैंक्ड", "स्कोप", "स्नाइपर", and "गेमप्ले". Keep product or weapon names in Latin only when their pronunciation is clearly better that way.
+- Example style: "Cover ke peeche ho toh body pura bahar mat nikalo. Thoda side se peek karo, bas jitna aim karne ke liye chahiye." This is the target feel: natural spoken Hinglish, not formal Hindi.
 - Sound like a genuine Indian gaming creator casually explaining something to a friend. Avoid robotic hype, fake urgency, repeated "secret trick" hooks, forced slang, and generic lines like "gameplay next level ho jayega".
 - Use everyday spoken Hinglish with varied sentence lengths, natural pauses, and a little personality; don't cram "bhai", "sun", "dekho", "matlab", and "na" into every script.
+- Stay tightly grounded in the supplied topic. Do not invent or introduce a named technique, hidden mechanic, weapon behaviour, percentage, pro-player habit, or special jargon that the topic does not call for. In particular, do not turn a vague topic into a made-up "secret" mechanic just to make the Short sound interesting.
 - Start with a specific curiosity or gameplay situation, not a generic clickbait promise. Keep the hook around 6-12 spoken words.
 - Keep combined hook + narration close to {target_words} spoken words for a target of about {target_seconds:.0f} seconds. The footage duration is a hard limit: be concise, do not add filler, and finish the thought naturally.
 - Build around 2-3 clear beats, and explain each in a way that sounds natural when read aloud by a Hindi TTS voice.
