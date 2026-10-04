@@ -311,7 +311,9 @@ def upload_private_video(
     metadata = _load_json(metadata_path)
     video_path, title, description = _validate_private_package(metadata)
     fingerprint = str(metadata["fingerprint"])
-    marker = f"ytautopilot-{fingerprint}"
+    marker = str(metadata.get("upload_marker") or f"ytautopilot-{fingerprint}").strip()
+    if not marker:
+        raise YouTubeUploadError("Publish metadata has no upload duplicate marker.")
 
     previous = _history_match(fingerprint)
     if previous and str(previous.get("youtube_video_id", "")).strip():
