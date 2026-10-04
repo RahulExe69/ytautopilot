@@ -154,7 +154,7 @@ Prepare mode does **not** publish to YouTube.
 5. Each caption event pops up from below, scales into place, fades out, and highlights important gaming keywords rather than leaving a paragraph on screen.
 6. PySceneDetect finds complete gameplay scenes, and the renderer selects those scenes instead of cutting at arbitrary timestamps.
 7. Gameplay is scaled/cropped to 1080x1920 at 30 fps with a small visual grade.
-8. Low-volume gameplay audio sits under the narration. An optional background track can be placed in assets/music/.
+8. Gameplay audio is muted completely. One of the supplied tracks in `assets/music/` is automatically selected and mixed quietly under the narration.
 9. output/short_preview.mp4 is created with animated ASS captions burned into the video.
 10. GitHub Actions uploads the output folder as an artifact so you can review it.
 
@@ -163,7 +163,7 @@ The renderer intentionally does not:
 - automatically fact-check the generated claims,
 - fetch external gameplay,
 - remove watermarks,
-- provide a built-in music library; optional tracks must be supplied in assets/music/,
+- provide a built-in music library; only user-supplied tracks in `assets/music/` are used,
 - generate thumbnails,
 - schedule publishing.
 
