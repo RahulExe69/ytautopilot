@@ -1,4 +1,16 @@
 {
   "version": 1,
-  "entries": []
+  "entries": [
+    {
+      "generated_at_utc": "2026-10-04T22:22:15.882790+00:00",
+      "script_fingerprint": "ac47f65db99bad31",
+      "topic": "A useful training-ground drill for improving fight decisions",
+      "status": "generated_prepare",
+      "video_sha256": "361122bba29fa627fc5c42e9898b7245c2c02e88037891c0f2e0ebd0bea28d36",
+      "narration_sha256": "e8832a7e427ca28053039b1b4e8f0ced8c85cea3527dcce3a97c73baec23956a",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_02.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.317,19.417,3.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",42.933,46.95,4.017],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.283,43.867,4.583],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",0.0,1.833,1.833],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.317,2.617],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.283,3.883],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",29.267,31.383,2.117],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267]]",
+      "composite_fingerprint": "12e510e811d01441f8a0e08d"
+    }
+  ]
 }

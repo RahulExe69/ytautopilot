@@ -1,4 +1,9 @@
 {
   "version": 1,
-  "styles": []
+  "styles": [
+    {
+      "style": "practical",
+      "fingerprint": "ac47f65db99bad31"
+    }
+  ]
 }

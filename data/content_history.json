@@ -122,6 +122,25 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
       ]
+    },
+    {
+      "generated_at": "2026-10-04T22:22:15.883170+00:00",
+      "weekday": 6,
+      "topic": "A useful training-ground drill for improving fight decisions",
+      "title": "Training Ground Mein Yeh Fight Drill Try Karo",
+      "hook": "Training ground mein yeh drill try ki hai kya?",
+      "fingerprint": "ac47f65db99bad31",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
