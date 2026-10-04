@@ -2,7 +2,7 @@
 
 This guide documents how to set up the current YTAutoPilot stages, troubleshoot them, and help another creator build a separate project inspired by the workflow.
 
-> **Current status:** Stage 4 free/local voice and scene-safe rendering is implemented. The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation. Prepare mode renders a reviewable 9:16 Short with conversational narration, local IndicVoice TTS, scene-safe gameplay cuts, and animated pop-up captions using FFmpeg. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
+> **Current status:** Stage 5 publish-ready packaging is implemented on top of the Stage 4 renderer. Prepare mode renders a reviewable 9:16 Short with conversational narration, local IndicVoice TTS, scene-safe gameplay cuts, animated pop-up captions, generated publish metadata, and a gameplay-derived thumbnail candidate. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
 
 ## 1. What you need
 
@@ -142,6 +142,8 @@ The artifact should contain:
 - captions.srt
 - captions.ass
 - render_manifest.json
+- publish_metadata.json
+- thumbnail_candidate.jpg
 
 Prepare mode does **not** publish to YouTube.
 
@@ -158,14 +160,13 @@ Prepare mode does **not** publish to YouTube.
 9. output/short_preview.mp4 is created with animated ASS captions burned into the video.
 10. GitHub Actions uploads the output folder as an artifact so you can review it.
 
-The renderer intentionally does not:
+The current pipeline intentionally does not:
 - upload to YouTube,
 - automatically fact-check the generated claims,
 - fetch external gameplay,
 - remove watermarks,
 - provide a built-in music library; only user-supplied tracks in `assets/music/` are used,
-- generate thumbnails,
-- schedule publishing.
+- automatically schedule publishing or enable public uploads.
 
 ## 9. Troubleshooting Stage 4
 
@@ -210,6 +211,8 @@ Before any future uploader is enabled, manually verify:
 - Audio has no clipping or excessive noise.
 - The MP4 opens correctly on a phone.
 - The title and description are accurate.
+- `publish_metadata.json` matches the rendered video and its title/description/hashtags.
+- The thumbnail candidate is readable and based on the rendered gameplay.
 - No private data or unrelated copyrighted material appears.
 
 ## 11. Starting a separate project inspired by this repository
