@@ -53,6 +53,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           ENABLE_PUBLISH: ${{ vars.ENABLE_PUBLISH }}
+          PYTHONPATH: src
         run: |
           python -m ytautopilot --mode "${{ inputs.mode }}" --topic "${{ inputs.topic }}"
 
