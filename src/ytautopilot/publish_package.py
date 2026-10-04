@@ -9,6 +9,8 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 
+from .content import content_fingerprint
+
 
 OUTPUT_DIR = Path("output")
 TITLE_LIMIT = 100
@@ -242,8 +244,11 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
     if not thumbnail_path.is_file() or thumbnail_path.stat().st_size == 0:
         raise RuntimeError("Publish metadata validation failed: thumbnail candidate is missing.")
 
+    fingerprint = content_fingerprint(script)
     metadata = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "fingerprint": fingerprint,
+        "upload_marker": f"ytautopilot-{fingerprint}",
         "status": "ready_for_private_upload",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "topic": _clean_text(script.get("topic")),
@@ -252,6 +257,7 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
         "description": description,
         "hashtags": hashtags,
         "tags": bounded_tags,
+        "category_id": "20",
         "thumbnail_candidate": str(thumbnail_path),
         "thumbnail_dimensions": "1080x1920",
         "thumbnail_strategy": "clean source-gameplay frame from a selected scene segment, with generated hook text overlay",
