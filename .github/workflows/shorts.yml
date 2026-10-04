@@ -46,6 +46,7 @@ jobs:
           missing=0
           command -v ffmpeg >/dev/null 2>&1 || missing=1
           command -v ffprobe >/dev/null 2>&1 || missing=1
+          command -v espeak-ng >/dev/null 2>&1 || missing=1
           if ! fc-match "Noto Sans Devanagari" 2>/dev/null | grep -qi "Noto Sans Devanagari"; then
             missing=1
           fi
