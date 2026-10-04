@@ -327,86 +327,143 @@ def generate_tts(text: str, caption_text: str, audio_path: Path, subtitle_path: 
     return meta
 
 
+def find_scene_segments(path: Path) -> list[dict[str, float]]:
+    video = open_video(str(path))
+    manager = SceneManager()
+    manager.add_detector(ContentDetector(threshold=28.0, min_scene_len=18))
+    manager.detect_scenes(video, show_progress=False)
+
+    scenes: list[dict[str, float]] = []
+    for start, end in manager.get_scene_list(start_in_scene=True):
+        a = start.get_seconds()
+        b = end.get_seconds()
+        if b - a >= 1.2:
+            scenes.append({
+                "start": round(a, 3),
+                "end": round(b, 3),
+                "duration": round(b - a, 3),
+            })
+    if scenes:
+        return scenes
+
+    return [{
+        "start": 0.0,
+        "end": ffprobe_duration(path),
+        "duration": ffprobe_duration(path),
+    }]
+
+
 def build_gameplay_track(
     gameplay_files: list[Path],
     duration: float,
     destination: Path,
-) -> list[Path]:
-    beat_ratios = (0.10, 0.14, 0.15, 0.17, 0.18, 0.26)
-    beat_durations = [duration * ratio for ratio in beat_ratios]
-    selected = [gameplay_files[i % len(gameplay_files)] for i in range(len(beat_durations))]
+) -> tuple[list[Path], list[dict[str, Any]]]:
+    """Build the montage only from detected scene boundaries.
 
-    inputs: list[str] = ["ffmpeg", "-y"]
+    This deliberately avoids cutting at arbitrary timestamps. Each selected
+    unit is a complete detected scene, so an action is much less likely to be
+    chopped in the middle.
+    """
+    target = max(2.5, min(6.5, duration / 6.0))
+    candidates: list[dict[str, Any]] = []
+
+    for path in gameplay_files:
+        for scene in find_scene_segments(path):
+            candidates.append({"path": path, **scene})
+
+    if not candidates:
+        raise RuntimeError("Scene detection produced no usable gameplay segments.")
+
+    selected: list[dict[str, Any]] = []
+    remaining = duration
+    last_file: Path | None = None
+
+    while remaining >= 1.2 and len(selected) < 8:
+        available = [
+            item
+            for item in candidates
+            if item not in selected
+            and item["duration"] <= remaining + 0.10
+        ]
+        if not available:
+            break
+
+        def score(item: dict[str, Any]) -> float:
+            same_file_penalty = 1.5 if last_file == item["path"] else 0.0
+            return abs(float(item["duration"]) - target) + same_file_penalty
+
+        chosen = min(available, key=score)
+        selected.append(chosen)
+        remaining -= float(chosen["duration"])
+        last_file = chosen["path"]
+
+    if not selected:
+        chosen = min(candidates, key=lambda item: abs(float(item["duration"]) - target))
+        selected = [chosen]
+        remaining = max(0.0, duration - float(chosen["duration"]))
+
+    ffmpeg_args: list[str] = ["ffmpeg", "-y"]
     filters: list[str] = []
 
-    for index, path in enumerate(selected):
-        inputs += ["-stream_loop", "-1", "-i", str(path)]
-        segment = beat_durations[index]
+    for index, item in enumerate(selected):
+        path = Path(item["path"])
+        segment = float(item["duration"])
+        ffmpeg_args += ["-ss", f"{item['start']:.3f}", "-t", f"{segment:.3f}", "-i", str(path)]
         filters.append(
-            f"[{index}:v]"
-            f"fps=30,"
+            f"[{index}:v]fps=30,"
             f"scale=1160:2062:force_original_aspect_ratio=increase,"
             f"crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
             f"eq=contrast=1.04:saturation=1.06,"
-            f"setsar=1,"
-            f"trim=duration={segment:.3f},"
-            f"setpts=PTS-STARTPTS"
-            f"[v{index}]"
+            f"setsar=1,trim=duration={segment:.3f},setpts=PTS-STARTPTS[v{index}]"
         )
 
         if has_audio(path):
             filters.append(
-                f"[{index}:a]"
-                f"aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
-                f"atrim=duration={segment:.3f},"
-                f"asetpts=PTS-STARTPTS,"
-                f"volume=0.10"
-                f"[a{index}]"
+                f"[{index}:a]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
+                f"atrim=duration={segment:.3f},asetpts=PTS-STARTPTS,volume=0.10[a{index}]"
             )
         else:
             filters.append(
                 f"anullsrc=r=48000:cl=stereo:d={segment:.3f}[a{index}]"
             )
 
-    video_concat = "".join(f"[v{i}]" for i in range(len(selected)))
-    audio_concat = "".join(f"[a{i}]" for i in range(len(selected)))
-    filters.append(f"{video_concat}concat=n={len(selected)}:v=1:a=0[gameplay]")
-    filters.append(f"{audio_concat}concat=n={len(selected)}:v=0:a=1[gameaudio]")
+    count = len(selected)
+    video_inputs = "".join(f"[v{i}]" for i in range(count))
+    audio_inputs = "".join(f"[a{i}]" for i in range(count))
+    filters.append(f"{video_inputs}concat=n={count}:v=1:a=0[vg]")
+    filters.append(f"{audio_inputs}concat=n={count}:v=0:a=1[ag]")
 
-    inputs += [
-        "-filter_complex",
-        ";".join(filters),
-        "-map",
-        "[gameplay]",
-        "-map",
-        "[gameaudio]",
-        "-t",
-        f"{duration:.3f}",
-        "-r",
-        "30",
-        "-c:v",
-        "libx264",
-        "-preset",
-        "veryfast",
-        "-crf",
-        "20",
-        "-pix_fmt",
-        "yuv420p",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "96k",
-        "-ar",
-        "48000",
-        "-ac",
-        "2",
+    total = sum(float(item["duration"]) for item in selected)
+    if total < duration - 0.05:
+        filters.append(
+            f"[vg]tpad=stop_mode=clone:stop_duration={duration - total:.3f}[gameplay]"
+        )
+    else:
+        filters.append("[vg]null[gameplay]")
+
+    ffmpeg_args += [
+        "-filter_complex", ";".join(filters),
+        "-map", "[gameplay]",
+        "-map", "[ag]",
+        "-t", f"{duration:.3f}",
+        "-r", "30",
+        "-c:v", "libx264",
+        "-preset", "veryfast",
+        "-crf", "20",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        "-b:a", "96k",
+        "-ar", "48000",
+        "-ac", "2",
         str(destination),
     ]
 
-    run(inputs, label="Build fast-cut vertical gameplay montage")
+    run(ffmpeg_args, label="Build scene-safe vertical gameplay montage")
+
     if not destination.exists() or destination.stat().st_size == 0:
         raise RuntimeError("FFmpeg did not produce the gameplay track.")
-    return selected
+
+    return [Path(item["path"]) for item in selected], selected
 
 
 def find_primary_music() -> Path | None:
