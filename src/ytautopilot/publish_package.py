@@ -59,16 +59,41 @@ def _cover_words(script: dict[str, Any]) -> str:
     return " ".join(words[:5]).strip(" .,!?:;") or "FREE FIRE TIP"
 
 
-def create_thumbnail_candidate(video_path: Path, script: dict[str, Any]) -> Path:
+def _thumbnail_frame_source(video_path: Path, manifest: dict[str, Any]) -> tuple[Path, float]:
+    """Prefer a clean frame from the original gameplay, before burned captions."""
+    segments = manifest.get("selected_segments", [])
+    if isinstance(segments, list):
+        for segment in segments:
+            if not isinstance(segment, dict):
+                continue
+            source = Path(str(segment.get("path") or ""))
+            if not source.is_file() or source.stat().st_size == 0:
+                continue
+            start = max(0.0, float(segment.get("start", 0.0)))
+            duration = max(0.0, float(segment.get("duration", 0.0)))
+            # Avoid the exact scene boundary while staying inside the selected
+            # segment. This gives the cover a clean gameplay frame instead of
+            # the already-captioned final render.
+            offset = min(max(0.45, duration * 0.45), max(0.45, duration - 0.1))
+            return source, start + offset
+    return video_path, 0.8
+
+
+def create_thumbnail_candidate(
+    video_path: Path,
+    script: dict[str, Any],
+    manifest: dict[str, Any] | None = None,
+) -> Path:
     if not video_path.is_file() or video_path.stat().st_size == 0:
         raise RuntimeError(f"Cannot create cover: video is missing or empty: {video_path}")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     raw_frame = OUTPUT_DIR / "thumbnail_frame_tmp.jpg"
     thumbnail = OUTPUT_DIR / "thumbnail_candidate.jpg"
+    frame_source, frame_time = _thumbnail_frame_source(video_path, manifest or {})
     subprocess.run(
         [
             "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-            "-ss", "0.8", "-i", str(video_path), "-frames:v", "1",
+            "-ss", f"{frame_time:.3f}", "-i", str(frame_source), "-frames:v", "1",
             "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
             "-q:v", "2", str(raw_frame),
         ],
@@ -180,7 +205,9 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
         "hashtags": hashtags,
         "tags": bounded_tags,
         "thumbnail_candidate": str(thumbnail_path),
-        "thumbnail_note": "Candidate cover generated from the rendered Short. Applying a custom Shorts cover depends on YouTube's current account/platform support; do not assume this file was uploaded as the cover.",
+        "thumbnail_dimensions": "1080x1920",
+        "thumbnail_strategy": "clean source-gameplay frame from a selected scene segment, with generated hook text overlay",
+        "thumbnail_note": "Candidate cover is generated from the original gameplay segment rather than the caption-burned render. Applying a custom video thumbnail through YouTube depends on the authorized channel and current platform support.",
         "video": str(video_path),
         "duration_seconds": manifest.get("duration_seconds"),
         "resolution": manifest.get("resolution", "1080x1920"),
@@ -198,5 +225,5 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
 
 def create_publish_package(script: dict[str, Any], manifest: dict[str, Any]) -> dict[str, Any]:
     video_path = Path(str(manifest.get("video") or "output/short_preview.mp4"))
-    thumbnail = create_thumbnail_candidate(video_path, script)
+    thumbnail = create_thumbnail_candidate(video_path, script, manifest)
     return build_publish_metadata(script, manifest, thumbnail)
