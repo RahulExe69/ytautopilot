@@ -51,6 +51,24 @@ def choose_style(preferred: list[str] | None = None) -> str:
         for candidate in preferred:
             if any(name == candidate for name, _ in STYLES):
                 return candidate
+
+    profile_path = Path("data") / "strategy_profile.json"
+    try:
+        profile = json.loads(profile_path.read_text(encoding="utf-8")) if profile_path.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        profile = {}
+    style_scores = profile.get("description_style_scores", {}) if isinstance(profile, dict) else {}
+    if isinstance(style_scores, dict) and style_scores:
+        ranked = [
+            name for name, _ in sorted(
+                ((name, float(style_scores.get(name, 0.0))) for name, _ in STYLES),
+                key=lambda item: item[1],
+                reverse=True,
+            )
+        ]
+        if profile.get("data_ready") and ranked:
+            return ranked[0]
+
     payload = _load()
     counts: dict[str, int] = {}
     for item in payload.get("styles", []):
