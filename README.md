@@ -6,7 +6,7 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 5 publish-ready packaging is now in place, building on the Stage 4 free/local voice + scene-safe renderer.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short from gameplay assets.
+**Stage 5 publish-ready packaging is now in place, building on the Stage 4 free/local voice + scene-safe renderer.** The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation, plus a **prepare** mode that creates a reviewable vertical Short and a publish-ready content package from gameplay assets.
 
 The prepare mode currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
@@ -24,7 +24,7 @@ The prepare mode currently:
 1. Generate an original Hindi/Hinglish gaming script with Gemini.
 2. Use self-recorded or explicitly licensed gameplay footage, with permission/provenance recorded.
 3. Create Hindi narration, captions, and a vertical 9:16 Short with FFmpeg.
-4. Review the rendered file before enabling uploads.
+4. Review the rendered file and publish package before enabling uploads.
 5. Upload through the official YouTube Data API with OAuth, then record upload IDs and basic metrics.
 
 ## Setup
@@ -52,6 +52,8 @@ Choose **prepare** to generate the script and render a reviewable Short. The wor
 - captions.srt
 - captions.ass
 - render_manifest.json
+- publish_metadata.json
+- thumbnail_candidate.jpg
 - publish_metadata.json (title, description, hashtags, optional tags, video path, cover candidate, and private-upload default)
 - thumbnail_candidate.jpg (generated from a frame of the rendered Short)
 
