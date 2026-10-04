@@ -122,11 +122,11 @@ def build_gameplay_track(
     duration: float,
     destination: Path,
 ) -> list[Path]:
-    # Use three visual beats so a first render can switch between available gameplay clips.
-    segment_ratios = (0.15, 0.50, 0.35)
+    # Use four visual beats so the four uploaded gameplay clips can all contribute when available.
+    segment_ratios = (0.12, 0.38, 0.25, 0.25)
     segment_durations = [duration * ratio for ratio in segment_ratios]
 
-    selected = [gameplay_files[i % len(gameplay_files)] for i in range(3)]
+    selected = [gameplay_files[i % len(gameplay_files)] for i in range(4)]
 
     ffmpeg_args = ["ffmpeg", "-y"]
     filter_parts: list[str] = []
@@ -145,9 +145,9 @@ def build_gameplay_track(
             f"[v{index}]"
         )
 
-    concat_inputs = "".join(f"[v{i}]" for i in range(3))
+    concat_inputs = "".join(f"[v{i}]" for i in range(4))
     filter_parts.append(
-        f"{concat_inputs}concat=n=3:v=1:a=0[gameplay]"
+        f"{concat_inputs}concat=n=4:v=1:a=0[gameplay]"
     )
 
     ffmpeg_args += [
