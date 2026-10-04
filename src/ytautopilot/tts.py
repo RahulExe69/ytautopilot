@@ -328,11 +328,9 @@ def generate_indicvoice_tts(
             "IndicVoice dependencies are missing. Install requirements.txt before rendering."
         ) from exc
 
-    preferred_voice = (os.getenv("INDICVOICE_VOICE") or "hm_omega").strip()
-    voice_candidates = []
-    for candidate in (preferred_voice, "hm_omega", "hm_psi", "af_heart"):
-        if candidate and candidate not in voice_candidates:
-            voice_candidates.append(candidate)
+    # Fixed narrator: hf_beta is the requested female voice. Do not silently
+    # switch to a different voice if this preset fails to load.
+    voice_candidates = ["hf_beta"]
 
     repo_id = (os.getenv("INDICVOICE_MODEL") or "Bindkushal/IndicVoice-82M").strip()
     sample_rate = 24_000
@@ -399,7 +397,7 @@ def generate_indicvoice_tts(
 
     if not chunks or voice is None:
         raise RuntimeError(
-            "No configured Hindi IndicVoice preset produced audio. "
+            "The fixed hf_beta female voice did not produce audio. "
             + " | ".join(voice_errors[-4:])
         )
 
@@ -415,7 +413,7 @@ def generate_indicvoice_tts(
     try:
         speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.18"))
     except ValueError:
-        speech_speed = 1.18
+        speech_speed = 1.28
     speech_speed = min(1.35, max(0.90, speech_speed))
     subprocess.run(
         [
