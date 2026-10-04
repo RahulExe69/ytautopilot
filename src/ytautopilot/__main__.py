@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .content import choose_daily_topic, record_content_history
 from .scriptgen import generate_script
+from .publish_package import create_publish_package
 
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".webm"}
@@ -86,6 +87,13 @@ def main() -> int:
         from .render import render_short
 
         manifest = render_short(script)
+        package = create_publish_package(script, manifest)
+        print(
+            "\\nPublish-ready package complete: "
+            f"title={package['title']!r}, "
+            f"thumbnail={package['thumbnail_candidate']}, "
+            "privacy_status=private (upload not implemented)"
+        )
         record_content_history(
             script,
             gameplay_files=[str(path) for path in manifest.get("source_gameplay", [])],
