@@ -6,26 +6,27 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 6 private publishing is now wired in, building on the Stage 5 publish-ready package and Stage 4 free/local voice + scene-safe renderer.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode that uploads a validated Short through the official YouTube Data API with privacyStatus=private.
+**Stage 7 scheduled generation, duplicate-proof media rotation, descriptions, and performance learning are now wired in, building on the private YouTube upload path.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode that uploads a validated Short through the official YouTube Data API with privacyStatus=private.
 
-The prepare mode currently:
+The generation/render pipeline currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
 2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using the fixed female `hf_beta` voice preset and a Devanagari TTS text layer, avoiding paid TTS APIs.
 3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
 4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. The script word budget is automatically based on the total available gameplay duration, and rendering refuses to create a Short longer than its source footage. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
 5. Mutes gameplay audio completely and automatically selects one supplied track from `assets/music/` as low-volume background music. The workflow normalizes arbitrary music filenames to `music_01`, `music_02`, `music_03`, and so on.
-6. Burns the animated caption track into the video.
-7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, a render manifest, a generated vertical thumbnail candidate, and validated output/publish_metadata.json as a GitHub Actions artifact.
+6. Randomly rotates gameplay scenes and background music using recent-use avoidance and inverse-use weighting, so repeated runs do not deterministically reuse the same montage.
+7. After rendering, the pipeline fingerprints the final video, narration, music, and selected scene sequence. If the generated media is already in history, it is discarded and a fresh script/render is attempted (up to four attempts).
+8. Burns the animated caption track into the video.
+9. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, a render manifest, a generated vertical thumbnail candidate, and validated output/publish_metadata.json as a GitHub Actions artifact.
+10. Uses a rotating description/CTA system and feeds historical YouTube performance back into Gemini as a soft learning signal.
 
-**YouTube private upload is implemented.** Publish mode refreshes the OAuth access token from the existing GitHub Actions secrets, validates the output package, uploads through videos.insert as **private**, records the returned video ID, and keeps a persistent upload history for duplicate prevention. The workflow does not upload public or unlisted videos.
+**YouTube private upload is implemented.** Publish mode refreshes the OAuth access token from the existing GitHub Actions secrets, validates the output package, uploads through videos.insert as **private**, records the returned video ID, and keeps a persistent upload history for duplicate prevention. Scheduled runs upload as private with a YouTube `publishAt` target. YouTube currently restricts uploads from unverified API projects created after 28 July 2020 to private viewing until the API project completes Google's audit, so public automation is not honestly guaranteed until that restriction is lifted.
 
 ## Planned pipeline
 
-1. Generate an original Hindi/Hinglish gaming script with Gemini.
-2. Use self-recorded or explicitly licensed gameplay footage, with permission/provenance recorded.
-3. Create Hindi narration, captions, and a vertical 9:16 Short with FFmpeg.
-4. Review the rendered file and publish package before enabling uploads.
-5. Upload through the official YouTube Data API with OAuth, then record upload IDs and basic metrics.
+The scheduled experiment runs twice per day in Asia/Kolkata. GitHub Actions starts the jobs at 12:00 and 19:30 IST, then uploads private videos with default YouTube publication targets of 13:00 and 20:30 IST. Once the API project is eligible for public scheduled publication, YouTube can publish those private scheduled videos automatically.
+
+Performance collection uses the official YouTube Data API statistics available to the authorized channel. The learning profile tracks views, likes, comments, topic family, description style, duration bucket, and publish hour. After enough public videos exist, it can softly prefer better-performing topics, descriptions, durations, and publish hours while preserving exploration.
 
 ## Setup
 
@@ -69,8 +70,8 @@ The generated thumbnail remains a candidate artifact. This implementation intent
 
 ## Safety defaults
 
-- The workflow runs only when manually triggered; no schedule is enabled.
-- Publishing is implemented, but the workflow remains manual-only until the first real private upload run is verified.
+- The workflow is manual for testing and also has two scheduled daily runs at 12:00 and 19:30 IST.
+- Publishing is implemented and the scheduled path is private-at-insert with `publishAt`; public automated publication remains subject to Google's API-project audit restriction.
 - Never commit OAuth client files, refresh tokens, API keys, or generated media.
 - Do not scrape or reuse a creator's footage based only on an assumption. Verify the creator's actual reuse terms and retain evidence, or use your own gameplay.
 - Review facts, narration, captions, audio, and rights before publishing.
