@@ -4,6 +4,7 @@ import json
 import math
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from typing import Any
 
 from googleapiclient.discovery import build
@@ -187,7 +188,7 @@ def build_strategy_profile(payload: dict[str, Any]) -> dict[str, Any]:
 
         published_at = str(item.get("published_at", "")).replace("Z", "+00:00")
         try:
-            hour_ist = int(datetime.fromisoformat(published_at).astimezone().strftime("%H"))
+            hour_ist = int(datetime.fromisoformat(published_at).astimezone(ZoneInfo("Asia/Kolkata")).strftime("%H"))
         except ValueError:
             hour_ist = -1
         if hour_ist >= 0:
