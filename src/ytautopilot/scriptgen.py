@@ -46,13 +46,16 @@ Return ONLY valid JSON with these keys:
 topic, language, hook, narration, visual_plan, title, description, hashtags, fact_check_notes.
 Requirements:
 - Write like a real Indian gaming creator speaking to viewers, not like an article or translated script.
-- Prefer casual "tum/tera/tum log" phrasing. Avoid stiff phrases such as "aapko", "hum samjhenge", "core mechanic hai", and textbook Hindi.
-- The hook must be short, punchy, and immediately interesting (roughly 8-16 spoken words).
-- Keep the combined hook + narration around 75-95 spoken words so the rendered Short lands roughly in the 30-45 second range.
-- Use short natural sentences and conversational reactions such as "sun", "dekho", "na", "matlab", and "socho" when they fit naturally.
-- Build the narration around 2-3 concrete beats. Every beat should have a visible gameplay action that an editor can emphasize.
-- Do not write paragraph-style narration intended to stay on screen as one block. The renderer will convert speech into short animated caption phrases.
-- Do not invent facts about real players, updates, or game mechanics. Flag uncertain claims for verification in fact_check_notes.
+- Address the viewer as "tum/tumhara/tumhe", never "tu/tujhe/tera/teri"; keep it friendly and respectful, not over-familiar.
+- Sound like a genuine Indian gaming creator casually explaining something to a friend. Avoid robotic hype, fake urgency, repeated "secret trick" hooks, forced slang, and generic lines like "gameplay next level ho jayega".
+- Use everyday spoken Hinglish with varied sentence lengths, natural pauses, and a little personality; don't cram "bhai", "sun", "dekho", "matlab", and "na" into every script.
+- Start with a specific curiosity or gameplay situation, not a generic clickbait promise. Keep the hook around 6-12 spoken words.
+- Keep combined hook + narration around 65-85 spoken words for a roughly 30-42 second Short.
+- Build around 2-3 clear beats, and explain each in a way that sounds natural when read aloud by a Hindi TTS voice.
+- Prefer demonstrable, useful tips over vague "facts". Never invent percentages, hidden mechanics, pro-player habits, or guaranteed results. If a claim cannot be supported, omit it or clearly flag it in fact_check_notes.
+- Use punctuation for spoken rhythm, but don't write stage directions that the voice would read aloud.
+- The renderer will split the timed speech into short animated caption phrases; do not format narration as a visible paragraph.
+- Flag uncertain claims for verification in fact_check_notes.
 - Do not imitate a named creator's voice or copy another video's script. Match only the broad pacing and editing conventions of professional gaming Shorts.
 - Suggest practical visual beats that can be created from owned/licensed gameplay footage.
 - Keep the title accurate, punchy, and non-misleading.
