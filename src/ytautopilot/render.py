@@ -554,21 +554,34 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
 
     narration = str(script.get("narration") or "").strip()
     hook = str(script.get("hook") or "").strip()
+    tts_text = str(script.get("tts_text") or "").strip()
     if not narration:
         raise RuntimeError("Generated script has no narration text.")
+    if not tts_text:
+        raise RuntimeError("Generated script has no Devanagari tts_text. Regenerate the script.")
 
-    spoken_text = f"{hook} {narration}".strip() if hook else narration
+    caption_text = f"{hook} {narration}".strip() if hook else narration
+    spoken_text = tts_text
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     WORK_DIR.mkdir(parents=True, exist_ok=True)
 
+    narration_wav = WORK_DIR / "narration.wav"
     narration_audio = WORK_DIR / "narration.mp3"
     narration_srt = WORK_DIR / "narration.srt"
     animated_ass = WORK_DIR / "captions.ass"
     gameplay_track = WORK_DIR / "gameplay_track.mp4"
     final_video = OUTPUT_DIR / "short_preview.mp4"
 
-    generate_tts(spoken_text, narration_audio, narration_srt)
+    tts_meta = generate_tts(
+        spoken_text,
+        caption_text,
+        narration_wav,
+        narration_srt,
+    )
+    if not narration_audio.exists():
+        raise RuntimeError("IndicVoice did not produce the expected MP3 narration.")
+
     duration = ffprobe_duration(narration_audio)
 
     if duration > 52:
@@ -586,7 +599,11 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         animated_ass,
         int(duration * 1000),
     )
-    selected = build_gameplay_track(gameplay_files, duration, gameplay_track)
+    selected_paths, selected_segments = build_gameplay_track(
+        gameplay_files,
+        duration,
+        gameplay_track,
+    )
     audio_meta = render_final_video(
         gameplay_track,
         narration_audio,
@@ -603,23 +620,27 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     shutil.copy2(animated_ass, output_ass)
 
     manifest = {
-        "renderer": "ytautopilot-stage-3-creator-style",
+        "renderer": "ytautopilot-stage-4-free-local-tts-scene-safe",
         "video": str(final_video),
         "duration_seconds": round(duration, 3),
         "resolution": "1080x1920",
         "fps": 30,
-        "voice": os.getenv("EDGE_TTS_VOICE", "").strip() or "hi-IN-MadhurNeural",
-        "rate": os.getenv("EDGE_TTS_RATE", "").strip() or "+8%",
+        "voice": tts_meta.get("voice"),
+        "tts_engine": tts_meta.get("engine"),
+        "tts_model": tts_meta.get("model"),
         "spoken_text": spoken_text,
-        "source_gameplay": [str(path) for path in selected],
+        "caption_text": caption_text,
+        "source_gameplay": [str(path) for path in selected_paths],
+        "selected_segments": selected_segments,
         "available_gameplay_files": [str(path) for path in gameplay_files],
         "editing": {
             **caption_meta,
             **audio_meta,
-            "visual_beats": 6,
+            "visual_beats": len(selected_segments),
             "fast_cut": True,
+            "scene_safe": True,
             "caption_position": "lower-middle",
-            "caption_behavior": "short phrase pop-ins synced to speech",
+            "caption_behavior": "short phrase pop-ins synced to estimated speech timing",
         },
     }
     (OUTPUT_DIR / "render_manifest.json").write_text(
@@ -629,6 +650,10 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
 
     print(f"\n[render] Final video: {final_video}")
     print(f"[render] Duration: {duration:.1f}s")
-    print(f"[render] Caption events: {caption_meta['caption_events']}")
-    print(f"[render] Source clips: {', '.join(str(p) for p in selected)}")
+    print(f"[render] TTS: {tts_meta.get('engine')} / {tts_meta.get('voice')}")
+    print(f"[render] Scene-safe segments: {len(selected_segments)}")
     return manifest
+
+
+if __name__ == "__main__":
+    pass
