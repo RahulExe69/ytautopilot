@@ -13,7 +13,7 @@ The prepare mode currently:
 2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using the fixed female `hf_beta` voice preset and a Devanagari TTS text layer, avoiding paid TTS APIs.
 3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
 4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. The script word budget is automatically based on the total available gameplay duration, and rendering refuses to create a Short longer than its source footage. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
-5. Keeps gameplay audio very low under the voiceover and can mix an optional track from assets/music/.
+5. Mutes gameplay audio completely and automatically selects one supplied track from `assets/music/` as low-volume background music. The workflow normalizes arbitrary music filenames to `music_01`, `music_02`, `music_03`, and so on.
 6. Burns the animated caption track into the video.
 7. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, and a render manifest as a GitHub Actions artifact.
 
