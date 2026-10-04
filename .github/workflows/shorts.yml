@@ -182,6 +182,30 @@ jobs:
               raise SystemExit("No usable Hindi voice tensor was found. " + " | ".join(errors[-6:]))
           PY
 
+      - name: Set pipeline and publishing context
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "PIPELINE_MODE=publish" >> "$GITHUB_ENV"
+            echo "PIPELINE_TOPIC=auto" >> "$GITHUB_ENV"
+
+            if [ "${{ github.event.schedule }}" = "0 12 * * *" ]; then
+              publish_at="$(TZ=Asia/Kolkata date '+%Y-%m-%dT13:00:00+05:30')"
+              echo "PUBLISH_SLOT=midday" >> "$GITHUB_ENV"
+            else
+              publish_at="$(TZ=Asia/Kolkata date '+%Y-%m-%dT20:30:00+05:30')"
+              echo "PUBLISH_SLOT=evening" >> "$GITHUB_ENV"
+            fi
+
+            echo "YOUTUBE_PUBLISH_AT=$publish_at" >> "$GITHUB_ENV"
+            echo "Scheduled YouTube publish target: $publish_at"
+          else
+            echo "PIPELINE_MODE=${{ inputs.mode }}" >> "$GITHUB_ENV"
+            echo "PIPELINE_TOPIC=${{ inputs.topic }}" >> "$GITHUB_ENV"
+            echo "PUBLISH_SLOT=manual" >> "$GITHUB_ENV"
+            echo "YOUTUBE_PUBLISH_AT=" >> "$GITHUB_ENV"
+          fi
+
       - name: Verify YouTube OAuth scopes before publishing
         if: ${{inputs.mode == 'publish'}}
         env:
