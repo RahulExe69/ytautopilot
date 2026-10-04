@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import random
 import json
 import os
 import re
@@ -13,6 +14,7 @@ from typing import Any
 
 from scenedetect import ContentDetector, SceneManager, open_video
 from .tts import generate_indicvoice_tts
+from .media import media_usage_counts, recent_media_sources
 
 
 ROOT = Path.cwd()
