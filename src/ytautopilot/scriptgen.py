@@ -15,9 +15,14 @@ def fallback_script(topic: str) -> dict[str, Any]:
         "language": "Hindi",
         "hook": "Free Fire khelte ho? Toh ye trick shayad tumne notice hi nahi ki hogi!",
         "narration": (
-            "Sun, ek chhoti si Free Fire trick hai jo gameplay mein kaafi kaam aa sakti hai. "
+            "Ek chhoti si Free Fire trick hai jo gameplay mein kaafi kaam aa sakti hai. "
             "Pehle training ground mein test kar lena, phir ranked mein try karna. "
             "Tumhari favourite trick kya hai? Comment mein batao."
+        ),
+        "tts_text": (
+            "एक छोटी सी Free Fire trick है, जो gameplay में काफी काम आ सकती है। "
+            "पहले training ground में test कर लेना, फिर ranked में try करना। "
+            "तुम्हारी favourite trick क्या है? Comment में बताओ।"
         ),
         "visual_plan": [
             "Open with self-recorded or properly licensed gameplay.",
@@ -43,10 +48,12 @@ def generate_script(topic: str, allow_fallback: bool = False) -> dict[str, Any]:
     prompt = f"""
 Create an original Hindi/Hinglish gaming YouTube Short plan about: {topic!r}.
 Return ONLY valid JSON with these keys:
-topic, language, hook, narration, visual_plan, title, description, hashtags, fact_check_notes.
+topic, language, hook, narration, tts_text, visual_plan, title, description, hashtags, fact_check_notes.
 Requirements:
 - Write like a real Indian gaming creator speaking to viewers, not like an article or translated script.
 - Address the viewer as "tum/tumhara/tumhe", never "tu/tujhe/tera/teri"; keep it friendly and respectful, not over-familiar.
+- Also output a separate "tts_text" field containing the exact same spoken words converted into natural Devanagari for Hindi words. Keep gaming/product names such as Free Fire, Gloo Wall, scope, sniper, AWM, ranked, gameplay, headshot, etc. in Latin script when that gives a natural Indian gaming pronunciation.
+- Example pronunciation spelling: "अक्सर हमें लगता है" rather than "aksar hume lagta hai". The tts_text must never be Roman-Hinglish for ordinary Hindi words.
 - Sound like a genuine Indian gaming creator casually explaining something to a friend. Avoid robotic hype, fake urgency, repeated "secret trick" hooks, forced slang, and generic lines like "gameplay next level ho jayega".
 - Use everyday spoken Hinglish with varied sentence lengths, natural pauses, and a little personality; don't cram "bhai", "sun", "dekho", "matlab", and "na" into every script.
 - Start with a specific curiosity or gameplay situation, not a generic clickbait promise. Keep the hook around 6-12 spoken words.
@@ -78,7 +85,7 @@ Requirements:
     except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
         raise RuntimeError("Gemini returned an unexpected response; inspect the API response and retry.") from exc
 
-    required = ("topic", "hook", "narration", "title", "description")
+    required = ("topic", "hook", "narration", "tts_text", "title", "description")
     missing = [key for key in required if not isinstance(data.get(key), str) or not data[key].strip()]
     if missing:
         raise RuntimeError("Generated script is missing required fields: " + ", ".join(missing))
