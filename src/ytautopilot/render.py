@@ -636,6 +636,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         final_video,
         music_seed=str(script.get("topic") or script.get("title") or "ytautopilot"),
     )
+    final_duration = duration + 1.0
 
     output_audio = OUTPUT_DIR / "narration.mp3"
     output_srt = OUTPUT_DIR / "captions.srt"
