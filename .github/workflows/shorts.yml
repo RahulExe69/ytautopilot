@@ -113,6 +113,14 @@ jobs:
           print(f"espeak_data={data_path}")
           PY
 
+      - name: Cache IndicVoice model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: indicvoice-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            indicvoice-${{ runner.os }}-
+
       - name: Verify Hindi voice tensor
         env:
           INDICVOICE_VOICE: hf_beta
@@ -167,13 +175,6 @@ jobs:
           else:
               raise SystemExit("No usable Hindi voice tensor was found. " + " | ".join(errors[-6:]))
           PY
-      - name: Cache IndicVoice model
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/huggingface
-          key: indicvoice-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            indicvoice-${{ runner.os }}-
 
       - name: Run pipeline
         env:
