@@ -2,7 +2,7 @@
 
 This guide documents how to set up the current YTAutoPilot stages, troubleshoot them, and help another creator build a separate project inspired by the workflow.
 
-> **Current status:** Stage 3 creator-style rendering is implemented. The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation. Prepare mode also renders a reviewable 9:16 Short with conversational narration, fast-cut gameplay, and animated pop-up captions using Edge TTS + FFmpeg. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
+> **Current status:** Stage 4 free/local voice and scene-safe rendering is implemented. The workflow supports a manual dry-run and Hindi/Hinglish gaming script generation. Prepare mode renders a reviewable 9:16 Short with conversational narration, local IndicVoice TTS, scene-safe gameplay cuts, and animated pop-up captions using FFmpeg. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
 
 ## 1. What you need
 
@@ -95,8 +95,8 @@ The current Stage 2 workflow intentionally does not use those YouTube secrets.
 | Name | Default | Purpose |
 |---|---|---|
 | GEMINI_MODEL | Project-supported model | Gemini script generation |
-| EDGE_TTS_VOICE | hi-IN-MadhurNeural | Hindi narration voice |
-| EDGE_TTS_RATE | +8% | Narration speaking rate |
+| INDICVOICE_VOICE | am_adam | Local Hindi voice style |
+| INDICVOICE_MODEL | Bindkushal/IndicVoice-82M | Local Apache-2.0 TTS model |
 
 EDGE_TTS_VOICE and EDGE_TTS_RATE are not secrets.
 
@@ -111,7 +111,7 @@ Recommended:
 - Multiple clips give the renderer more visual variety.
 - Filenames do not need to follow a special pattern. The renderer discovers supported video extensions automatically.
 
-The Stage 3 renderer uses six fast visual beats and cycles through the available clips. One clip is enough for the first test.
+The Stage 4 renderer detects scene boundaries and selects complete gameplay scenes. It no longer cuts at arbitrary fixed timestamps. Multiple clips are recommended for variety.
 
 ## 6. Run the safe dry-run
 
@@ -125,7 +125,7 @@ The Stage 3 renderer uses six fast visual beats and cycles through the available
 
 This confirms script generation only.
 
-## 7. Run Stage 3 prepare mode
+## 7. Run Stage 4 prepare mode
 
 1. Open **Actions → ytautopilot → Run workflow**.
 2. Keep your topic, for example Free Fire tips and lesser-known facts.
@@ -145,14 +145,14 @@ The artifact should contain:
 
 Prepare mode does **not** publish to YouTube.
 
-## 8. How Stage 3 works
+## 8. How Stage 4 works
 
 1. Gemini creates the script JSON in conversational Hindi/Hinglish, using short spoken beats and casual "tum" phrasing.
-2. The renderer combines the hook and narration into the spoken text.
-3. edge-tts produces MP3 audio plus timed subtitle cues.
-4. The renderer converts those cues into short 1-3 word caption events.
+2. Gemini creates both Roman-Hinglish caption text and a Devanagari TTS text layer so Hindi words such as "hume" can be spoken as "हमें".
+3. IndicVoice renders the Hindi narration locally using the Apache-2.0 IndicVoice-82M model; no paid TTS API is required.
+4. The renderer estimates caption timing from the spoken text and converts it into short 1-3 word caption events.
 5. Each caption event pops up from below, scales into place, fades out, and highlights important gaming keywords rather than leaving a paragraph on screen.
-6. Six fast gameplay beats are created from files found in assets/gameplay/, cycling through the available clips.
+6. PySceneDetect finds complete gameplay scenes, and the renderer selects those scenes instead of cutting at arbitrary timestamps.
 7. Gameplay is scaled/cropped to 1080x1920 at 30 fps with a small visual grade.
 8. Low-volume gameplay audio sits under the narration. An optional background track can be placed in assets/music/.
 9. output/short_preview.mp4 is created with animated ASS captions burned into the video.
@@ -167,17 +167,17 @@ The renderer intentionally does not:
 - generate thumbnails,
 - schedule publishing.
 
-## 9. Troubleshooting Stage 2
+## 9. Troubleshooting Stage 4
 
 ### No gameplay found
 
 Check that at least one supported video exists inside assets/gameplay/.
 
-### edge-tts failed
+### IndicVoice failed
 
-Check the job log around the TTS step. The renderer needs network access to Microsoft's Edge TTS service. You do not need an Azure Speech API key for this implementation.
+Check the job log around the TTS step. The first run needs network access to download the open-source model from Hugging Face; later runs can reuse the GitHub Actions model cache. The workflow also installs espeak-ng for the model's phonemizer fallback.
 
-If a voice is rejected, remove the EDGE_TTS_VOICE variable and retry with the default hi-IN-MadhurNeural, or choose another currently supported Hindi voice from Microsoft's published list.
+If a voice style is unavailable, remove INDICVOICE_VOICE and retry with the default am_adam.
 
 ### FFmpeg subtitles failed
 
@@ -193,7 +193,7 @@ Landscape gameplay is center-cropped into portrait. Vertical recordings usually 
 
 ### Captions look wrong
 
-The renderer uses Noto Sans Devanagari and converts the Edge TTS timing into short animated ASS caption events. Inspect captions.ass for the exact event timing. If captions are still too large, reduce the ASS font size in render.py.
+The renderer uses Noto Sans Devanagari and converts estimated speech timing into short animated ASS caption events. Inspect captions.ass for the event timing. The Roman-Hinglish caption layer is intentionally separate from the Devanagari TTS layer.
 
 ### Workflow succeeds but no YouTube video appears
 
@@ -244,7 +244,9 @@ For a new project:
 - YouTube Data API documentation: https://developers.google.com/youtube/v3
 - GitHub Actions artifacts: https://docs.github.com/en/actions/concepts/workflows-and-actions/workflow-artifacts
 - Microsoft Speech language and voice support: https://learn.microsoft.com/azure/cognitive-services/speech-service/language-support
-- edge-tts package: https://pypi.org/project/edge-tts/
+- IndicVoice: https://github.com/Bindkushal/indic-voice
+- Indic G2P: https://github.com/Bindkushal/indic-g2p
+- PySceneDetect: https://www.scenedetect.com/
 
 ---
 Last reviewed: 2026-10-04. Re-check provider documentation because API, voice, and OAuth requirements can change.
