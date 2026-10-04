@@ -38,16 +38,27 @@ def _hashtags(script: dict[str, Any]) -> list[str]:
     return values[:8]
 
 
-def _font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+def _font(size: int, bold: bool = True) -> ImageFont.FreeTypeFont:
+    # Devanagari needs a shaping engine for conjuncts and vowel marks.
     candidates = [
         "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf" if bold else "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Bold.ttf" if bold else "/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
     ]
+    layout = getattr(ImageFont, "Layout", None)
+    engine = getattr(layout, "RAQM", None) if layout else None
     for candidate in candidates:
         if Path(candidate).is_file():
-            return ImageFont.truetype(candidate, size=size)
-    return ImageFont.load_default()
+            try:
+                if engine is not None:
+                    return ImageFont.truetype(candidate, size=size, layout_engine=engine)
+                return ImageFont.truetype(candidate, size=size)
+            except (OSError, ValueError):
+                continue
+    raise RuntimeError(
+        "No usable thumbnail font found. Install fonts-noto-core and Pillow with "
+        "libraqm support; refusing to create a cover with missing glyphs."
+    )
 
 
 def _cover_words(script: dict[str, Any]) -> str:
@@ -116,7 +127,7 @@ def create_thumbnail_candidate(
     draw = ImageDraw.Draw(image)
 
     title = _cover_words(script)
-    font = _font(92)
+    font = _font(78)
     max_width = 850
     lines: list[str] = []
     current = ""
