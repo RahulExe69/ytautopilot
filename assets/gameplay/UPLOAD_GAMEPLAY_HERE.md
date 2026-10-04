@@ -6,7 +6,7 @@ Use:
 - Your own self-recorded gameplay, or footage you have explicit permission/license to reuse.
 - `.mp4`, `.mov`, `.mkv`, or `.webm` files.
 - Vertical 9:16 footage where possible. Landscape footage is center-cropped to 1080x1920 by the renderer.
-- Several short clips for better visual variety. The first renderer uses three visual beats and cycles through the available clips.
+- Several short clips for better visual variety. The first renderer uses four visual beats and cycles through the available clips.
 
 For the first test, one usable clip is enough.
 
