@@ -51,7 +51,7 @@ jobs:
           fi
           if [ "$missing" -eq 1 ]; then
             sudo apt-get update
-            sudo apt-get install -y ffmpeg fonts-noto-core
+            sudo apt-get install -y ffmpeg fonts-noto-core espeak-ng
           else
             echo "FFmpeg, ffprobe, and Devanagari font already available; skipping apt install."
           fi
@@ -59,12 +59,20 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Cache IndicVoice model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: indicvoice-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            indicvoice-${{ runner.os }}-
+
       - name: Run pipeline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
-          EDGE_TTS_VOICE: ${{ vars.EDGE_TTS_VOICE }}
-          EDGE_TTS_RATE: ${{ vars.EDGE_TTS_RATE }}
+          INDICVOICE_VOICE: ${{ vars.INDICVOICE_VOICE }}
+          INDICVOICE_MODEL: ${{ vars.INDICVOICE_MODEL }}
           INCLUDE_HOOK_IN_NARRATION: "true"
           ENABLE_PUBLISH: ${{ vars.ENABLE_PUBLISH }}
           PYTHONPATH: src
