@@ -607,6 +607,17 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         duration,
         gameplay_track,
     )
+    # Normalize scene metadata immediately. Some Python path-like values can
+    # otherwise leak into the final manifest and make json.dumps() fail.
+    selected_segments = [
+        {
+            "path": str(item.get("path")),
+            "start": float(item.get("start", 0.0)),
+            "end": float(item.get("end", 0.0)),
+            "duration": float(item.get("duration", 0.0)),
+        }
+        for item in selected_segments
+    ]
     audio_meta = render_final_video(
         gameplay_track,
         narration_audio,
