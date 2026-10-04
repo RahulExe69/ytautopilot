@@ -52,6 +52,39 @@ def estimate_srt(text: str, duration_seconds: float) -> str:
     return "\n".join(blocks).strip() + "\n"
 
 
+def _configure_system_espeak() -> None:
+    """Prefer Ubuntu's system eSpeak-NG over the broken bundled loader wheel."""
+    import shutil
+
+    candidates = [
+        Path("/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"),
+        Path("/usr/lib/aarch64-linux-gnu/libespeak-ng.so.1"),
+        Path("/usr/lib64/libespeak-ng.so.1"),
+    ]
+    library = next((path for path in candidates if path.is_file()), None)
+    if library is None:
+        resolved = shutil.which("espeak-ng")
+        if resolved:
+            # Keep the system binary available to phonemizer; the wrapper below
+            # will still resolve its shared library through the configured path.
+            library = Path("/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1")
+
+    if library is None or not library.is_file():
+        raise RuntimeError(
+            "System eSpeak-NG library not found. Install libespeak-ng1/ espeak-ng."
+        )
+
+    from phonemizer.backend.espeak.wrapper import EspeakWrapper
+
+    EspeakWrapper.set_library(str(library))
+    data_path = Path("/usr/share/espeak-ng-data")
+    if data_path.is_dir() and hasattr(EspeakWrapper, "set_data_path"):
+        EspeakWrapper.set_data_path(str(data_path))
+
+    os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = str(library)
+    if data_path.is_dir():
+        os.environ["ESPEAK_DATA_PATH"] = str(data_path)
+
 def generate_indicvoice_tts(
     text: str,
     audio_path: Path,
@@ -63,6 +96,7 @@ def generate_indicvoice_tts(
         import numpy as np
         import soundfile as sf
         from indicvoice import IndicPipeline
+        _configure_system_espeak()
     except ImportError as exc:
         raise RuntimeError(
             "IndicVoice dependencies are missing. Install requirements.txt before rendering."
