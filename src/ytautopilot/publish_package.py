@@ -274,6 +274,7 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
         "privacy_status": "private",
         "youtube_video_id": None,
         "fact_check_notes": script.get("fact_check_notes", []),
+        "media_identity": manifest.get("media_identity", {}),
     }
     output_path = OUTPUT_DIR / "publish_metadata.json"
     output_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
