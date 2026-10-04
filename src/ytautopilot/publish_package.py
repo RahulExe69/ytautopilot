@@ -11,6 +11,7 @@ from typing import Any
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 
 from .content import content_fingerprint
+from .descriptions import build_description, choose_style
 
 
 OUTPUT_DIR = Path("output")
@@ -206,7 +207,8 @@ def create_thumbnail_candidate(
 
 def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thumbnail_path: Path) -> dict[str, Any]:
     title = _clean_text(script.get("title"))
-    description = _clean_text(script.get("description"))
+    description_style = choose_style()
+    description = build_description(script, description_style)
     if not title:
         raise RuntimeError("Publish metadata validation failed: title is empty.")
     if not description:
@@ -258,6 +260,7 @@ def build_publish_metadata(script: dict[str, Any], manifest: dict[str, Any], thu
         "language": _clean_text(script.get("language") or "Hindi/Hinglish"),
         "title": title,
         "description": description,
+        "description_style": description_style,
         "hashtags": hashtags,
         "tags": bounded_tags,
         "category_id": "20",
