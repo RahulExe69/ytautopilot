@@ -71,7 +71,7 @@ The repository now includes the first real YouTube upload path:
 - `src/ytautopilot/__main__.py`: `publish` mode now renders, validates, and uploads privately. The code requires `YOUTUBE_PUBLISH_ENABLED=true`.
 - `.github/workflows/shorts.yml`: workflow_dispatch now offers `dry-run`, `prepare`, and `publish`; existing YouTube secrets are passed only through the Actions environment; upload runs get 35 minutes. Workflow remains manual-only; no schedule has been enabled yet.
 - Custom thumbnails are intentionally not sent through `thumbnails.set`; `thumbnail_candidate.jpg` remains an artifact.
-- Latest commit: `6bb2b05c872d45f39d7ca2142ac20c34ead42a2d`.
+- Latest implementation commit: `3011af5a420eeef7f1ee09e5ba5150d551562361`.
 
 Important: the new upload path has NOT been workflow-tested yet because the available GitHub integration can edit/fetch workflow files but cannot dispatch a new workflow run. Do not claim a private upload succeeded until an actual GitHub Actions run proves it.
 
