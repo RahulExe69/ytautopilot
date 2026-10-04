@@ -48,8 +48,11 @@ def generate_script(topic: str, allow_fallback: bool = False) -> dict[str, Any]:
             return fallback_script(topic)
         raise RuntimeError("GEMINI_API_KEY is missing. Add it to GitHub Actions secrets before prepare/publish.")
 
-    model = (os.getenv("GEMINI_MODEL") or "gemini-3.5-flash-lite").strip()
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    configured_model = (os.getenv("GEMINI_MODEL") or "gemini-3.5-flash-lite").strip()
+    model_candidates = []
+    for candidate in (configured_model, "gemini-2.5-flash-lite", "gemini-2.5-flash"):
+        if candidate and candidate not in model_candidates:
+            model_candidates.append(candidate)
     prompt = f"""
 Create an original Hindi/Hinglish gaming YouTube Short plan about: {topic!r}.
 Return ONLY valid JSON with these keys:
@@ -78,27 +81,52 @@ ${history_prompt_context()}
 """
 
     def request_script(request_prompt: str, temperature: float) -> dict[str, Any]:
-        response = requests.post(
-            url,
-            params={"key": api_key},
-            json={
-                "contents": [{"parts": [{"text": request_prompt}]}],
-                "generationConfig": {
-                    "temperature": temperature,
-                    "responseMimeType": "application/json",
-                },
-            },
-            timeout=60,
+        errors: list[str] = []
+        for candidate_model in model_candidates:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{candidate_model}:generateContent"
+            for attempt in range(3):
+                try:
+                    response = requests.post(
+                        url,
+                        params={"key": api_key},
+                        json={
+                            "contents": [{"parts": [{"text": request_prompt}]}],
+                            "generationConfig": {
+                                "temperature": temperature,
+                                "responseMimeType": "application/json",
+                            },
+                        },
+                        timeout=60,
+                    )
+                    if response.status_code in {429, 500, 502, 503, 504}:
+                        errors.append(f"{candidate_model} attempt {attempt + 1}: HTTP {response.status_code}")
+                        if attempt < 2:
+                            import time
+                            time.sleep(2 ** attempt)
+                            continue
+                        break
+                    response.raise_for_status()
+                    payload = response.json()
+                    try:
+                        raw = payload["candidates"][0]["content"]["parts"][0]["text"]
+                        data = json.loads(raw)
+                        data["_model_used"] = candidate_model
+                        return data
+                    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+                        raise RuntimeError(
+                            "Gemini returned an unexpected response; inspect the API response and retry."
+                        ) from exc
+                except requests.RequestException as exc:
+                    errors.append(f"{candidate_model} attempt {attempt + 1}: {exc}")
+                    if attempt < 2:
+                        import time
+                        time.sleep(2 ** attempt)
+                        continue
+                    break
+
+        raise RuntimeError(
+            "Gemini script generation failed after retries. " + " | ".join(errors[-8:])
         )
-        response.raise_for_status()
-        payload = response.json()
-        try:
-            raw = payload["candidates"][0]["content"]["parts"][0]["text"]
-            return json.loads(raw)
-        except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
-            raise RuntimeError(
-                "Gemini returned an unexpected response; inspect the API response and retry."
-            ) from exc
 
     data = request_script(prompt, 0.7)
     if is_duplicate_script(data):
@@ -112,6 +140,7 @@ The first draft was too similar to a recent Short. Discard that angle and create
                 "Choose a different topic seed and retry."
             )
 
+    data.pop("_model_used", None)
     required = ("topic", "hook", "narration", "tts_text", "title", "description")
     missing = [key for key in required if not isinstance(data.get(key), str) or not data[key].strip()]
     if missing:
