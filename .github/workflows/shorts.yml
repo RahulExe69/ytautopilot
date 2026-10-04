@@ -176,6 +176,24 @@ jobs:
               raise SystemExit("No usable Hindi voice tensor was found. " + " | ".join(errors[-6:]))
           PY
 
+      - name: Verify YouTube OAuth scopes before publishing
+        if: ${{inputs.mode == 'publish'}}
+        env:
+          YOUTUBE_CLIENT_ID: ${{secrets.YOUTUBE_CLIENT_ID}}
+          YOUTUBE_CLIENT_SECRET: ${{secrets.YOUTUBE_CLIENT_SECRET}}
+          YOUTUBE_REFRESH_TOKEN: ${{secrets.YOUTUBE_REFRESH_TOKEN}}
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          from ytautopilot.youtube_upload import _credentials, REQUIRED_SCOPES
+
+          credentials = _credentials()
+          granted = sorted(str(scope) for scope in (credentials.granted_scopes or []))
+          print("YouTube OAuth scope check passed.")
+          print("Required scopes present:", credentials.has_scopes(REQUIRED_SCOPES))
+          print("Granted scopes:", granted)
+          PY
+
       - name: Run pipeline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
