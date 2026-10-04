@@ -76,14 +76,24 @@ def _configure_system_espeak() -> None:
 
     from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
+    data_candidates = [
+        Path("/usr/lib/x86_64-linux-gnu/espeak-ng-data"),
+        Path("/usr/lib/aarch64-linux-gnu/espeak-ng-data"),
+        Path("/usr/lib/arm-linux-gnueabihf/espeak-ng-data"),
+        Path("/usr/share/espeak-ng-data"),
+    ]
+    data_path = next((path for path in data_candidates if path.is_dir()), None)
+    if data_path is None:
+        raise RuntimeError(
+            "System eSpeak-NG data directory not found. Install espeak-ng-data."
+        )
+
     EspeakWrapper.set_library(str(library))
-    data_path = Path("/usr/share/espeak-ng-data")
-    if data_path.is_dir() and hasattr(EspeakWrapper, "set_data_path"):
+    if hasattr(EspeakWrapper, "set_data_path"):
         EspeakWrapper.set_data_path(str(data_path))
 
     os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = str(library)
-    if data_path.is_dir():
-        os.environ["ESPEAK_DATA_PATH"] = str(data_path)
+    os.environ["ESPEAK_DATA_PATH"] = str(data_path)
 
 def generate_indicvoice_tts(
     text: str,
