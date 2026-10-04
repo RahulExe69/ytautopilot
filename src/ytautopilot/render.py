@@ -355,6 +355,56 @@ def find_scene_segments(path: Path) -> list[dict[str, float]]:
     }]
 
 
+def detect_active_picture_crop(path: Path) -> str | None:
+    """Detect embedded black letterboxing and return a conservative FFmpeg crop.
+
+    The crop is only accepted when it preserves almost all horizontal content
+    and removes clear top/bottom bars. This avoids aggressive auto-crops that
+    could cut the game HUD or character.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg", "-hide_banner", "-ss", "0.5", "-i", str(path),
+                "-vf", "cropdetect=limit=24:round=2:reset=0",
+                "-frames:v", "180", "-an", "-f", "null", "-",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+    matches = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", result.stderr)
+    if not matches:
+        return None
+    width, height, x, y = map(int, matches[-1])
+    try:
+        probe = json.loads(command_output([
+            "ffprobe", "-v", "error", "-select_streams", "v:0",
+            "-show_entries", "stream=width,height", "-of", "json", str(path),
+        ]))
+        stream = probe["streams"][0]
+        source_w, source_h = int(stream["width"]), int(stream["height"])
+    except (ValueError, KeyError, IndexError, TypeError, json.JSONDecodeError):
+        return None
+
+    if not source_w or not source_h:
+        return None
+    # Only remove obvious letterboxing: preserve >= 94% of width and >= 72%
+    # of height, and require meaningful vertical bars to avoid tiny crop noise.
+    if width < source_w * 0.94 or height < source_h * 0.72:
+        return None
+    if height >= source_h * 0.97 or (y < 8 and source_h - (y + height) < 8):
+        return None
+    if x < 0 or y < 0 or x + width > source_w or y + height > source_h:
+        return None
+    print(f"[render] Detected embedded letterboxing in {path.name}: crop={width}:{height}:{x}:{y}")
+    return f"{width}:{height}:{x}:{y}"
+
+
 def build_gameplay_track(
     gameplay_files: list[Path],
     duration: float,
@@ -421,14 +471,19 @@ def build_gameplay_track(
 
     ffmpeg_args: list[str] = ["ffmpeg", "-y"]
     filters: list[str] = []
+    crop_cache: dict[Path, str | None] = {}
 
     for index, item in enumerate(selected):
         path = Path(item["path"])
         segment = float(item["duration"])
         ffmpeg_args += ["-ss", f"{item['start']:.3f}", "-t", f"{segment:.3f}", "-i", str(path)]
+        if path not in crop_cache:
+            crop_cache[path] = detect_active_picture_crop(path)
+        active_crop = crop_cache[path]
+        crop_filter = f"crop={active_crop}," if active_crop else ""
         filters.append(
-            f"[{index}:v]fps=30,"
-            f"scale=1160:2062:force_original_aspect_ratio=increase,"
+            f"[{index}:v]{crop_filter}fps=30,"
+            f"scale=1080:1920:force_original_aspect_ratio=increase,"
             f"crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
             f"eq=contrast=1.04:saturation=1.06,"
             f"setsar=1,trim=duration={segment:.3f},setpts=PTS-STARTPTS[v{index}]"
