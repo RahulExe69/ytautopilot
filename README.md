@@ -63,7 +63,7 @@ The rendered MP4 is a preview only. Review its factual accuracy, audio, captions
 
 Choose **publish** only for an intentional upload run. The same generation, render, and validation pipeline runs first. The upload module has hard safety gates that refuse anything except private visibility, and it never requests public or unlisted status.
 
-A successful run writes the YouTube video ID to output/publish_metadata.json and updates data/upload_history.json. The upload module uses resumable uploads with retry handling for transient server and network failures. It also checks recent owned uploads for a deterministic topic marker before creating a new video, so a retry after an ambiguous upload response can be deduplicated.
+A successful run writes the YouTube video ID to output/publish_metadata.json and updates data/upload_history.json. The upload module uses resumable uploads with retry handling for transient server and network failures. It also checks recent owned uploads for a deterministic topic marker stored as a non-display tag before creating a new video, so a retry after an ambiguous upload response can be deduplicated.
 
 The generated thumbnail remains a candidate artifact. This implementation intentionally does not call thumbnails.set because custom thumbnail support can vary by channel.
 
