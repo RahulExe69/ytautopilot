@@ -250,6 +250,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-05T17:33:07.081991+00:00",
+      "weekday": 0,
+      "topic": "The safest way to cross a short open area in ranked",
+      "title": "Ranked Match Mein Open Area Cross Karne Ka Sahi Tareeka",
+      "hook": "Ranked match mein khula area cross karte waqt target mat bano.",
+      "topic_family": "ranked mistakes and clutches",
+      "hook_style": "statement",
+      "fingerprint": "8feff42cca17e806",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
