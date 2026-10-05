@@ -243,6 +243,40 @@ def _prepare_hindi_tts_text(text: str) -> str:
     return re.sub(r"\s+", " ", prepared).strip()
 
 
+
+def _spoken_segments(text: str) -> list[tuple[str, str]]:
+    """Split speech at sentence boundaries while retaining terminal punctuation."""
+    prepared = text.strip()
+    if not prepared:
+        return []
+    segments: list[tuple[str, str]] = []
+    cursor = 0
+    for match in re.finditer(r"[^.!?।！？]+(?:[.!?।！？]+|$)", prepared):
+        segment = match.group(0).strip()
+        if not segment:
+            continue
+        terminal_match = re.search(r"([.!?।！？]+)\s*$", segment)
+        terminal = terminal_match.group(1)[-1] if terminal_match else ""
+        body = segment[:terminal_match.start()].strip() if terminal_match else segment
+        if body:
+            segments.append((body + (terminal if terminal else ""), terminal))
+        cursor = match.end()
+    if not segments and prepared:
+        segments.append((prepared, ""))
+    return segments
+
+
+def _sentence_pause_seconds(terminal: str) -> float:
+    """External pause after each sentence so boundaries survive TTS synthesis."""
+    if terminal in {"?", "؟"}:
+        return 0.20
+    if terminal in {"!", "！"}:
+        return 0.17
+    if terminal in {".", "।"}:
+        return 0.15
+    return 0.10
+
+
 def _split_tts_sentences(text: str) -> list[str]:
     parts = re.split(r"(?<=[.!?।！？])\s+", text.strip())
     return [part.strip() for part in parts if part.strip()]
@@ -599,15 +633,33 @@ def generate_indicvoice_tts(
             candidate_sentence_durations: list[float] = []
 
             if fast_mode:
-                for result in pipeline(prepared_text, voice=candidate_voice):
-                    audio = result.audio
-                    if audio is None:
-                        continue
-                    if hasattr(audio, "detach"):
-                        audio = audio.detach().cpu().numpy()
-                    array = np.asarray(audio, dtype=np.float32).squeeze()
-                    if array.size:
-                        candidate_chunks.append(array)
+                # Keep sentence boundaries explicit instead of feeding one long
+                # paragraph to the model. IndicVoice/Kokoro relies heavily on
+                # punctuation for pacing, so per-sentence synthesis plus a small
+                # measured silence gives much clearer starts/stops.
+                segments = _spoken_segments(prepared_text)
+                if not segments:
+                    raise RuntimeError("IndicVoice returned no speech segments.")
+                for segment_text, terminal in segments:
+                    segment_arrays: list[np.ndarray] = []
+                    for result in pipeline(segment_text, voice=candidate_voice):
+                        audio = result.audio
+                        if audio is None:
+                            continue
+                        if hasattr(audio, "detach"):
+                            audio = audio.detach().cpu().numpy()
+                        array = np.asarray(audio, dtype=np.float32).squeeze()
+                        if array.size:
+                            segment_arrays.append(array)
+                    if not segment_arrays:
+                        raise RuntimeError("IndicVoice returned no audio for a speech segment.")
+                    candidate_chunks.append(np.concatenate(segment_arrays).astype(np.float32))
+                    candidate_chunks.append(
+                        np.zeros(
+                            int(sample_rate * _sentence_pause_seconds(terminal)),
+                            dtype=np.float32,
+                        )
+                    )
                 if not candidate_chunks:
                     raise RuntimeError("IndicVoice returned no audio.")
             else:
@@ -659,7 +711,7 @@ def generate_indicvoice_tts(
     # FFmpeg is used only for consistent MP3 output in the workflow artifact.
     mp3_path = audio_path.with_suffix(".mp3")
     try:
-        speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.28"))
+        speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.20"))
     except ValueError:
         speech_speed = 1.28
     speech_speed = min(1.35, max(0.90, speech_speed))
