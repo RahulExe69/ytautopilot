@@ -28,6 +28,16 @@
       "status": "uploaded_private",
       "description_style": "community",
       "scheduled_publish_at": "2026-10-06T13:00:00+05:30"
+    },
+    {
+      "uploaded_at_utc": "2026-10-05T16:20:25.722105+00:00",
+      "fingerprint": "d02b43466292eba9",
+      "youtube_video_id": "JQCCFv9zbKU",
+      "title": "Close-Range Fight Mein Jump Karna Kab Band Karoge?",
+      "topic": "Why panic-jumping can lose an easy close-range fight",
+      "status": "uploaded_private",
+      "description_style": "default",
+      "scheduled_publish_at": null
     }
   ]
 }
