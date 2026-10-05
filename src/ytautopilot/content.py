@@ -143,6 +143,46 @@ TOPIC_FAMILY_HINTS: dict[str, tuple[str, ...]] = {
 }
 
 
+
+AI_ARTIFACT_PATTERN = re.compile(r"(?<!\w)(?:[-_=*]{3,})(?!\w)|[—–]")
+RECENT_FAMILY_COOLDOWN = 3
+
+
+def clean_user_text(value: str) -> str:
+    """Normalize generated viewer-facing text so it reads like human copy."""
+    text = str(value or "")
+    text = re.sub(r"\s*[—–]\s*", ", ", text)
+    text = re.sub(r"(?m)^\s*[-_=*]{3,}\s*$", "", text)
+    text = re.sub(r"(?<!\w)[-_=*]{3,}(?!\w)", " ", text)
+    text = re.sub(r"(\*\*|__|\*)", "", text)
+    text = re.sub(r"!{2,}", "!", text)
+    text = re.sub(r"\?{2,}", "?", text)
+    text = re.sub(r"\.{4,}", "...", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _content_bigrams(value: str) -> set[str]:
+    tokens = _normalise(value).split()
+    if len(tokens) < 2:
+        return set()
+    return {" ".join(tokens[i:i + 2]) for i in range(len(tokens) - 1)}
+
+
+def _recent_phrase_overlap(value: str, recent_values: list[str]) -> float:
+    current = _content_bigrams(value)
+    if not current:
+        return 0.0
+    best = 0.0
+    for previous in recent_values:
+        old = _content_bigrams(previous)
+        if not old:
+            continue
+        overlap = len(current & old) / max(1, len(current))
+        best = max(best, overlap)
+    return best
+
+
 def _strategy_profile() -> dict[str, Any]:
     if not STRATEGY_PROFILE_PATH.exists():
         return {}
@@ -274,12 +314,45 @@ def choose_daily_topic(run_date: date | None = None, exclude_topics: set[str] | 
     if not candidates:
         raise RuntimeError("No unused topic candidate is available.")
 
+    recent_entries = recent_history(24)
     recent_topics = [
         _normalise(str(item.get("topic", "")))
-        for item in recent_history(24)
+        for item in recent_entries
         if str(item.get("topic", "")).strip()
     ]
-    preferred_family = TOPIC_BANK[current.weekday()][0]
+    recent_titles = [
+        _normalise(str(item.get("title", "")))
+        for item in recent_entries
+        if str(item.get("title", "")).strip()
+    ]
+    recent_hooks = [
+        _normalise(str(item.get("hook", "")))
+        for item in recent_entries
+        if str(item.get("hook", "")).strip()
+    ]
+    recent_families = [
+        str(item.get("topic_family") or topic_family(str(item.get("topic", "")))).strip()
+        for item in recent_entries
+        if isinstance(item, dict)
+    ]
+    recent_family_counts: dict[str, int] = {}
+    for family in recent_families:
+        recent_family_counts[family] = recent_family_counts.get(family, 0) + 1
+
+    # The old weekday prior could repeatedly select the same family (for example
+    # Monday -> close-range skills) for many consecutive runs. Prefer families
+    # that have not appeared in the recent cooldown window, then use performance
+    # learning as a soft signal.
+    cooldown_families = set(recent_families[-RECENT_FAMILY_COOLDOWN:])
+    available_families = {
+        family for family, _ in candidates
+        if family not in cooldown_families
+    }
+    preferred_family = (
+        next(iter(available_families))
+        if available_families
+        else TOPIC_BANK[current.weekday() % len(TOPIC_BANK)][0]
+    )
 
     def similarity_to_recent(topic: str) -> float:
         from difflib import SequenceMatcher
@@ -314,7 +387,17 @@ def choose_daily_topic(run_date: date | None = None, exclude_topics: set[str] | 
             score += 0.08
 
         similarity = similarity_to_recent(topic)
-        score -= max(0.0, similarity - 0.72) * 0.5
+        score -= max(0.0, similarity - 0.64) * 0.9
+
+        # Penalize repeated wording independently of full-string similarity.
+        # This catches cases like:
+        # "Close-Range Fight Mein Cover..."
+        # "Close-Range Fight Mein Jump..."
+        topic_overlap = _recent_phrase_overlap(topic, recent_topics)
+        score -= topic_overlap * 0.95
+
+        if recent_family_counts.get(family, 0) > 0:
+            score -= min(0.28, recent_family_counts[family] * 0.10)
 
         # Stable per-day tie breaking without randomness in workflow retries.
         digest = hashlib.sha256(f"{current.isoformat()}|{topic}".encode("utf-8")).hexdigest()
@@ -363,15 +446,35 @@ def _entry_similarity(script: dict[str, Any], entry: dict[str, Any]) -> float:
 def is_duplicate_script(script: dict[str, Any]) -> bool:
     current_topic = _normalise(str(script.get("topic", "")))
     current_title = _normalise(str(script.get("title", "")))
+    current_hook = _normalise(str(script.get("hook", "")))
+    current_family = str(script.get("topic_family") or topic_family(str(script.get("topic", ""))))
     for entry in recent_history(32):
         old_topic = _normalise(str(entry.get("topic", "")))
         old_title = _normalise(str(entry.get("title", "")))
+        old_hook = _normalise(str(entry.get("hook", "")))
+        old_family = str(entry.get("topic_family") or topic_family(str(entry.get("topic", ""))))
         if current_topic and current_topic == old_topic:
             return True
         if current_title and current_title == old_title:
             return True
-        if _entry_similarity(script, entry) >= 0.90:
+        if _entry_similarity(script, entry) >= 0.84:
             return True
+
+        # Prevent near-identical packaging even when Gemini rewrites the same
+        # idea with different words.
+        if old_family == current_family:
+            phrase_scores = (
+                _recent_phrase_overlap(current_topic, [old_topic, old_title]),
+                _recent_phrase_overlap(current_title, [old_title, old_topic]),
+            )
+            if max(phrase_scores) >= 0.50:
+                return True
+            if (
+                current_hook
+                and old_hook
+                and SequenceMatcher(None, current_hook, old_hook).ratio() >= 0.82
+            ):
+                return True
     return False
 
 
