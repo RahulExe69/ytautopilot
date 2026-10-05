@@ -39,6 +39,21 @@ Performance collection uses the official YouTube Data API statistics available t
 5. Put your own/licensed gameplay videos in assets/gameplay/. One clip is enough for the first test; multiple clips give the renderer more visual variety.
 6. Open **Actions → ytautopilot → Run workflow**. Use topic `auto` for the next unused topic from the weekly Free Fire content rotation. Successful prepare runs are recorded in `data/content_history.json`, allowing the generator to avoid repeating recent titles, hooks, and topics.
 
+### ZynexPlayz website configuration
+
+The companion **ZynexPlayz** website is deployed on Vercel and reads YouTube channel statistics through its serverless `api/channel-stats.js` endpoint.
+
+Keep the website credentials in **Vercel Environment Variables**, not in GitHub source:
+
+| Vercel variable | Value | Secret? |
+|---|---|---|
+| `YOUTUBE_API_KEY` | YouTube Data API v3 API key | Yes |
+| `YOUTUBE_CHANNEL_HANDLE` | `@ZynexPlayz` | No |
+
+Configure these under **Vercel → ZynexPlayz → Settings → Environment Variables**, then redeploy. The API key should be restricted in Google Cloud to the YouTube Data API v3. The current website uses the channel **handle** rather than a hardcoded channel ID; a channel ID is public and is not a secret.
+
+The website key and the automation's YouTube OAuth credentials serve different purposes. GitHub Actions secrets such as `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` are for the automation's authenticated YouTube operations. Never commit API keys, client secrets, or refresh tokens to Git.
+
 ### Dry-run
 
 Choose **dry-run** to generate only output/script.json. No video is rendered and no YouTube upload is attempted.
