@@ -6,7 +6,7 @@ This repository and its source code are proprietary. No permission is granted to
 
 ## Project status
 
-**Stage 7 scheduled generation, duplicate-proof media rotation, descriptions, and performance learning are now wired in, building on the private YouTube upload path.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode that uploads a validated Short through the official YouTube Data API with privacyStatus=private.
+**Stage 7 scheduled generation, duplicate-proof media rotation, descriptions, performance learning, and automated YouTube scheduling are now wired in.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode. Scheduled runs calculate a future YouTube publishAt target; manual publish runs intentionally omit that target.
 
 The generation/render pipeline currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
@@ -20,11 +20,11 @@ The generation/render pipeline currently:
 9. Exports output/short_preview.mp4 plus script, narration, SRT, ASS captions, a render manifest, a generated vertical thumbnail candidate, and validated output/publish_metadata.json as a GitHub Actions artifact.
 10. Uses a rotating description/CTA system and feeds historical YouTube performance back into Gemini as a soft learning signal.
 
-**YouTube private upload is implemented.** Publish mode refreshes the OAuth access token from the existing GitHub Actions secrets, validates the output package, uploads through videos.insert as **private**, records the returned video ID, and keeps a persistent upload history for duplicate prevention. Scheduled runs upload as private with a YouTube `publishAt` target. YouTube currently restricts uploads from unverified API projects created after 28 July 2020 to private viewing until the API project completes Google's audit, so public automation is not honestly guaranteed until that restriction is lifted.
+**YouTube upload and scheduling are implemented.** Publish mode refreshes the OAuth access token from the existing GitHub Actions secrets, validates the output package, uploads through videos.insert, records the returned video ID, and keeps persistent upload history for duplicate prevention. Scheduled runs also provide a future YouTube publishAt target. YouTube restricts uploads from unverified API projects created after 28 July 2020 to private viewing until the project completes Google's audit; see docs/YOUTUBE_API_AUDIT.md for the important distinction between that restriction and scheduled publishing.
 
 ## Planned pipeline
 
-The scheduled experiment runs twice per day in Asia/Kolkata. GitHub Actions starts the jobs at 12:00 and 19:30 IST, then uploads private videos with default YouTube publication targets of 13:00 and 20:30 IST. Once the API project is eligible for public scheduled publication, YouTube can publish those private scheduled videos automatically.
+The scheduled experiment runs twice per day in Asia/Kolkata. GitHub Actions starts the jobs at 12:00 and 19:30 IST, then uploads private videos with default YouTube publication targets of 13:00 and 20:30 IST. YouTube's publishAt scheduling mechanism can schedule a private video for future publication; API audit approval is a separate compliance status and should not be inferred merely from the Studio 'Scheduled' label.
 
 Performance collection uses the official YouTube Data API statistics available to the authorized channel. The learning profile tracks views, likes, comments, topic family, description style, duration bucket, and publish hour. After enough public videos exist, it can softly prefer better-performing topics, descriptions, durations, and publish hours while preserving exploration.
 
@@ -86,11 +86,11 @@ The generated thumbnail remains a candidate artifact. This implementation intent
 ## Safety defaults
 
 - The workflow is manual for testing and also has two scheduled daily runs at 12:00 and 19:30 IST.
-- Publishing is implemented and the scheduled path is private-at-insert with `publishAt`; public automated publication remains subject to Google's API-project audit restriction.
+- Publishing and scheduled publication are implemented. The scheduled path sends a private video with publishAt; see docs/YOUTUBE_API_AUDIT.md for the current audit/compliance status and interpretation.
 - Never commit OAuth client files, refresh tokens, API keys, or generated media.
 - Do not scrape or reuse a creator's footage based only on an assumption. Verify the creator's actual reuse terms and retain evidence, or use your own gameplay.
 - Review facts, narration, captions, audio, and rights before publishing.
-- YouTube API projects in the unverified state can be restricted to private uploads; this project intentionally keeps the automation private.
+- YouTube API projects in the unverified state can be restricted to private uploads. A future publishAt can still make a private upload appear as Scheduled in YouTube Studio; this is not proof of audit approval.
 
 ## Local prepare
 
