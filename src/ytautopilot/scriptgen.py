@@ -133,7 +133,6 @@ Requirements:
   Natural: "HP full hone tak bas thoda defensive khelo."
 - Keep the same gaming fact and advice; only make the delivery sound more like a real creator.
 </before_after_examples>
-- The spoken narration must sound like the everyday Hindi/Hinglish people actually use while gaming with friends. Keep it casual and conversational rather than "shuddh Hindi".
 - Address the viewer as "tum/tumhara/tumhe", never "tu/tujhe/tera/teri"; keep it friendly and respectful, not over-familiar.
 - Use natural Hinglish freely: common English words such as "body", "use", "side", "aim", "enemy", "damage", "fight", "timing", "movement", "cover", "game", "match", "push", "try", and "practice" are welcome when they sound more natural than formal Hindi.
 - Avoid formal/bookish wording such as "sharir", "upayog/istamal" when "body/use" would sound natural, "dauran", "nuksan uthana", "prapt", "avsar", "pratyaksh", "sahayata", or other unnecessarily Sanskritised vocabulary. Prefer simple spoken forms like "body", "use", "karte waqt", "damage", "mil jata hai", "dikhta hai", and "try karna".
@@ -142,7 +141,6 @@ Requirements:
 - In tts_text, transliterate the actual spoken Hinglish naturally for pronunciation, for example "बॉडी", "यूज़", "साइड", "एम", "एनेमी", "डैमेज", "फाइट", "टाइमिंग", "मूवमेंट", "कवर", "गेम", "मैच", and "ट्राय" when those are used in narration. Do not rewrite the meaning into more formal Hindi while converting to Devanagari.
 - Prefer Devanagari for ordinary Hindi and common gaming terms when that improves Indian-Hindi pronunciation, for example "फ्री फायर", "ग्लू वॉल", "हेडशॉट", "रैंक्ड", "स्कोप", "स्नाइपर", and "गेमप्ले". Keep product or weapon names in Latin only when their pronunciation is clearly better that way.
 - Example style: "Cover ke peeche ho toh body pura bahar mat nikalo. Thoda side se peek karo, bas jitna aim karne ke liye chahiye." This is the target feel: natural spoken Hinglish, not formal Hindi.
-- Sound like a genuine Indian gaming creator casually explaining something to a friend. Avoid robotic hype, fake urgency, repeated "secret trick" hooks, forced slang, and generic lines like "gameplay next level ho jayega".
 - Keep personality subtle: don't cram "bhai", "sun", "dekho", "matlab", or "na" into every script.
 - Prefer the smallest natural sentence that can carry the point. Two short lines are better than one polished paragraph.
 - Stay tightly grounded in the supplied topic. Do not invent or introduce a named technique, hidden mechanic, weapon behaviour, percentage, pro-player habit, or special jargon that the topic does not call for. In particular, do not turn a vague topic into a made-up "secret" mechanic just to make the Short sound interesting.
