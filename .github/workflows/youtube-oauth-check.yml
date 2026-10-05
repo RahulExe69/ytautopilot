@@ -1,0 +1,71 @@
+name: YouTube OAuth Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-youtube:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify YouTube OAuth and channel access
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          from ytautopilot.youtube_upload import _credentials, REQUIRED_SCOPES
+          from googleapiclient.discovery import build
+
+          credentials = _credentials()
+
+          print("OAuth refresh: PASS")
+          print("Required scopes present:", credentials.has_scopes(REQUIRED_SCOPES))
+          print("Granted scopes:", sorted(str(s) for s in (credentials.granted_scopes or [])))
+
+          youtube = build("youtube", "v3", credentials=credentials, cache_discovery=False)
+          response = (
+              youtube.channels()
+              .list(part="id,snippet,contentDetails,statistics", mine=True)
+              .execute()
+          )
+
+          items = response.get("items", [])
+          if not items:
+              raise SystemExit("OAuth is valid, but no YouTube channel was returned.")
+
+          channel = items[0]
+          channel_id = channel.get("id", "")
+          title = channel.get("snippet", {}).get("title", "")
+          uploads = (
+              channel.get("contentDetails", {})
+              .get("relatedPlaylists", {})
+              .get("uploads", "")
+          )
+
+          print("YouTube API request: PASS")
+          print("Channel ID:", channel_id)
+          print("Channel title:", title)
+          print("Uploads playlist:", uploads)
+          print("YouTube OAuth check completed successfully.")
+          print("No video upload was attempted.")
+          PY
