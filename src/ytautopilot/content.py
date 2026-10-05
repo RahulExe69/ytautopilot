@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 HISTORY_PATH = Path("data") / "content_history.json"
+STRATEGY_PROFILE_PATH = Path("data") / "strategy_profile.json"
 MAX_HISTORY = 120
 
 # Seven repeatable daily formats. Each format has eight distinct ideas so the
@@ -108,6 +109,98 @@ TOPIC_BANK: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
+
+
+TOPIC_FAMILY_HINTS: dict[str, tuple[str, ...]] = {
+    "close-range skills": (
+        "close", "movement", "shotgun", "smg", "strafe", "peek", "cover",
+        "crouch", "fight", "rush", "aim",
+    ),
+    "weapon tests": (
+        "weapon", "gun", "shotgun", "smg", "recoil", "reload", "damage",
+        "headshot", "body shot", "magazine", "training",
+    ),
+    "characters and abilities": (
+        "character", "ability", "skill", "combo", "defensive", "offensive",
+        "setup",
+    ),
+    "maps and tactics": (
+        "map", "landing", "rotation", "zone", "high ground", "building",
+        "positioning", "squad", "placement",
+    ),
+    "myths and experiments": (
+        "myth", "test", "testing", "experiment", "claim", "true", "really",
+        "compare",
+    ),
+    "ranked mistakes and clutches": (
+        "ranked", "1v2", "clutch", "squad", "mistake", "final zone",
+        "heal", "push", "placement",
+    ),
+    "underrated mechanics and discoveries": (
+        "underrated", "mechanic", "discovery", "hidden", "hud", "control",
+        "inventory", "training-ground", "training ground", "detail", "habit",
+    ),
+}
+
+
+def _strategy_profile() -> dict[str, Any]:
+    if not STRATEGY_PROFILE_PATH.exists():
+        return {}
+    try:
+        payload = json.loads(STRATEGY_PROFILE_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def topic_family(topic: str) -> str:
+    """Infer a stable content family even when Gemini paraphrases the topic."""
+    normalized = _normalise(topic)
+    if not normalized:
+        return "other"
+
+    tokens = set(normalized.split())
+    best_family = "other"
+    best_score = 0.0
+    for family, hints in TOPIC_FAMILY_HINTS.items():
+        score = 0.0
+        for hint in hints:
+            hint_norm = _normalise(hint)
+            if not hint_norm:
+                continue
+            if hint_norm in normalized:
+                score += 1.0
+            elif hint_norm in tokens:
+                score += 0.8
+        if family.lower() in normalized:
+            score += 1.5
+        if score > best_score:
+            best_family = family
+            best_score = score
+
+    return best_family if best_score > 0 else "other"
+
+
+def classify_hook_style(hook: str) -> str:
+    """Classify a generated hook into a small, learnable set of patterns."""
+    text = _normalise(hook)
+    if not text:
+        return "unknown"
+
+    if "?" in str(hook) or re.match(r"^(kya|kaise|kyun|kab|why|how|did|does)\\b", text):
+        return "question"
+    if re.search(r"\\b(3|three|4|four|5|five|top)\\b", text):
+        return "list"
+    if re.search(r"\\b(galti|mistake|mat karo|avoid|stop)\\b", text):
+        return "warning"
+    if re.search(r"\\b(test|testing|try|challenge|myth|experiment)\\b", text):
+        return "test_challenge"
+    if re.search(r"\\b(underrated|hidden|secret|actually|really|notice|pata)\\b", text):
+        return "curiosity"
+    if re.search(r"\\b(how to|tareeka|rule|habit|tip|use karo|try karo)\\b", text):
+        return "direct_tip"
+    return "statement"
+
 def _normalise(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
 
@@ -130,8 +223,12 @@ def recent_history(limit: int = 16) -> list[dict[str, Any]]:
 
 
 def choose_daily_topic(run_date: date | None = None, exclude_topics: set[str] | None = None) -> str:
+    """Select an unused topic using rotation + learned performance signals.
+
+    The selector keeps exploration high when the channel has little data, then
+    gradually gives more weight to topic families that actually perform.
+    """
     current = run_date or date.today()
-    _, candidates = TOPIC_BANK[current.weekday()]
     used = {
         _normalise(str(entry.get("topic", "")))
         for entry in load_content_history().get("entries", [])
@@ -139,34 +236,97 @@ def choose_daily_topic(run_date: date | None = None, exclude_topics: set[str] | 
     }
     used.update(_normalise(str(topic)) for topic in (exclude_topics or set()))
 
-    for topic in candidates:
-        if _normalise(topic) not in used:
-            return topic
+    profile = _strategy_profile()
+    family_stats = profile.get("topic_family_stats", {})
+    baseline = float(profile.get("baseline_performance_score", 0.0) or 0.0)
+    best_families = {
+        str(item) for item in profile.get("best_topic_families", [])
+        if str(item).strip()
+    }
+    data_ready = bool(profile.get("data_ready", False))
 
-    angles = (
-        "for beginners",
-        "in Clash Squad",
-        "in ranked",
-        "with shotguns",
-        "with SMGs",
-        "when playing solo",
-        "when playing aggressively",
-        "when playing for placement",
+    candidates: list[tuple[str, str]] = []
+    for family, topics in TOPIC_BANK:
+        for topic in topics:
+            if _normalise(topic) not in used:
+                candidates.append((family, topic))
+
+    if not candidates:
+        # The fixed bank is exhausted; create a deterministic fresh angle.
+        family, topics = TOPIC_BANK[current.weekday() % len(TOPIC_BANK)]
+        angles = (
+            "for beginners",
+            "in Clash Squad",
+            "in ranked",
+            "with shotguns",
+            "with SMGs",
+            "when playing solo",
+            "when playing aggressively",
+            "when playing for placement",
+        )
+        for index, base in enumerate(topics):
+            angle = angles[(current.toordinal() + index) % len(angles)]
+            candidate = f"{base} ({angle})"
+            if _normalise(candidate) not in used:
+                candidates.append((family, candidate))
+                break
+
+    if not candidates:
+        raise RuntimeError("No unused topic candidate is available.")
+
+    recent_topics = [
+        _normalise(str(item.get("topic", "")))
+        for item in recent_history(24)
+        if str(item.get("topic", "")).strip()
+    ]
+    preferred_family = TOPIC_BANK[current.weekday()][0]
+
+    def similarity_to_recent(topic: str) -> float:
+        from difflib import SequenceMatcher
+        normalized = _normalise(topic)
+        return max(
+            (
+                SequenceMatcher(None, normalized, previous).ratio()
+                for previous in recent_topics
+                if previous
+            ),
+            default=0.0,
+        )
+
+    def candidate_score(family: str, topic: str) -> float:
+        stats = family_stats.get(family, {})
+        samples = int(stats.get("samples", 0) or 0) if isinstance(stats, dict) else 0
+        average = float(stats.get("avg_performance_score", 0.0) or 0.0) if isinstance(stats, dict) else 0.0
+
+        score = 0.0
+        # Preserve the original seven-family rotation as a soft prior.
+        if family == preferred_family:
+            score += 0.18
+
+        # Prefer measured winners only after enough data exists, while keeping
+        # explicit exploration for under-sampled families.
+        if data_ready and samples >= 2 and baseline > 0:
+            relative = max(-0.35, min(0.35, (average / baseline) - 1.0))
+            score += 0.42 * relative
+        score += 0.18 / (1.0 + samples ** 0.5)
+
+        if family in best_families:
+            score += 0.08
+
+        similarity = similarity_to_recent(topic)
+        score -= max(0.0, similarity - 0.72) * 0.5
+
+        # Stable per-day tie breaking without randomness in workflow retries.
+        digest = hashlib.sha256(f"{current.isoformat()}|{topic}".encode("utf-8")).hexdigest()
+        score += int(digest[:4], 16) / 65535.0 * 0.02
+        return score
+
+    ranked = sorted(
+        candidates,
+        key=lambda item: candidate_score(item[0], item[1]),
+        reverse=True,
     )
-    pass_index = sum(
-        1
-        for entry in load_content_history().get("entries", [])
-        if isinstance(entry, dict)
-        and str(entry.get("weekday")) == str(current.weekday())
-    )
-    base = candidates[pass_index % len(candidates)]
-    angle = angles[pass_index % len(angles)]
-    candidate = f"{base} ({angle})"
-    suffix = 2
-    while _normalise(candidate) in used:
-        candidate = f"{base} ({angle} {suffix})"
-        suffix += 1
-    return candidate
+    return ranked[0][1]
 
 
 def history_prompt_context(limit: int = 12) -> str:
