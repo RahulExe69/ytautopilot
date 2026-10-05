@@ -604,7 +604,7 @@ def generate_indicvoice_tts(
 
                     if index < len(spoken_sentences) - 1:
                         candidate_chunks.append(
-                            np.zeros(int(sample_rate * pause_seconds), dtype=np.float32
+                            np.zeros(int(sample_rate * pause_seconds), dtype=np.float32)
                         )
                     )
 
@@ -672,7 +672,7 @@ def generate_indicvoice_tts(
         "voice": str(voice),
         "tts_input": prepared_text,
         "sample_rate": int(sample_rate),
-        "caption_timing": "real-audio-duration-based",
+        "caption_timing": "estimated-audio-duration" if fast_mode else "real-audio-duration-based",
         "speech_speed": speech_speed,
         "audio_file": str(mp3_path),
     }
