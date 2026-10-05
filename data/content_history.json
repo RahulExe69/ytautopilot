@@ -230,6 +230,26 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-05T17:21:15.804641+00:00",
+      "weekday": 0,
+      "topic": "Three signs you should stop chasing an enemy in close range",
+      "title": "Free Fire Mein Enemy Ko Chase Karne Se Pehle Yeh 3 Signs Dekho",
+      "hook": "Enemy ke peeche bhaagte waqt yeh teen signs notice kiye hain?",
+      "topic_family": "close-range skills",
+      "hook_style": "question",
+      "fingerprint": "b7b4751a44445a9d",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
