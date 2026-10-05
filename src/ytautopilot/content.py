@@ -402,6 +402,8 @@ def record_content_history(
             "topic": str(script.get("topic", "")).strip(),
             "title": str(script.get("title", "")).strip(),
             "hook": str(script.get("hook", "")).strip(),
+            "topic_family": topic_family(str(script.get("topic", ""))),
+            "hook_style": classify_hook_style(str(script.get("hook", ""))),
             "fingerprint": fingerprint,
             "gameplay_files": [str(path) for path in (gameplay_files or [])],
             "status": "generated",
