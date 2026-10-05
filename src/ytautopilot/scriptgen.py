@@ -5,7 +5,7 @@ import os
 import re
 from typing import Any
 
-from .content import choose_daily_topic, classify_hook_style, history_prompt_context, is_duplicate_script, topic_family
+from .content import choose_daily_topic, classify_hook_style, clean_user_text, history_prompt_context, is_duplicate_script, topic_family
 from .analytics import strategy_prompt_context
 
 import requests
@@ -194,6 +194,9 @@ Requirements:
 - Suggest practical visual beats that can be created from owned/licensed gameplay footage.
 - Keep the title accurate, punchy, and non-misleading.
 - Do not reuse the same core idea, title, or hook from the recent history below. Choose a clearly different angle even when the broad weekly format is the same.
+- Avoid repeating distinctive opening phrases from recent titles, especially repeated templates like "Close-Range Fight Mein ..." or "Free Fire Mein ...". A new topic must feel packaged differently, not just have one word changed.
+- Prefer a different topic family from the most recent Shorts when a reasonable candidate is supplied. Do not force several consecutive Shorts into the same narrow sub-topic.
+- Do not put decorative separators, markdown dividers, repeated hyphens, underscores, em dashes, or en dashes in the title, description, hook, or narration.
 - Recent Shorts to avoid repeating:
 {history_prompt_context()}
 Performance learning context (soft signal only):
@@ -311,6 +314,10 @@ Current draft:
 
     data.pop("_model_used", None)
     data = _clean_generated_fields(data)
+    # Run the shared final cleaner again after any Gemini repair pass.
+    for key in ("topic", "language", "hook", "narration", "tts_text", "title", "description"):
+        if isinstance(data.get(key), str):
+            data[key] = clean_user_text(data[key])
     required = ("topic", "hook", "narration", "tts_text", "title", "description")
     missing = [key for key in required if not isinstance(data.get(key), str) or not data[key].strip()]
     if missing:
