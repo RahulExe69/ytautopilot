@@ -526,6 +526,25 @@ def generate_indicvoice_tts(
 
     repo_id = (os.getenv("INDICVOICE_MODEL") or "Bindkushal/IndicVoice-82M").strip()
     sample_rate = 24_000
+
+    # Warm, CPU-only GitHub runners benefit from explicit thread sizing. Avoid
+    # over-subscribing Torch/OpenMP when FFmpeg is also using the host CPUs.
+    try:
+        requested_threads = int(os.getenv("TORCH_NUM_THREADS", "0"))
+    except ValueError:
+        requested_threads = 0
+    if requested_threads <= 0:
+        requested_threads = max(1, int(os.cpu_count() or 2))
+    try:
+        torch.set_num_threads(requested_threads)
+    except RuntimeError:
+        pass
+    try:
+        torch.set_num_interop_threads(1)
+    except RuntimeError:
+        pass
+
+    fast_mode = os.getenv("YTAP_FAST_MODE", "").lower() in {"1", "true", "yes", "on"}
     prepared_text = _prepare_hindi_tts_text(text)
     print(f"[tts] Hindi TTS input: {prepared_text}")
 
@@ -534,12 +553,9 @@ def generate_indicvoice_tts(
     if not spoken_sentences:
         spoken_sentences = [prepared_text]
 
-    # The model can normalize punctuation or merge very short sentences, so the
-    # caption track must not require identical sentence counts.
-    caption_sentences = _split_tts_sentences(caption_text)
-    if not caption_sentences:
-        caption_sentences = [caption_text]
-
+    # IndicVoice already chunks Hindi internally into manageable pieces and
+    # reuses the loaded model/voice. Calling the pipeline once avoids repeated
+    # G2P setup and Python-loop overhead for every sentence on the fast path.
     pause_seconds = 0.025
     chunks: list[np.ndarray] = []
     sentence_durations: list[float] = []
@@ -552,37 +568,50 @@ def generate_indicvoice_tts(
             candidate_chunks: list[np.ndarray] = []
             candidate_sentence_durations: list[float] = []
 
-            for index, spoken_sentence in enumerate(spoken_sentences):
-                sentence_arrays: list[np.ndarray] = []
-                for _, _, audio in pipeline(spoken_sentence, voice=candidate_voice):
+            if fast_mode:
+                for result in pipeline(prepared_text, voice=candidate_voice):
+                    audio = result.audio
+                    if audio is None:
+                        continue
                     if hasattr(audio, "detach"):
                         audio = audio.detach().cpu().numpy()
-                    array = np.asarray(audio, dtype=np.float32)
-                    if array.ndim > 1:
-                        array = np.squeeze(array)
-                    sentence_arrays.append(array)
+                    array = np.asarray(audio, dtype=np.float32).squeeze()
+                    if array.size:
+                        candidate_chunks.append(array)
+                if not candidate_chunks:
+                    raise RuntimeError("IndicVoice returned no audio.")
+            else:
+                for index, spoken_sentence in enumerate(spoken_sentences):
+                    sentence_arrays: list[np.ndarray] = []
+                    for _, _, audio in pipeline(spoken_sentence, voice=candidate_voice):
+                        if hasattr(audio, "detach"):
+                            audio = audio.detach().cpu().numpy()
+                        array = np.asarray(audio, dtype=np.float32)
+                        if array.ndim > 1:
+                            array = np.squeeze(array)
+                        sentence_arrays.append(array)
 
-                if not sentence_arrays:
-                    raise RuntimeError(
-                        f"IndicVoice returned no audio for sentence {index + 1}."
+                    if not sentence_arrays:
+                        raise RuntimeError(
+                            f"IndicVoice returned no audio for sentence {index + 1}."
+                        )
+
+                    sentence_audio = np.concatenate(sentence_arrays).astype(np.float32)
+                    candidate_chunks.append(sentence_audio)
+                    candidate_sentence_durations.append(
+                        float(len(sentence_audio)) / float(sample_rate)
                     )
 
-                sentence_audio = np.concatenate(sentence_arrays).astype(np.float32)
-                candidate_chunks.append(sentence_audio)
-                candidate_sentence_durations.append(
-                    float(len(sentence_audio)) / float(sample_rate)
-                )
-
-                if index < len(spoken_sentences) - 1:
-                    candidate_chunks.append(
-                        np.zeros(int(sample_rate * pause_seconds), dtype=np.float32)
+                    if index < len(spoken_sentences) - 1:
+                        candidate_chunks.append(
+                            np.zeros(int(sample_rate * pause_seconds), dtype=np.float32
+                        )
                     )
 
-            if candidate_chunks:
-                chunks = candidate_chunks
-                sentence_durations = candidate_sentence_durations
-                voice = candidate_voice
-                break
+            chunks = candidate_chunks
+            sentence_durations = candidate_sentence_durations
+            voice = candidate_voice
+            break
         except Exception as exc:
             voice_errors.append(f"{candidate_voice}: {exc}")
             print(f"[tts] Voice {candidate_voice} failed; trying next voice.")
@@ -600,8 +629,6 @@ def generate_indicvoice_tts(
 
     # FFmpeg is used only for consistent MP3 output in the workflow artifact.
     mp3_path = audio_path.with_suffix(".mp3")
-    # A modest speed-up makes the narration feel more like a modern gaming
-    # creator without pitch-shifting the voice. Keep this configurable per run.
     try:
         speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.28"))
     except ValueError:
@@ -626,18 +653,18 @@ def generate_indicvoice_tts(
     print(f"[tts] Speech speed: {speech_speed:.2f}x")
     if mp3_path != audio_path:
         audio_path.unlink(missing_ok=True)
-
     encoded_duration = _duration_seconds(mp3_path)
-    subtitle_path.write_text(
-        write_srt_from_sentence_timings(
+    if fast_mode:
+        subtitle_text = estimate_srt(caption_text, encoded_duration)
+    else:
+        subtitle_text = write_srt_from_sentence_timings(
             caption_text=caption_text,
             sentence_durations=sentence_durations,
             pause_seconds=pause_seconds,
             duration_seconds=encoded_duration,
             speech_speed=speech_speed,
-        ),
-        encoding="utf-8",
-    )
+        )
+    subtitle_path.write_text(subtitle_text, encoding="utf-8")
 
     return {
         "engine": "indicvoice",
