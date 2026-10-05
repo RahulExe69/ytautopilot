@@ -58,6 +58,42 @@ def _spoken_style_warnings(hook: str, narration: str) -> list[str]:
     return warnings[:8]
 
 
+
+def _clean_ai_style_artifacts(value: str) -> str:
+    """Remove markdown/separator artifacts that make generated copy look synthetic."""
+    text = str(value or "")
+    # Replace typographic dashes with ordinary spoken punctuation. Keep normal
+    # single hyphens in compounds such as "close-range".
+    text = re.sub(r"\s*[—–]\s*", ", ", text)
+    # Remove standalone markdown separators and long runs such as --- or _____.
+    text = re.sub(r"(?m)^\s*[-_=*]{3,}\s*$", "", text)
+    text = re.sub(r"(?<!\w)[-_=*]{3,}(?!\w)", " ", text)
+    # Unwrap common markdown emphasis instead of letting punctuation leak into
+    # captions/descriptions.
+    text = re.sub(r"(\*\*|__|\*)", "", text)
+    # Collapse repeated punctuation while keeping a single natural ellipsis.
+    text = re.sub(r"!{2,}", "!", text)
+    text = re.sub(r"\?{2,}", "?", text)
+    text = re.sub(r"\.{4,}", "...", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    return text.strip()
+
+
+def _clean_generated_fields(data: dict[str, Any]) -> dict[str, Any]:
+    """Clean user-visible generated strings without changing factual content."""
+    for key in ("topic", "language", "hook", "narration", "tts_text", "title", "description"):
+        if isinstance(data.get(key), str):
+            data[key] = _clean_ai_style_artifacts(data[key])
+    for key in ("hashtags", "visual_plan", "fact_check_notes"):
+        value = data.get(key)
+        if isinstance(value, list):
+            data[key] = [
+                _clean_ai_style_artifacts(item) if isinstance(item, str) else item
+                for item in value
+            ]
+    return data
+
+
 def fallback_script(topic: str) -> dict[str, Any]:
     """Safe sample used only for dry-run checks; it is not ready to publish."""
     return {
@@ -271,6 +307,7 @@ Current draft:
             )
 
     data.pop("_model_used", None)
+    data = _clean_generated_fields(data)
     required = ("topic", "hook", "narration", "tts_text", "title", "description")
     missing = [key for key in required if not isinstance(data.get(key), str) or not data[key].strip()]
     if missing:
