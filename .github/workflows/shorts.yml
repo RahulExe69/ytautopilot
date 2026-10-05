@@ -70,7 +70,8 @@ jobs:
       - name: Create or restore Python environment
         shell: bash
         run: |
-          if [ ! -x .venv/bin/python ]; then
+          if [ ! -x .venv/bin/python ] || ! .venv/bin/python -c 'import sys; print(sys.version)' >/dev/null 2>&1; then
+            rm -rf .venv
             python -m venv .venv
             .venv/bin/python -m pip install --upgrade pip
             .venv/bin/python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.0"
