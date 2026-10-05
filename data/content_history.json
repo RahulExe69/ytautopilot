@@ -198,6 +198,18 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-05T16:20:20.793000+00:00",
+      "weekday": 0,
+      "topic": "Why panic-jumping can lose an easy close-range fight",
+      "title": "Close-Range Fight Mein Jump Karna Kab Band Karoge?",
+      "hook": "Achanak enemy saamne aane par jump button kyun daba dete ho?",
+      "topic_family": "close-range skills",
+      "hook_style": "question",
+      "fingerprint": "d02b43466292eba9",
+      "gameplay_files": [],
+      "status": "generated"
     }
   ]
 }
