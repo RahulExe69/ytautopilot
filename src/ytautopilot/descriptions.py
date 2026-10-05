@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .content import clean_user_text
+
 HISTORY_PATH = Path("data") / "description_history.json"
 
 STYLES: tuple[tuple[str, str], ...] = (
@@ -82,8 +84,8 @@ def choose_style(preferred: list[str] | None = None) -> str:
 
 
 def build_description(script: dict[str, Any], style: str) -> str:
-    base = " ".join(str(script.get("description", "")).split()).strip()
-    topic = " ".join(str(script.get("topic", "")).split()).strip()
+    base = clean_user_text(str(script.get("description", "")))
+    topic = clean_user_text(str(script.get("topic", "")))
     hashtag_values = script.get("hashtags", [])
     tags: list[str] = []
     if isinstance(hashtag_values, list):
