@@ -34,11 +34,25 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 30
+
+    env:
+      PYTHONUNBUFFERED: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PIP_NO_INPUT: "1"
+      HF_HOME: ~/.cache/huggingface
+      HF_HUB_CACHE: ~/.cache/huggingface/hub
+      HF_XET_NUM_CONCURRENT_RANGE_GETS: "32"
+      YTAP_FAST_MODE: "1"
+      SCENE_FRAME_SKIP: "1"
+      CROPDETECT_FRAMES: "48"
+      SCENE_WORKERS: "2"
+      TORCH_NUM_THREADS: "0"
+      FFMPEG_PRESET: "ultrafast"
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -47,140 +61,45 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
-      - name: Install FFmpeg and Devanagari font only if missing
+      - name: Restore warm Python environment
+        uses: actions/cache@v6
+        with:
+          path: .venv
+          key: venv-ubuntu-24.04-py3.11-${{ hashFiles('requirements.txt') }}
+
+      - name: Create or restore Python environment
         shell: bash
         run: |
-          missing=0
-          command -v ffmpeg >/dev/null 2>&1 || missing=1
-          command -v ffprobe >/dev/null 2>&1 || missing=1
-          command -v espeak-ng >/dev/null 2>&1 || missing=1
-          test -f /usr/lib/x86_64-linux-gnu/libespeak-ng.so.1 || missing=1
-          if [ ! -d /usr/lib/x86_64-linux-gnu/espeak-ng-data ] &&              [ ! -d /usr/lib/aarch64-linux-gnu/espeak-ng-data ] &&              [ ! -d /usr/lib/arm-linux-gnueabihf/espeak-ng-data ] &&              [ ! -d /usr/share/espeak-ng-data ]; then
-            missing=1
-          fi
-          if ! fc-match "Noto Sans Devanagari" 2>/dev/null | grep -qi "Noto Sans Devanagari"; then
-            missing=1
-          fi
-          if [ "$missing" -eq 1 ]; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg fonts-noto-core espeak-ng espeak-ng-data libespeak-ng1
+          if [ ! -x .venv/bin/python ]; then
+            python -m venv .venv
+            .venv/bin/python -m pip install --upgrade pip
+            .venv/bin/python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.0"
+            .venv/bin/python -m pip install -r requirements.txt
           else
-            echo "FFmpeg, ffprobe, and Devanagari font already available; skipping apt install."
+            echo "Warm .venv cache hit; skipping dependency installation."
           fi
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
-      - name: Install CPU-only PyTorch first
+      - name: Configure CPU threading
+        shell: bash
         run: |
-          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.0"
-
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
-
-      - name: Verify IndicVoice runtime dependencies
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import spacy
-          import torch
-          from phonemizer.backend.espeak.wrapper import EspeakWrapper
-          import indicvoice
-
-          candidates = [
-              Path("/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"),
-              Path("/usr/lib/aarch64-linux-gnu/libespeak-ng.so.1"),
-              Path("/usr/lib64/libespeak-ng.so.1"),
-          ]
-          library = next((path for path in candidates if path.is_file()), None)
-          if library is None:
-              raise SystemExit("System eSpeak-NG shared library not found")
-
-          data_candidates = [
-              Path("/usr/lib/x86_64-linux-gnu/espeak-ng-data"),
-              Path("/usr/lib/aarch64-linux-gnu/espeak-ng-data"),
-              Path("/usr/lib/arm-linux-gnueabihf/espeak-ng-data"),
-              Path("/usr/share/espeak-ng-data"),
-          ]
-          data_path = next((path for path in data_candidates if path.is_dir()), None)
-          if data_path is None:
-              raise SystemExit("System eSpeak-NG data directory not found")
-
-          EspeakWrapper.set_library(str(library))
-          if hasattr(EspeakWrapper, "set_data_path"):
-              EspeakWrapper.set_data_path(str(data_path))
-
-          from phonemizer.backend import EspeakBackend
-          backend = EspeakBackend(language="hi")
-          print("espeak_test=", backend.phonemize(["नमस्ते"], strip=True))
-
-          print(f"spaCy={spacy.__version__}")
-          print(f"torch={torch.__version__}")
-          print(f"cuda_available={torch.cuda.is_available()}")
-          print(f"indicvoice={indicvoice.__file__}")
-          print(f"espeak_library={library}")
-          print(f"espeak_data={data_path}")
-          PY
-
+          threads="${TORCH_NUM_THREADS}"
+          if [ "$threads" = "0" ]; then
+            threads="$(nproc)"
+          fi
+          echo "OMP_NUM_THREADS=$threads" >> "$GITHUB_ENV"
+          echo "MKL_NUM_THREADS=$threads" >> "$GITHUB_ENV"
+          echo "OPENBLAS_NUM_THREADS=$threads" >> "$GITHUB_ENV"
+          echo "TORCH_NUM_THREADS=$threads" >> "$GITHUB_ENV"
+          echo "FFMPEG_THREADS=$threads" >> "$GITHUB_ENV"
+          echo "CPU threads: $threads"
       - name: Cache IndicVoice model
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/huggingface
           key: indicvoice-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             indicvoice-${{ runner.os }}-
-
-      - name: Verify Hindi voice tensor
-        env:
-          INDICVOICE_VOICE: hf_beta
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          import torch
-          from huggingface_hub import hf_hub_download
-
-          voices = ["hf_beta"]
-
-          candidates = []
-          for voice in voices:
-              candidates.extend([
-                  ("hexgrad/Kokoro-82M", None, voice),
-                  ("Bindkushal/IndicVoice-82M", "b000adea5df849c41d49d8aac3aa50f9bc736afa", voice),
-              ])
-
-          errors = []
-          for repo_id, revision, voice in candidates:
-              try:
-                  kwargs = {
-                      "repo_id": repo_id,
-                      "filename": f"voices/{voice}.pt",
-                  }
-                  if revision:
-                      kwargs["revision"] = revision
-                  path = hf_hub_download(**kwargs)
-                  file = Path(path)
-                  head = file.read_bytes()[:512]
-                  if len(head) < 4096 and (
-                      b"version https://git-lfs.github.com/spec/v1" in head
-                      or b"oid sha256:" in head
-                  ):
-                      raise RuntimeError("download resolved to a Git-LFS/Xet pointer")
-                  size = file.stat().st_size
-                  if size < 100_000:
-                      raise RuntimeError(f"voice file is unexpectedly small: {size} bytes")
-                  pack = torch.load(str(file), map_location="cpu", weights_only=True)
-                  if not torch.is_tensor(pack):
-                      raise RuntimeError(f"archive resolved to {type(pack).__name__}, not a tensor")
-                  print(f"voice={voice}")
-                  print(f"voice_repo={repo_id}")
-                  print(f"voice_revision={revision or 'main'}")
-                  print(f"voice_size={size}")
-                  print(f"voice_shape={tuple(pack.shape)}")
-                  break
-              except Exception as exc:
-                  errors.append(f"{repo_id}@{revision or 'main'}:{voice}: {exc}")
-          else:
-              raise SystemExit("No usable Hindi voice tensor was found. " + " | ".join(errors[-6:]))
-          PY
 
       - name: Set pipeline and publishing context
         shell: bash
@@ -274,9 +193,10 @@ jobs:
 
       - name: Upload generated output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ytautopilot-output-${{ github.run_number }}
           path: output/
           if-no-files-found: ignore
-          retention-days: 7
+          compression-level: 0
+          retention-days: 3
