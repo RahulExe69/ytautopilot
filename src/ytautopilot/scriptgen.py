@@ -185,6 +185,9 @@ Requirements:
 - Build around 2-3 clear beats, and explain each in a way that sounds natural when read aloud by a Hindi TTS voice.
 - Prefer demonstrable, useful tips over vague "facts". Never invent percentages, hidden mechanics, pro-player habits, or guaranteed results. If a claim cannot be supported, omit it or clearly flag it in fact_check_notes.
 - Use punctuation for spoken rhythm, but don't write stage directions that the voice would read aloud.
+- Treat punctuation as acting instructions for the narrator: a period means finish the thought and reset; a comma means a small breath; a question mark is for a real question and should sound like one; use exclamation marks sparingly for genuine emphasis.
+- Keep punctuation clean and human-looking. Never use em dashes, en dashes, repeated hyphens, underscore separators, markdown dividers, or decorative punctuation in user-visible copy.
+- Make the sentence boundaries in `tts_text` match the sentence boundaries of hook + narration. The TTS layer uses those boundaries to create natural pauses, so do not merge several complete thoughts into one sentence.
 - The renderer will split the timed speech into short animated caption phrases; do not format narration as a visible paragraph.
 - Flag uncertain claims for verification in fact_check_notes.
 - Do not imitate a named creator's voice or copy another video's script. Match only the broad pacing and editing conventions of professional gaming Shorts.
