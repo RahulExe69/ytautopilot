@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated_at_utc": "2026-10-05T17:40:30.993835+00:00",
+  "updated_at_utc": "2026-10-05T17:57:57.165663+00:00",
   "data_ready": false,
   "public_videos_measured": 2,
   "baseline_performance_score": 5.52625,
@@ -16,7 +16,7 @@
     "close-range skills": {
       "samples": 2,
       "avg_performance_score": 5.52625,
-      "avg_views_per_hour": 0.1562,
+      "avg_views_per_hour": 0.15305,
       "avg_engagement_rate": 0.125
     }
   },
@@ -24,7 +24,7 @@
     "statement": {
       "samples": 2,
       "avg_performance_score": 5.52625,
-      "avg_views_per_hour": 0.1562,
+      "avg_views_per_hour": 0.15305,
       "avg_engagement_rate": 0.125
     }
   },
@@ -40,13 +40,13 @@
     "medium": {
       "samples": 1,
       "avg_performance_score": 10.3594,
-      "avg_views_per_hour": 0.2061,
+      "avg_views_per_hour": 0.203,
       "avg_engagement_rate": 0.25
     },
     "long": {
       "samples": 1,
       "avg_performance_score": 0.6931,
-      "avg_views_per_hour": 0.1063,
+      "avg_views_per_hour": 0.1031,
       "avg_engagement_rate": 0.0
     }
   },

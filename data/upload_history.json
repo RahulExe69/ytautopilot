@@ -48,6 +48,16 @@
       "status": "uploaded_private",
       "description_style": "challenge",
       "scheduled_publish_at": null
+    },
+    {
+      "uploaded_at_utc": "2026-10-05T17:58:52.083083+00:00",
+      "fingerprint": "84fc84bbafd72264",
+      "youtube_video_id": "2Y3177QM_Bg",
+      "title": "Match Mein Ye 3 Positioning Mistakes Mat Karo",
+      "topic": "Three map-positioning mistakes that create unnecessary fights",
+      "status": "uploaded_private",
+      "description_style": "community",
+      "scheduled_publish_at": null
     }
   ]
 }
