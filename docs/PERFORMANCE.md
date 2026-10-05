@@ -33,4 +33,4 @@ Use a GitHub Actions **prepare** run before and after changing the fast-path set
 5. final FFmpeg encode,
 6. artifact upload.
 
-The first run after a cache miss will still be slower because the Python environment and Hugging Face model files have to be downloaded. Warm runs are the meaningful benchmark for the daily scheduled workflow.
+The first run after a cache miss will still be slower because the Python environment and Hugging Face model files have to be downloaded. The current narrator speed target is 1.20x, and the fast path synthesizes sentence-by-sentence with controlled pauses; benchmark warm and cold runs separately. Warm runs are the meaningful benchmark for the daily scheduled workflow.
