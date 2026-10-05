@@ -407,26 +407,30 @@ def detect_active_picture_crop(path: Path) -> str | None:
     return f"{width}:{height}:{x}:{y}"
 
 
-def build_gameplay_track(
+def select_gameplay_segments(
     gameplay_files: list[Path],
     duration: float,
-    destination: Path,
 ) -> tuple[list[Path], list[dict[str, Any]]]:
-    """Build the montage only from detected scene boundaries.
-
-    This deliberately avoids cutting at arbitrary timestamps. Each selected
-    unit is a complete detected scene, so an action is much less likely to be
-    chopped in the middle.
-    """
+    """Select complete detected scenes without encoding an intermediate video."""
     target_scene_count = max(6, min(len(gameplay_files), 10))
     target = max(2.2, min(5.5, duration / target_scene_count))
     max_scene_count = min(max(8, len(gameplay_files) * 2), 16)
+
+    try:
+        worker_count = int(os.getenv("SCENE_WORKERS", "2" if fast_mode() else "1"))
+    except ValueError:
+        worker_count = 2 if fast_mode() else 1
+    worker_count = max(1, min(len(gameplay_files), worker_count))
+    if worker_count > 1:
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            scene_lists = list(executor.map(find_scene_segments, gameplay_files))
+    else:
+        scene_lists = [find_scene_segments(path) for path in gameplay_files]
+
     candidates: list[dict[str, Any]] = []
-
-    for path in gameplay_files:
-        for scene in find_scene_segments(path):
+    for path, scenes in zip(gameplay_files, scene_lists):
+        for scene in scenes:
             candidates.append({"path": path, **scene})
-
     if not candidates:
         raise RuntimeError("Scene detection produced no usable gameplay segments.")
 
@@ -440,10 +444,8 @@ def build_gameplay_track(
 
     while remaining >= 1.2 and len(selected) < max_scene_count:
         available = [
-            item
-            for item in candidates
-            if item not in selected
-            and item["duration"] <= remaining + 0.10
+            item for item in candidates
+            if item not in selected and item["duration"] <= remaining + 0.10
         ]
         if not available:
             break
@@ -474,57 +476,74 @@ def build_gameplay_track(
         chosen_path = Path(chosen["path"])
         source_use_count[chosen_path] = source_use_count.get(chosen_path, 0) + 1
 
+    if not selected:
+        raise RuntimeError("No gameplay scenes were selected.")
+    return [Path(item["path"]) for item in selected], selected
+
+
+def _crop_cache_for_segments(selected_segments: list[dict[str, Any]]) -> dict[Path, str | None]:
+    paths = list(dict.fromkeys(Path(item["path"]) for item in selected_segments))
+    if not paths:
+        return {}
+    workers = 2 if fast_mode() else 1
+    workers = max(1, min(len(paths), workers))
+    if workers > 1:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            crops = list(executor.map(detect_active_picture_crop, paths))
+        return dict(zip(paths, crops))
+    return {path: detect_active_picture_crop(path) for path in paths}
+
+
+def build_gameplay_track(
+    gameplay_files: list[Path],
+    duration: float,
+    destination: Path,
+) -> tuple[list[Path], list[dict[str, Any]]]:
+    """Compatibility path for callers that still want a standalone montage."""
+    selected_paths, selected = select_gameplay_segments(gameplay_files, duration)
     ffmpeg_args: list[str] = ["ffmpeg", "-y"]
     filters: list[str] = []
-    crop_cache: dict[Path, str | None] = {}
+    crop_cache = _crop_cache_for_segments(selected)
 
     for index, item in enumerate(selected):
         path = Path(item["path"])
         segment = float(item["duration"])
-        ffmpeg_args += ["-ss", f"{item['start']:.3f}", "-t", f"{segment:.3f}", "-i", str(path)]
-        if path not in crop_cache:
-            crop_cache[path] = detect_active_picture_crop(path)
-        active_crop = crop_cache[path]
+        ffmpeg_args += ["-ss", str(item["start"]), "-t", str(segment), "-i", str(path)]
+        active_crop = crop_cache.get(path)
         crop_filter = f"crop={active_crop}," if active_crop else ""
         filters.append(
             f"[{index}:v]{crop_filter}fps=30,"
             f"scale=1080:1920:force_original_aspect_ratio=increase,"
             f"crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
-            f"eq=contrast=1.04:saturation=1.06,"
-            f"setsar=1,trim=duration={segment:.3f},setpts=PTS-STARTPTS[v{index}]"
+            f"eq=contrast=1.04:saturation=1.06,setsar=1,"
+            f"trim=duration={segment:.3f},setpts=PTS-STARTPTS[v{index}]"
         )
 
     count = len(selected)
     video_inputs = "".join(f"[v{i}]" for i in range(count))
     filters.append(f"{video_inputs}concat=n={count}:v=1:a=0[vg]")
-
     total = sum(float(item["duration"]) for item in selected)
     if total < duration - 0.05:
-        filters.append(
-            f"[vg]tpad=stop_mode=clone:stop_duration={duration - total:.3f}[gameplay]"
-        )
+        filters.append(f"[vg]tpad=stop_mode=clone:stop_duration={duration - total:.3f}[gameplay]")
     else:
         filters.append("[vg]null[gameplay]")
 
+    preset = os.getenv("FFMPEG_PRESET", "ultrafast" if fast_mode() else "veryfast")
     ffmpeg_args += [
         "-filter_complex", ";".join(filters),
         "-map", "[gameplay]",
         "-t", f"{duration:.3f}",
         "-r", "30",
         "-c:v", "libx264",
-        "-preset", "veryfast",
+        "-preset", preset,
         "-crf", "20",
         "-pix_fmt", "yuv420p",
         str(destination),
     ]
-
     run(ffmpeg_args, label="Build scene-safe vertical gameplay montage")
-
     if not destination.exists() or destination.stat().st_size == 0:
         raise RuntimeError("FFmpeg did not produce the gameplay track.")
-
-    return [Path(item["path"]) for item in selected], selected
-
+    return selected_paths, selected
 
 def choose_background_music(seed: str) -> Path:
     files = find_music()
