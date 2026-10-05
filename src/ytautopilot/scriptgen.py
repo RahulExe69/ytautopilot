@@ -5,7 +5,7 @@ import os
 import re
 from typing import Any
 
-from .content import choose_daily_topic, history_prompt_context, is_duplicate_script
+from .content import choose_daily_topic, classify_hook_style, history_prompt_context, is_duplicate_script, topic_family
 from .analytics import strategy_prompt_context
 
 import requests
@@ -164,4 +164,6 @@ The first draft was too similar to a recent Short. Discard that angle and create
     data["hook"] = re.sub(r"\s+", " ", str(data["hook"])).strip()
     data["narration"] = re.sub(r"\s+", " ", data["narration"]).strip()
     data["tts_text"] = re.sub(r"\s+", " ", str(data["tts_text"])).strip()
+    data["topic_family"] = topic_family(str(data["topic"]))
+    data["hook_style"] = classify_hook_style(str(data["hook"]))
     return data
