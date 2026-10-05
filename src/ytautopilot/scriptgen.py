@@ -101,15 +101,24 @@ Performance learning context (soft signal only):
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{candidate_model}:generateContent"
             for attempt in range(3):
                 try:
+                    generation_config = {
+                        "temperature": temperature,
+                        "responseMimeType": "application/json",
+                    }
+                    candidate_lower = candidate_model.lower()
+                    if candidate_lower.startswith("gemini-3"):
+                        # Gemini 3.5 supports minimal thinking for lower latency.
+                        generation_config["thinkingConfig"] = {"thinkingLevel": "minimal"}
+                    elif candidate_lower.startswith("gemini-2.5"):
+                        # Gemini 2.5 Flash can disable thinking for fast structured-output calls.
+                        generation_config["thinkingConfig"] = {"thinkingBudget": 0}
+
                     response = requests.post(
                         url,
                         params={"key": api_key},
                         json={
                             "contents": [{"parts": [{"text": request_prompt}]}],
-                            "generationConfig": {
-                                "temperature": temperature,
-                                "responseMimeType": "application/json",
-                            },
+                            "generationConfig": generation_config,
                         },
                         timeout=60,
                     )
