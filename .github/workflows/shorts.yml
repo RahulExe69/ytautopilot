@@ -186,7 +186,7 @@ jobs:
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           INDICVOICE_VOICE: hf_beta
           INDICVOICE_MODEL: ${{ vars.INDICVOICE_MODEL }}
-          INDICVOICE_SPEED: "1.28"
+          INDICVOICE_SPEED: "1.20"
           INDICVOICE_VOICE_FALLBACK_REPO: "hexgrad/Kokoro-82M"
           INCLUDE_HOOK_IN_NARRATION: "true"
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
