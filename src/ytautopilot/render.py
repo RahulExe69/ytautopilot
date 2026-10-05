@@ -563,70 +563,81 @@ def choose_background_music(seed: str) -> Path:
 
 
 def render_final_video(
-    gameplay_track: Path,
+    selected_segments: list[dict[str, Any]],
     narration_audio: Path,
     animated_captions: Path,
     duration: float,
     destination: Path,
     music_seed: str,
 ) -> dict[str, Any]:
-    # Keep one clean second after narration/captions finish so the Short
-    # does not feel like it gets cut off. The last gameplay frame continues
-    # underneath while music fades out smoothly during the tail.
+    """Render the final Short in one video encode instead of two."""
     tail_seconds = FINAL_TAIL_SECONDS
     final_duration = duration + tail_seconds
-
     music = choose_background_music(music_seed)
-    filter_parts = [
-        "[0:v]null[v]",
-        f"[2:a]volume=0.055,atrim=duration={final_duration:.3f},afade=t=in:st=0:d=0.35,afade=t=out:st={max(0.0, final_duration-0.75):.3f}:d=0.75[bgm]",
-        f"[v]tpad=stop_mode=clone:stop_duration={tail_seconds:.3f}[vpad]",
-        f"[1:a]loudnorm=I=-15:TP=-1.5:LRA=8,apad=pad_dur={tail_seconds:.3f},volume=enable='between(t,{duration:.3f},{final_duration:.3f})':volume=0[narr_tail]",
-        "[narr_tail][bgm]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
-        f"[vpad]subtitles={animated_captions.resolve()}:si=0:force_style='Fade=0'[vout]",
-    ]
+    crop_cache = _crop_cache_for_segments(selected_segments)
 
-    command = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        str(gameplay_track),
-        "-i",
-        str(narration_audio),
-        "-stream_loop",
-        "-1",
-        "-i",
-        str(music),
-    ]
+    command: list[str] = ["ffmpeg", "-y"]
+    filters: list[str] = []
+    for index, item in enumerate(selected_segments):
+        path = Path(item["path"])
+        segment = float(item["duration"])
+        command += ["-ss", str(item["start"]), "-t", str(segment), "-i", str(path)]
+        active_crop = crop_cache.get(path)
+        crop_filter = f"crop={active_crop}," if active_crop else ""
+        filters.append(
+            f"[{index}:v]{crop_filter}fps=30,"
+            f"scale=1080:1920:force_original_aspect_ratio=increase,"
+            f"crop=1080:1920:(iw-1080)/2:(ih-1920)/2,"
+            f"eq=contrast=1.04:saturation=1.06,setsar=1,"
+            f"trim=duration={segment:.3f},setpts=PTS-STARTPTS[v{index}]"
+        )
 
+    count = len(selected_segments)
+    video_inputs = "".join(f"[v{i}]" for i in range(count))
+    filters.append(f"{video_inputs}concat=n={count}:v=1:a=0[vg]")
+    total = sum(float(item["duration"]) for item in selected_segments)
+    if total < duration - 0.05:
+        filters.append(f"[vg]tpad=stop_mode=clone:stop_duration={duration - total:.3f}[gameplay]")
+    else:
+        filters.append("[vg]null[gameplay]")
+
+    narration_index = count
+    music_index = count + 1
+    command += ["-i", str(narration_audio), "-stream_loop", "-1", "-i", str(music)]
+
+    if fast_mode():
+        filters.extend([
+            f"[gameplay]tpad=stop_mode=clone:stop_duration={tail_seconds:.3f},subtitles={animated_captions.resolve()}:si=0:force_style='Fade=0'[vout]",
+            f"[{narration_index}:a]apad=pad_dur={tail_seconds:.3f},volume=1[narr]",
+            f"[{music_index}:a]volume=0.055,atrim=duration={final_duration:.3f},afade=t=in:st=0:d=0.25,afade=t=out:st={max(0.0, final_duration-0.65):.3f}:d=0.65[bgm]",
+            "[narr][bgm]amix=inputs=2:duration=longest:dropout_transition=0,alimiter=limit=0.97[aout]",
+        ])
+    else:
+        filters.extend([
+            f"[gameplay]tpad=stop_mode=clone:stop_duration={tail_seconds:.3f}[vpad]",
+            f"[{music_index}:a]volume=0.055,atrim=duration={final_duration:.3f},afade=t=in:st=0:d=0.35,afade=t=out:st={max(0.0, final_duration-0.75):.3f}:d=0.75[bgm]",
+            f"[{narration_index}:a]loudnorm=I=-15:TP=-1.5:LRA=8,apad=pad_dur={tail_seconds:.3f}[narr_tail]",
+            "[narr_tail][bgm]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=10[aout]",
+            f"[vpad]subtitles={animated_captions.resolve()}:si=0:force_style='Fade=0'[vout]",
+        ])
+
+    preset = os.getenv("FFMPEG_PRESET", "ultrafast" if fast_mode() else "veryfast")
     command += [
-        "-filter_complex",
-        ";".join(filter_parts),
-        "-map",
-        "[vout]",
-        "-map",
-        "[aout]",
-        "-t",
-        f"{final_duration:.3f}",
-        "-c:v",
-        "libx264",
-        "-preset",
-        "veryfast",
-        "-crf",
-        "19",
-        "-pix_fmt",
-        "yuv420p",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "160k",
-        "-movflags",
-        "+faststart",
-        str(destination),
+        "-filter_complex", ";".join(filters),
+        "-map", "[vout]", "-map", "[aout]",
+        "-t", f"{final_duration:.3f}",
+        "-c:v", "libx264",
+        "-preset", preset,
+        "-crf", "20" if fast_mode() else "19",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "aac",
+        "-b:a", "128k" if fast_mode() else "160k",
     ]
+    if not fast_mode():
+        command += ["-movflags", "+faststart"]
+    command += [str(destination)]
 
-    run(command, label="Render creator-style 9:16 Short with animated captions")
-
+    run(command, label="Render creator-style 9:16 Short in one video encode")
     if not destination.exists() or destination.stat().st_size == 0:
         raise RuntimeError("FFmpeg did not produce the final Short.")
 
@@ -636,6 +647,8 @@ def render_final_video(
         "mix": "narration + selected background music; gameplay audio muted",
         "final_duration_seconds": round(final_duration, 3),
         "tail_seconds": round(tail_seconds, 3),
+        "fast_mode": fast_mode(),
+        "video_encode_passes": 1,
     }
 
 
@@ -660,7 +673,6 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     narration_audio = WORK_DIR / "narration.mp3"
     narration_srt = WORK_DIR / "narration.srt"
     animated_ass = WORK_DIR / "captions.ass"
-    gameplay_track = WORK_DIR / "gameplay_track.mp4"
     final_video = OUTPUT_DIR / "short_preview.mp4"
 
     tts_meta = generate_tts(
@@ -699,10 +711,9 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         animated_ass,
         int(duration * 1000),
     )
-    selected_paths, selected_segments = build_gameplay_track(
+    selected_paths, selected_segments = select_gameplay_segments(
         gameplay_files,
         duration,
-        gameplay_track,
     )
     # Normalize scene metadata immediately. Some Python path-like values can
     # otherwise leak into the final manifest and make json.dumps() fail.
@@ -716,7 +727,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
         for item in selected_segments
     ]
     audio_meta = render_final_video(
-        gameplay_track,
+        selected_segments,
         narration_audio,
         animated_ass,
         duration,
@@ -732,7 +743,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     shutil.copy2(animated_ass, output_ass)
 
     manifest = {
-        "renderer": "ytautopilot-stage-4-free-local-tts-scene-safe",
+        "renderer": "ytautopilot-fast-path-local-tts-scene-safe",
         "video": str(final_video),
         "duration_seconds": float(audio_meta["final_duration_seconds"]),
         "resolution": "1080x1920",
