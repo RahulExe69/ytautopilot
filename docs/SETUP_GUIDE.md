@@ -2,7 +2,7 @@
 
 This guide documents how to set up the current YTAutoPilot stages, troubleshoot them, and help another creator build a separate project inspired by the workflow.
 
-> **Current status:** Stage 5 publish-ready packaging is implemented on top of the Stage 4 renderer. Prepare mode renders a reviewable 9:16 Short with conversational narration, local IndicVoice TTS, scene-safe gameplay cuts, animated pop-up captions, generated publish metadata, and a gameplay-derived thumbnail candidate. YouTube publishing is not implemented and no uploads happen automatically. The workflow is manually triggered; no schedule is enabled.
+> **Current status:** The repository is in the scheduled-generation stage. Prepare mode renders a reviewable 9:16 Short with natural spoken Hindi/Hinglish, sentence-aware local IndicVoice TTS, scene-safe gameplay cuts, animated captions, generated publish metadata, and a gameplay-derived thumbnail candidate. Publish mode uploads privately through YouTube OAuth, while scheduled Actions runs calculate future `publishAt` targets. See `ARCHITECTURE.md`, `CONFIGURATION.md`, and `OPERATIONS.md` for the current system rather than the historical stage descriptions below.
 
 ## 1. What you need
 
