@@ -262,7 +262,14 @@ jobs:
             echo "No state changes to commit."
           else
             git commit -m "chore: persist ytautopilot generation and learning state"
-            git push
+            # A workflow can finish after another legitimate repo commit lands
+            # on main (for example while a manual run is in progress). Rebase
+            # the small state commit onto the current main before pushing so a
+            # harmless concurrent commit does not turn a successful upload into
+            # a failed workflow.
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
 
       - name: Upload generated output
