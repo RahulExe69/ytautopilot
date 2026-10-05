@@ -1,5 +1,22 @@
 {
   "version": 1,
-  "public_videos_measured": 0,
-  "data_ready": false
+  "updated_at_utc": "2026-10-05T07:55:13.721723+00:00",
+  "data_ready": false,
+  "public_videos_measured": 1,
+  "best_topic_families": [
+    "underrated mechanics and discoveries"
+  ],
+  "best_publish_hours_ist": [
+    3
+  ],
+  "topic_family_scores": {
+    "underrated mechanics and discoveries": 10.3594
+  },
+  "description_style_scores": {
+    "default": 10.3594
+  },
+  "duration_bucket_scores": {
+    "medium": 10.3594
+  },
+  "note": "Use as a soft learning signal only. Keep exploring until enough public Shorts exist; do not overfit to one or two videos."
 }

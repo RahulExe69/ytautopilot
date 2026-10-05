@@ -22,6 +22,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.283,43.867,4.583],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",0.0,2.533,2.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.283,3.883],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",15.267,16.983,1.717],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",47.317,49.7,2.383],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.317,19.417,3.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",8.433,10.35,1.917],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733]]",
       "composite_fingerprint": "2a234ae262f367b07790e0e2"
+    },
+    {
+      "generated_at_utc": "2026-10-05T07:56:08.508307+00:00",
+      "script_fingerprint": "a3421bb5f25e97c5",
+      "topic": "Three close-range movement mistakes beginners make in Free Fire",
+      "status": "generated_ready_for_upload",
+      "video_sha256": "78bfdd62a232b694d685cf38fd333f8a2e3a3f9fb97050c0c8bbd21e952a757b",
+      "narration_sha256": "7879d06512a4eeefce879805aa22533dc9e001bda795b58ab20b8859b9389634",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_03.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",1.867,4.9,3.033],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.317,19.417,3.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.283,43.867,4.583],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",15.267,16.983,1.717],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.317,2.617],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",50.233,52.4,2.167],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",14.2,16.317,2.117]]",
+      "composite_fingerprint": "5c2dbc0696c757feeb97af56"
     }
   ]
 }

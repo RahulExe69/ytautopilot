@@ -160,6 +160,25 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-05T07:56:08.508700+00:00",
+      "weekday": 0,
+      "topic": "Three close-range movement mistakes beginners make in Free Fire",
+      "title": "Free Fire Mein Close-Range Move Karte Waqt Yeh 3 Galtiyan Mat Karo",
+      "hook": "Close-range fights mein tum bhi yeh teen movement mistakes karte ho.",
+      "fingerprint": "a3421bb5f25e97c5",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
