@@ -187,17 +187,17 @@ def classify_hook_style(hook: str) -> str:
     if not text:
         return "unknown"
 
-    if "?" in str(hook) or re.match(r"^(kya|kaise|kyun|kab|why|how|did|does)\\b", text):
+    if "?" in str(hook) or re.match(r"^(kya|kaise|kyun|kab|why|how|did|does)\b", text):
         return "question"
-    if re.search(r"\\b(3|three|4|four|5|five|top)\\b", text):
+    if re.search(r"\b(3|three|4|four|5|five|top)\b", text):
         return "list"
-    if re.search(r"\\b(galti|mistake|mat karo|avoid|stop)\\b", text):
+    if re.search(r"\b(galti|mistake|mat karo|avoid|stop)\b", text):
         return "warning"
-    if re.search(r"\\b(test|testing|try|challenge|myth|experiment)\\b", text):
+    if re.search(r"\b(test|testing|try|challenge|myth|experiment)\b", text):
         return "test_challenge"
-    if re.search(r"\\b(underrated|hidden|secret|actually|really|notice|pata)\\b", text):
+    if re.search(r"\b(underrated|hidden|secret|actually|really|notice|pata)\b", text):
         return "curiosity"
-    if re.search(r"\\b(how to|tareeka|rule|habit|tip|use karo|try karo)\\b", text):
+    if re.search(r"\b(how to|tareeka|rule|habit|tip|use karo|try karo)\b", text):
         return "direct_tip"
     return "statement"
 
