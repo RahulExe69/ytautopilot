@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "updated_at_utc": "2026-10-05T17:57:57.165663+00:00",
+  "updated_at_utc": "2026-10-05T21:26:58.831889+00:00",
   "data_ready": false,
   "public_videos_measured": 2,
-  "baseline_performance_score": 5.52625,
+  "baseline_performance_score": 5.9844,
   "best_topic_families": [
     "close-range skills"
   ],
@@ -15,38 +15,38 @@
   "topic_family_stats": {
     "close-range skills": {
       "samples": 2,
-      "avg_performance_score": 5.52625,
-      "avg_views_per_hour": 0.15305,
+      "avg_performance_score": 5.9844,
+      "avg_views_per_hour": 0.23795,
       "avg_engagement_rate": 0.125
     }
   },
   "hook_style_stats": {
     "statement": {
       "samples": 2,
-      "avg_performance_score": 5.52625,
-      "avg_views_per_hour": 0.15305,
+      "avg_performance_score": 5.9844,
+      "avg_views_per_hour": 0.23795,
       "avg_engagement_rate": 0.125
     }
   },
   "description_style_scores": {
     "default": 10.3594,
-    "challenge": 0.6931
+    "challenge": 1.6094
   },
   "duration_bucket_scores": {
     "medium": 10.3594,
-    "long": 0.6931
+    "long": 1.6094
   },
   "duration_bucket_stats": {
     "medium": {
       "samples": 1,
       "avg_performance_score": 10.3594,
-      "avg_views_per_hour": 0.203,
+      "avg_views_per_hour": 0.1725,
       "avg_engagement_rate": 0.25
     },
     "long": {
       "samples": 1,
-      "avg_performance_score": 0.6931,
-      "avg_views_per_hour": 0.1031,
+      "avg_performance_score": 1.6094,
+      "avg_views_per_hour": 0.3034,
       "avg_engagement_rate": 0.0
     }
   },
