@@ -179,6 +179,25 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-05T15:08:20.545306+00:00",
+      "weekday": 0,
+      "topic": "How to use cover properly during a close-range fight",
+      "title": "Close-Range Fight Mein Cover Use Karne Ka Sahi Tareeka",
+      "hook": "Close-range fight mein cover ke bilkul chipak ke mat khade ho.",
+      "fingerprint": "2a823c5c8ec53a3c",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }

@@ -18,6 +18,16 @@
       "status": "uploaded_private",
       "description_style": "challenge",
       "scheduled_publish_at": null
+    },
+    {
+      "uploaded_at_utc": "2026-10-05T15:08:24.150574+00:00",
+      "fingerprint": "2a823c5c8ec53a3c",
+      "youtube_video_id": "t3poRDkhNxw",
+      "title": "Close-Range Fight Mein Cover Use Karne Ka Sahi Tareeka",
+      "topic": "How to use cover properly during a close-range fight",
+      "status": "uploaded_private",
+      "description_style": "community",
+      "scheduled_publish_at": "2026-10-06T13:00:00+05:30"
     }
   ]
 }

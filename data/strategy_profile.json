@@ -1,22 +1,27 @@
 {
   "version": 1,
-  "updated_at_utc": "2026-10-05T07:55:13.721723+00:00",
+  "updated_at_utc": "2026-10-05T15:04:51.401024+00:00",
   "data_ready": false,
-  "public_videos_measured": 1,
+  "public_videos_measured": 2,
   "best_topic_families": [
-    "underrated mechanics and discoveries"
+    "underrated mechanics and discoveries",
+    "close-range skills"
   ],
   "best_publish_hours_ist": [
-    3
+    3,
+    13
   ],
   "topic_family_scores": {
-    "underrated mechanics and discoveries": 10.3594
+    "underrated mechanics and discoveries": 10.3594,
+    "close-range skills": 0.6931
   },
   "description_style_scores": {
-    "default": 10.3594
+    "default": 10.3594,
+    "challenge": 0.6931
   },
   "duration_bucket_scores": {
-    "medium": 10.3594
+    "medium": 10.3594,
+    "long": 0.6931
   },
   "note": "Use as a soft learning signal only. Keep exploring until enough public Shorts exist; do not overfit to one or two videos."
 }
