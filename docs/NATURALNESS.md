@@ -22,3 +22,37 @@ References:
 - https://github.com/Bindkushal/indic-voice
 - https://arxiv.org/abs/1810.00662
 - https://arxiv.org/abs/2105.08807
+
+
+## Prompting principles used
+
+The current implementation follows Google's Gemini guidance to use clear, specific constraints, consistent prompt structure, explicit conversational steering, and a small number of concrete examples. Gemini's documentation also recommends structured JSON output when the response has a more complex schema. The project currently validates its generated JSON locally and can be migrated to native structured output if the selected Gemini API path makes that advantageous.
+
+## Why this is layered
+
+No single prompt can guarantee natural speech. The project therefore treats naturalness as a pipeline property:
+
+- generation prompt controls vocabulary and creator persona
+- examples demonstrate the desired spoken style
+- linting catches recurring written-language patterns
+- repair passes give Gemini a chance to rewrite
+- sanitization removes visual AI artifacts
+- TTS sentence segmentation creates explicit thought boundaries
+- punctuation-aware pauses preserve those boundaries
+- pronunciation rules handle gaming shorthand
+- human listening remains the final quality check
+
+## Current TTS behavior
+
+The fast path uses the fixed `hf_beta` IndicVoice voice. It does not synthesize one large paragraph and hope the model discovers every boundary. It splits the prepared text into sentence units, synthesizes each unit, adds a small terminal pause based on punctuation, concatenates the units, and applies the configured `INDICVOICE_SPEED` (currently 1.20x).
+
+This intentionally spends some synthesis overhead to improve intelligibility and prosody.
+
+## Research references
+
+- Google Gemini prompt design: https://ai.google.dev/gemini-api/docs/prompting-strategies
+- Google Gemini 3 developer guide: https://ai.google.dev/gemini-api/docs/gemini-3
+- Google Gemini structured outputs: https://ai.google.dev/gemini-api/docs/structured-output
+- IndicVoice: https://github.com/Bindkushal/indic-voice
+- Hindi-English code-switching research: https://arxiv.org/abs/1810.00662
+- Code-switching ASR research: https://arxiv.org/abs/2105.08807
