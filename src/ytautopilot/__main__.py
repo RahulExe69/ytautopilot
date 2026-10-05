@@ -60,6 +60,9 @@ def estimate_target_seconds() -> float | None:
     if total <= 0:
         return None
 
+    # Reuse this already-probed total during rendering so the same gameplay
+    # files do not need a second ffprobe pass in render_short().
+    os.environ["YTAP_AVAILABLE_GAMEPLAY_SECONDS"] = f"{total:.6f}"
     return max(10.0, min(52.0, total * 0.82))
 
 
