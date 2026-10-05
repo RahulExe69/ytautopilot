@@ -687,7 +687,14 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     duration = ffprobe_duration(narration_audio)
 
     gameplay_files = find_gameplay()
-    available_gameplay_seconds = sum(ffprobe_duration(path) for path in gameplay_files)
+    try:
+        available_gameplay_seconds = float(
+            os.getenv("YTAP_AVAILABLE_GAMEPLAY_SECONDS", "0")
+        )
+    except ValueError:
+        available_gameplay_seconds = 0.0
+    if available_gameplay_seconds <= 0:
+        available_gameplay_seconds = sum(ffprobe_duration(path) for path in gameplay_files)
     safe_gameplay_limit = max(0.0, available_gameplay_seconds - 0.5)
     if duration > safe_gameplay_limit:
         raise RuntimeError(
