@@ -37,7 +37,7 @@ Performance collection uses the official YouTube Data API statistics available t
 1. Open **Settings → Secrets and variables → Actions**.
 2. Add a repository secret named GEMINI_API_KEY using your own Gemini API key. Never place API keys in source files or commit them.
 3. Optionally add a repository variable named GEMINI_MODEL with a model currently available to your Gemini API project.
-4. The narrator is fixed to the female `hf_beta` voice, with a default speaking speed of 1.28x. No voice selector is exposed in the workflow.
+4. The narrator is fixed to the female `hf_beta` voice, with a default speaking speed of 1.20x. No voice selector is exposed in the workflow.
    - INDICVOICE_MODEL — defaults to `Bindkushal/IndicVoice-82M`.
    - Hindi voice tensors are sourced from `hexgrad/Kokoro-82M` when the IndicVoice repository does not contain a usable copy.
 5. Put your own/licensed gameplay videos in assets/gameplay/. One clip is enough for the first test; multiple clips give the renderer more visual variety.
@@ -105,6 +105,35 @@ Requires Python 3.11+, FFmpeg, espeak-ng, and a working network connection for G
     PYTHONPATH=src python -m ytautopilot --mode prepare --topic "Free Fire tips"
 
 The generated files are written to output/.
+
+
+## Documentation
+
+The project documentation is split by concern so future changes can be made without losing operational context:
+
+| Document | Covers |
+|---|---|
+| [Architecture](docs/ARCHITECTURE.md) | Complete pipeline, module responsibilities, state, retries and artifacts |
+| [Content System](docs/CONTENT_SYSTEM.md) | Topic families, diversity, naturalness, title packaging and history |
+| [Naturalness](docs/NATURALNESS.md) | Spoken Hinglish, TTS pronunciation and prosody design |
+| [Configuration](docs/CONFIGURATION.md) | Secrets, variables, workflow inputs, local requirements and schedules |
+| [Setup Guide](docs/SETUP_GUIDE.md) | Initial GitHub/Gemini/YouTube setup |
+| [Operations](docs/OPERATIONS.md) | Day-to-day workflow operation and recovery |
+| [Performance](docs/PERFORMANCE.md) | Fast path, caches, benchmarks and quality/speed trade-offs |
+| [Testing](docs/TESTING.md) | Prepare/publish quality checklist and safe iteration |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Common workflow, TTS, rendering, state and YouTube failures |
+| [YouTube API Audit](docs/YOUTUBE_API_AUDIT.md) | OAuth, audit status, private uploads and scheduling behavior |
+
+### Current quality architecture
+
+The pipeline now has four independent quality gates before publication:
+
+1. **Content diversity** — recent topic families, phrase overlap and template similarity are penalized.
+2. **Spoken naturalness** — Gemini drafts are checked for formal/robotic Hinglish and repaired when necessary.
+3. **Speech prosody** — TTS uses sentence boundaries, punctuation-aware pauses and controlled speech speed.
+4. **Publish sanitization** — titles, descriptions and metadata are cleaned again at the final YouTube boundary.
+
+This defense-in-depth design is intentional: a generated artifact should not depend on one prompt behaving perfectly.
 
 ## License
 
