@@ -73,7 +73,6 @@ jobs:
           if [ ! -x .venv/bin/python ] || ! .venv/bin/python -c 'import sys; print(sys.version)' >/dev/null 2>&1; then
             rm -rf .venv
             python -m venv .venv
-            .venv/bin/python -m pip install --upgrade pip
             .venv/bin/python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.0"
             .venv/bin/python -m pip install -r requirements.txt
           else
@@ -81,6 +80,21 @@ jobs:
           fi
           echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
 
+      - name: Enable Hugging Face offline mode on warm cache
+        shell: bash
+        run: |
+          model_ready=0
+          if find "$HF_HUB_CACHE" -type f -name 'indicvoice-v1_0.pth' -size +1000000 2>/dev/null | grep -q .; then
+            if find "$HF_HUB_CACHE" -type f -path '*/voices/hf_beta.pt' -size +100000 2>/dev/null | grep -q .; then
+              model_ready=1
+            fi
+          fi
+          if [ "$model_ready" -eq 1 ]; then
+            echo "HF_HUB_OFFLINE=1" >> "$GITHUB_ENV"
+            echo "Warm IndicVoice model + voice cache detected; skipping Hugging Face metadata calls."
+          else
+            echo "Hugging Face cache is cold or incomplete; keeping Hub online for the first download."
+          fi
       - name: Configure CPU threading
         shell: bash
         run: |
