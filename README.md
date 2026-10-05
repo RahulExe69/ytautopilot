@@ -22,6 +22,10 @@ The generation/render pipeline currently:
 
 **YouTube upload and scheduling are implemented.** Publish mode refreshes the OAuth access token from the existing GitHub Actions secrets, validates the output package, uploads through videos.insert, records the returned video ID, and keeps persistent upload history for duplicate prevention. Scheduled runs also provide a future YouTube publishAt target. YouTube restricts uploads from unverified API projects created after 28 July 2020 to private viewing until the project completes Google's audit; see docs/YOUTUBE_API_AUDIT.md for the important distinction between that restriction and scheduled publishing.
 
+## Fast workflow path
+
+The GitHub Actions pipeline is tuned for warm-run latency: cached Python dependencies and Hugging Face assets, parallel gameplay scene analysis, a single final FFmpeg video encode, fast x264 settings, streamlined IndicVoice synthesis, low-latency Gemini thinking, and zero-compression media artifacts. The speed-first settings live in the workflow environment and can be disabled by setting `YTAP_FAST_MODE=0`. See `docs/PERFORMANCE.md` for the benchmark plan and the quality/speed trade-offs.
+
 ## Planned pipeline
 
 The scheduled experiment runs twice per day in Asia/Kolkata. GitHub Actions starts the jobs at 12:00 and 19:30 IST, then uploads private videos with default YouTube publication targets of 13:00 and 20:30 IST. YouTube's publishAt scheduling mechanism can schedule a private video for future publication; API audit approval is a separate compliance status and should not be inferred merely from the Studio 'Scheduled' label.
