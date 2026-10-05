@@ -100,6 +100,47 @@ The current Stage 2 workflow intentionally does not use those YouTube secrets.
 
 EDGE_TTS_VOICE and EDGE_TTS_RATE are not secrets.
 
+## 5. ZynexPlayz website — YouTube API configuration
+
+The companion ZynexPlayz website is deployed on Vercel and displays the channel's live YouTube statistics. The website's serverless endpoint is `api/channel-stats.js`.
+
+### Where the YouTube API key belongs
+
+**Store the YouTube Data API v3 key in Vercel, not in the GitHub repository.** The website reads it server-side from the Vercel environment variable `YOUTUBE_API_KEY`.
+
+In the Vercel project for ZynexPlayz:
+
+1. Open **Settings → Environment Variables**.
+2. Add `YOUTUBE_API_KEY` with the YouTube Data API v3 API key created in Google Cloud.
+3. Add `YOUTUBE_CHANNEL_HANDLE` with the channel handle, currently `@ZynexPlayz`.
+4. Enable the variables for the environments where the site is deployed (normally Production; Preview/Development if needed).
+5. Redeploy the site after saving the variables.
+
+Do **not** put the API key in `index.html`, JavaScript shipped to the browser, GitHub source files, or a normal GitHub Actions variable. The API key is a secret even though the channel handle is not.
+
+### API key restriction
+
+In Google Cloud, restrict the API key to **YouTube Data API v3**. Also restrict it to the appropriate API usage where practical. The key is used by the Vercel serverless endpoint to call `youtube/v3/channels` with `part=snippet,statistics` and `forHandle`.
+
+### Channel ID vs channel handle
+
+The website currently uses the **channel handle**, not a hardcoded channel ID:
+
+| Variable | Current value | Secret? | Used by |
+|---|---|---|---|
+| `YOUTUBE_API_KEY` | Your YouTube Data API v3 key | **Yes** | Vercel `api/channel-stats.js` |
+| `YOUTUBE_CHANNEL_HANDLE` | `@ZynexPlayz` | No | Vercel `api/channel-stats.js` |
+
+A YouTube channel ID is public and does not need to be stored as a secret. If the website is later changed to use a fixed channel ID, document the new variable name in this section before changing deployment configuration.
+
+### GitHub vs Vercel — which secret goes where?
+
+- **Vercel:** `YOUTUBE_API_KEY` and `YOUTUBE_CHANNEL_HANDLE` for the ZynexPlayz website.
+- **GitHub Actions:** only add YouTube credentials when a GitHub workflow actually needs them. For the automation's upload workflow, use GitHub Actions secrets such as `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN` as documented below.
+- **Never commit either set of credentials to the repository.**
+
+This separation is intentional: the website's read-only channel statistics use an API key, while the automation's upload/account operations use OAuth credentials.
+
 ## 5. Add gameplay
 
 Open assets/gameplay/ in GitHub and upload one or more gameplay videos that you own or have explicit permission/license to reuse.
@@ -252,4 +293,4 @@ For a new project:
 - PySceneDetect: https://www.scenedetect.com/
 
 ---
-Last reviewed: 2026-10-04. Re-check provider documentation because API, voice, and OAuth requirements can change.
+Last reviewed: 2026-10-05. Re-check provider documentation because API, voice, and OAuth requirements can change.
