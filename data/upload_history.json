@@ -38,6 +38,16 @@
       "status": "uploaded_private",
       "description_style": "default",
       "scheduled_publish_at": null
+    },
+    {
+      "uploaded_at_utc": "2026-10-05T17:41:24.720258+00:00",
+      "fingerprint": "a6b2dd1712578167",
+      "youtube_video_id": "K7T0Sb_W39g",
+      "title": "Close-Range Fight Mein Crouch Aur Strafe Ki Sahi Timing Dekho",
+      "topic": "How crouch and strafe timing affect close-range aim",
+      "status": "uploaded_private",
+      "description_style": "challenge",
+      "scheduled_publish_at": null
     }
   ]
 }

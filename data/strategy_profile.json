@@ -1,19 +1,32 @@
 {
-  "version": 1,
-  "updated_at_utc": "2026-10-05T15:04:51.401024+00:00",
+  "version": 2,
+  "updated_at_utc": "2026-10-05T17:40:30.993835+00:00",
   "data_ready": false,
   "public_videos_measured": 2,
+  "baseline_performance_score": 5.52625,
   "best_topic_families": [
-    "underrated mechanics and discoveries",
     "close-range skills"
   ],
-  "best_publish_hours_ist": [
-    3,
-    13
+  "best_hook_styles": [
+    "statement"
   ],
-  "topic_family_scores": {
-    "underrated mechanics and discoveries": 10.3594,
-    "close-range skills": 0.6931
+  "best_publish_hours_ist": [],
+  "avoid_topic_families": [],
+  "topic_family_stats": {
+    "close-range skills": {
+      "samples": 2,
+      "avg_performance_score": 5.52625,
+      "avg_views_per_hour": 0.1562,
+      "avg_engagement_rate": 0.125
+    }
+  },
+  "hook_style_stats": {
+    "statement": {
+      "samples": 2,
+      "avg_performance_score": 5.52625,
+      "avg_views_per_hour": 0.1562,
+      "avg_engagement_rate": 0.125
+    }
   },
   "description_style_scores": {
     "default": 10.3594,
@@ -23,5 +36,24 @@
     "medium": 10.3594,
     "long": 0.6931
   },
-  "note": "Use as a soft learning signal only. Keep exploring until enough public Shorts exist; do not overfit to one or two videos."
+  "duration_bucket_stats": {
+    "medium": {
+      "samples": 1,
+      "avg_performance_score": 10.3594,
+      "avg_views_per_hour": 0.2061,
+      "avg_engagement_rate": 0.25
+    },
+    "long": {
+      "samples": 1,
+      "avg_performance_score": 0.6931,
+      "avg_views_per_hour": 0.1063,
+      "avg_engagement_rate": 0.0
+    }
+  },
+  "exploration_policy": {
+    "minimum_public_shorts_before_strong_optimization": 5,
+    "minimum_samples_per_family_before_preference": 2,
+    "keep_exploring_under_sampled_families": true
+  },
+  "note": "Learning signals are intentionally soft. Explore broadly with small samples, then increase exploitation as topic and hook evidence grows."
 }
