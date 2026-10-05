@@ -10,7 +10,7 @@ from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 
-from .content import content_fingerprint
+from .content import clean_user_text, content_fingerprint
 from .descriptions import build_description, choose_style
 
 
