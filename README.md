@@ -9,7 +9,7 @@ This repository and its source code are proprietary. No permission is granted to
 **Stage 7 scheduled generation, duplicate-proof media rotation, descriptions, performance learning, and automated YouTube scheduling are now wired in.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode. Scheduled runs calculate a future YouTube publishAt target; manual publish runs intentionally omit that target.
 
 The generation/render pipeline currently:
-1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration.
+1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration. Generated copy also passes a spoken-naturalness lint and can receive up to two repair passes before the renderer accepts it.
 2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using the fixed female `hf_beta` voice preset and a Devanagari TTS text layer, avoiding paid TTS APIs.
 3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
 4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. The script word budget is automatically based on the total available gameplay duration, and rendering refuses to create a Short longer than its source footage. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
