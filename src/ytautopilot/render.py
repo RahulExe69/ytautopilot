@@ -8,6 +8,7 @@ import re
 import shlex
 import shutil
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,10 @@ WORK_DIR = ROOT / "work" / "render"
 FINAL_TAIL_SECONDS = 1.0
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".mkv", ".webm"}
+
+def fast_mode() -> bool:
+    return os.getenv("YTAP_FAST_MODE", "").lower() in {"1", "true", "yes", "on"}
+
 HIGHLIGHT_WORDS = {
     "secret",
     "hidden",
@@ -335,7 +340,12 @@ def find_scene_segments(path: Path) -> list[dict[str, float]]:
     video = open_video(str(path))
     manager = SceneManager()
     manager.add_detector(ContentDetector(threshold=28.0, min_scene_len=18))
-    manager.detect_scenes(video, show_progress=False)
+    try:
+        frame_skip = int(os.getenv("SCENE_FRAME_SKIP", "1" if fast_mode() else "0"))
+    except ValueError:
+        frame_skip = 1 if fast_mode() else 0
+    frame_skip = max(0, min(2, frame_skip))
+    manager.detect_scenes(video, show_progress=False, frame_skip=frame_skip)
 
     scenes: list[dict[str, float]] = []
     for start, end in manager.get_scene_list(start_in_scene=True):
@@ -369,7 +379,8 @@ def detect_active_picture_crop(path: Path) -> str | None:
             [
                 "ffmpeg", "-hide_banner", "-ss", "0.5", "-i", str(path),
                 "-vf", "cropdetect=limit=24:round=2:reset=0",
-                "-frames:v", "180", "-an", "-f", "null", "-",
+                "-frames:v", str(max(12, min(180, int(os.getenv("CROPDETECT_FRAMES", "48" if fast_mode() else "180"))))),
+                "-an", "-f", "null", "-",
             ],
             check=False,
             capture_output=True,
