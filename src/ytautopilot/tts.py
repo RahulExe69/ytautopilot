@@ -10,6 +10,23 @@ from typing import Any
 _DEVANAGARI_PRONUNCIATIONS = (
     # Multi-word Free Fire terms first; replacements are case-insensitive and
     # token-boundary-aware in _prepare_hindi_tts_text.
+    ("one v one", "वन वी वन"),
+    ("one v two", "वन वी टू"),
+    ("one v three", "वन वी थ्री"),
+    ("two v one", "टू वी वन"),
+    ("two v two", "टू वी टू"),
+    ("1v1", "वन वी वन"),
+    ("1v2", "वन वी टू"),
+    ("1v3", "वन वी थ्री"),
+    ("2v1", "टू वी वन"),
+    ("2v2", "टू वी टू"),
+    ("low hp", "लो एच पी"),
+    ("full hp", "फुल एच पी"),
+    ("hp bar", "एच पी बार"),
+    ("glue wall", "ग्लू वॉल"),
+    ("gloo-wall", "ग्लू वॉल"),
+    ("op", "ओ पी"),
+    ("ads", "ए डी एस"),
     ("battle royale", "बैटल रॉयल"),
     ("free fire max", "फ्री फायर मैक्स"),
     ("training ground", "ट्रेनिंग ग्राउंड"),
@@ -201,8 +218,21 @@ _DEVANAGARI_PRONUNCIATIONS = (
     ("stop", "स्टॉप"),
 )
 
+def _normalise_tts_punctuation(text: str) -> str:
+    """Keep punctuation easy for an Indian Hindi TTS voice to deliver naturally."""
+    prepared = text.replace("\u2014", ", ").replace("\u2013", ", ").replace(";", ",")
+    prepared = prepared.replace(":", ",")
+    prepared = re.sub(r"\.{4,}", "...", prepared)
+    prepared = re.sub(r"!{2,}", "!", prepared)
+    prepared = re.sub(r"\?{2,}", "?", prepared)
+    prepared = re.sub(r"\s*([,])\s*", r"\1 ", prepared)
+    prepared = re.sub(r"\s+([.!?।！？])", r"\1", prepared)
+    prepared = re.sub(r"[ \t]+", " ", prepared)
+    return prepared.strip()
+
+
 def _prepare_hindi_tts_text(text: str) -> str:
-    prepared = text.strip()
+    prepared = _normalise_tts_punctuation(text.strip())
     for source, replacement in sorted(_DEVANAGARI_PRONUNCIATIONS, key=lambda item: len(item[0]), reverse=True):
         prepared = re.sub(
             rf"(?<![A-Za-z]){re.escape(source)}(?![A-Za-z])",
@@ -606,7 +636,6 @@ def generate_indicvoice_tts(
                         candidate_chunks.append(
                             np.zeros(int(sample_rate * pause_seconds), dtype=np.float32)
                         )
-                    )
 
             chunks = candidate_chunks
             sentence_durations = candidate_sentence_durations
