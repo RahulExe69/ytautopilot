@@ -334,6 +334,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-06T13:31:18.263456+00:00",
+      "weekday": 1,
+      "topic": "Three habits that help when the final zone gets crowded",
+      "title": "Final Zone Ki Bheed Mein Yeh 3 Habits Follow Karo",
+      "hook": "Last zone mein jab bheed badh jaye, tab yeh teen habits try karo.",
+      "topic_family": "maps and tactics",
+      "hook_style": "test_challenge",
+      "fingerprint": "691b682475579676",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
