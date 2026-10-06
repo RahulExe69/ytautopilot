@@ -121,6 +121,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",6.133,8.7,2.567],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",35.433,37.533,2.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",9.033,11.533,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",8.533,9.9,1.367],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",23.433,25.667,2.233],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533]]",
       "composite_fingerprint": "95b6ce8818c7d7da6389d8e4"
+    },
+    {
+      "generated_at_utc": "2026-10-06T19:24:42.793712+00:00",
+      "script_fingerprint": "0b0a9ecf22c81f2d",
+      "topic": "Does standing still for a moment really make your first shot better",
+      "status": "generated_ready_for_upload",
+      "video_sha256": "5800714b8b9f5ab163012243d11fc9e967bf0fefb0fd8cd544d0d12a8b37df5b",
+      "narration_sha256": "0bdc4214d241f5a428e7cfefd63f0cef422c929c085ec5d748d78d43a2e24975",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.5,19.4,2.9],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",20.733,23.033,2.3],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",8.433,10.367,1.933],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",0.0,2.533,2.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",44.9,46.967,2.067]]",
+      "composite_fingerprint": "180911ae84e1cdab82881864"
     }
   ]
 }

@@ -355,6 +355,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-06T19:24:42.794574+00:00",
+      "weekday": 1,
+      "topic": "Does standing still for a moment really make your first shot better",
+      "title": "First Shot Better Banane Ke Liye Yeh Ek Second Stop Try Karo",
+      "hook": "Firing se theek pehle ek second rukne se aim sach mein behtar hota hai kya?",
+      "topic_family": "myths and experiments",
+      "hook_style": "question",
+      "fingerprint": "0b0a9ecf22c81f2d",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
