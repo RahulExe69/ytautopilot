@@ -1,52 +1,55 @@
 {
   "version": 2,
-  "updated_at_utc": "2026-10-05T21:26:58.831889+00:00",
+  "updated_at_utc": "2026-10-06T10:40:26.692833+00:00",
   "data_ready": false,
-  "public_videos_measured": 2,
-  "baseline_performance_score": 5.9844,
+  "public_videos_measured": 3,
+  "baseline_performance_score": 4.575567,
   "best_topic_families": [
     "close-range skills"
   ],
   "best_hook_styles": [
     "statement"
   ],
-  "best_publish_hours_ist": [],
+  "best_publish_hours_ist": [
+    13
+  ],
   "avoid_topic_families": [],
   "topic_family_stats": {
     "close-range skills": {
-      "samples": 2,
-      "avg_performance_score": 5.9844,
-      "avg_views_per_hour": 0.23795,
-      "avg_engagement_rate": 0.125
+      "samples": 3,
+      "avg_performance_score": 4.575567,
+      "avg_views_per_hour": 0.3901,
+      "avg_engagement_rate": 0.083333
     }
   },
   "hook_style_stats": {
     "statement": {
-      "samples": 2,
-      "avg_performance_score": 5.9844,
-      "avg_views_per_hour": 0.23795,
-      "avg_engagement_rate": 0.125
+      "samples": 3,
+      "avg_performance_score": 4.575567,
+      "avg_views_per_hour": 0.3901,
+      "avg_engagement_rate": 0.083333
     }
   },
   "description_style_scores": {
     "default": 10.3594,
-    "challenge": 1.6094
+    "challenge": 3.3673,
+    "community": 0.0
   },
   "duration_bucket_scores": {
     "medium": 10.3594,
-    "long": 1.6094
+    "long": 1.68365
   },
   "duration_bucket_stats": {
     "medium": {
       "samples": 1,
       "avg_performance_score": 10.3594,
-      "avg_views_per_hour": 0.1725,
+      "avg_views_per_hour": 0.1099,
       "avg_engagement_rate": 0.25
     },
     "long": {
-      "samples": 1,
-      "avg_performance_score": 1.6094,
-      "avg_views_per_hour": 0.3034,
+      "samples": 2,
+      "avg_performance_score": 1.68365,
+      "avg_views_per_hour": 0.5302,
       "avg_engagement_rate": 0.0
     }
   },

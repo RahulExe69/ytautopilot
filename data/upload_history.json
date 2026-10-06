@@ -58,6 +58,16 @@
       "status": "uploaded_private",
       "description_style": "community",
       "scheduled_publish_at": null
+    },
+    {
+      "uploaded_at_utc": "2026-10-06T10:41:16.930939+00:00",
+      "fingerprint": "9f597b9bd7862654",
+      "youtube_video_id": "KNfk7czIkvQ",
+      "title": "Match Mein Noob Player Banne Ka Yeh Sahi Tareeka Dekho",
+      "topic": "How to be a noob player",
+      "status": "uploaded_private",
+      "description_style": "simple",
+      "scheduled_publish_at": null
     }
   ]
 }

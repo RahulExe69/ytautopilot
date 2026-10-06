@@ -313,6 +313,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-06T10:41:13.604451+00:00",
+      "weekday": 1,
+      "topic": "How to be a noob player",
+      "title": "Match Mein Noob Player Banne Ka Yeh Sahi Tareeka Dekho",
+      "hook": "Match mein jab team ke liye burden banna ho, toh yeh karo.",
+      "topic_family": "other",
+      "hook_style": "statement",
+      "fingerprint": "9f597b9bd7862654",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
