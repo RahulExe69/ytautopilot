@@ -33,7 +33,7 @@ _SPOKEN_STYLE_REPLACEMENTS: tuple[tuple[str, str], ...] = (
 )
 
 def _spoken_style_warnings(hook: str, narration: str) -> list[str]:
-    """Reject phrasing that sounds written rather than spoken by a gaming creator."""
+    """Flag phrasing that sounds written rather than spoken by a gaming creator."""
     combined = re.sub(r"\s+", " ", f"{hook} {narration}".strip()).lower()
     warnings: list[str] = []
 
@@ -47,7 +47,10 @@ def _spoken_style_warnings(hook: str, narration: str) -> list[str]:
     sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", combined) if part.strip()]
     for sentence in sentences:
         words = re.findall(r"[a-z0-9]+", sentence)
-        if len(words) > 22:
+        # Spoken Hindi/Hinglish can comfortably contain a 20-28 word sentence.
+        # Treat only genuinely long sentences as a repair signal so a perfectly
+        # natural line does not cause an otherwise healthy scheduled run to fail.
+        if len(words) > 28:
             warnings.append(f"long sentence ({len(words)} words): break it into two spoken beats")
         if len(re.findall(r"\b(aur|phir|toh|bas)\b", sentence)) >= 4:
             warnings.append("too many connector/filler words in one sentence")
