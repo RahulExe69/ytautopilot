@@ -88,6 +88,16 @@
       "status": "uploaded_private",
       "description_style": "question",
       "scheduled_publish_at": "2026-10-07T20:30:00+05:30"
+    },
+    {
+      "uploaded_at_utc": "2026-10-07T13:43:08.761046+00:00",
+      "fingerprint": "c02968bbf2430fa9",
+      "youtube_video_id": "mGGOUo8VqmY",
+      "title": "Do Similar Weapons Actually Feel Different in Game?",
+      "topic": "What actually changes when you switch between two similar weapons",
+      "status": "uploaded_private",
+      "description_style": "challenge",
+      "scheduled_publish_at": "2026-10-08T13:00:00+05:30"
     }
   ]
 }

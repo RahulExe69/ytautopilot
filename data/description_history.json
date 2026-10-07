@@ -48,6 +48,10 @@
     {
       "style": "question",
       "fingerprint": "0b0a9ecf22c81f2d"
+    },
+    {
+      "style": "challenge",
+      "fingerprint": "c02968bbf2430fa9"
     }
   ]
 }

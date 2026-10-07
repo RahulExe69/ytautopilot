@@ -376,6 +376,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-07T13:43:04.006500+00:00",
+      "weekday": 2,
+      "topic": "What actually changes when you switch between two similar weapons",
+      "title": "Do Similar Weapons Actually Feel Different in Game?",
+      "hook": "Do similar weapons feel completely different during a fast match?",
+      "topic_family": "weapon tests",
+      "hook_style": "question",
+      "fingerprint": "c02968bbf2430fa9",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
