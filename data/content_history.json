@@ -397,6 +397,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-07T19:52:50.395789+00:00",
+      "weekday": 2,
+      "topic": "When saving an ability is better than using it immediately",
+      "title": "Ability Turant Use Karne Se Pehle Yeh Socho",
+      "hook": "Achanak enemy dikhte hi apna ability button dabana zaroori hai kya?",
+      "topic_family": "characters and abilities",
+      "hook_style": "question",
+      "fingerprint": "fc8f26c81f784bd5",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
