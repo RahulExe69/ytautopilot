@@ -154,6 +154,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_02.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",6.133,8.7,2.567],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",47.333,49.7,2.367],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",29.267,31.3,2.033],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",35.267,37.467,2.2],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.3,3.9]]",
       "composite_fingerprint": "e8cec8e25a42d0c8e9398042"
+    },
+    {
+      "generated_at_utc": "2026-10-08T13:50:42.029837+00:00",
+      "script_fingerprint": "66607adf79ab9bc2",
+      "topic": "The biggest reason players throw an advantage after one knock",
+      "status": "generated_ready_for_upload",
+      "video_sha256": "5a881541853d8f0df1ca3a2826b0e8cb25fe7e95ed61ccf648f110d2c2a2ecc3",
+      "narration_sha256": "a35eaba695df4024746e4be7c053907027dfe30abe1893455bd3123cb9529f04",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_02.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",14.0,16.5,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",35.433,37.533,2.1],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",19.4,21.433,2.033],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",15.267,17.0,1.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.3,3.9]]",
+      "composite_fingerprint": "3f03d734749edfa9dff3fbd0"
     }
   ]
 }
