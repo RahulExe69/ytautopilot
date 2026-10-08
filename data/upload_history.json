@@ -118,6 +118,16 @@
       "status": "uploaded_private",
       "description_style": "challenge",
       "scheduled_publish_at": "2026-10-09T13:00:00+05:30"
+    },
+    {
+      "uploaded_at_utc": "2026-10-08T19:48:58.144392+00:00",
+      "fingerprint": "910bc8e4974f48ff",
+      "youtube_video_id": "DSgLlcbw02o",
+      "title": "Shotgun Fights Mein Wide Peek Karna Kab Band Karoge",
+      "topic": "Better peeking habits for shotgun fights",
+      "status": "uploaded_private",
+      "description_style": "challenge",
+      "scheduled_publish_at": "2026-10-09T20:30:00+05:30"
     }
   ]
 }

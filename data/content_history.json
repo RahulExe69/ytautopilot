@@ -439,6 +439,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-08T19:48:54.299503+00:00",
+      "weekday": 3,
+      "topic": "Better peeking habits for shotgun fights",
+      "title": "Shotgun Fights Mein Wide Peek Karna Kab Band Karoge",
+      "hook": "Shotgun fights mein jab poori body dikhaoge, toh damage toh padega hi na.",
+      "topic_family": "close-range skills",
+      "hook_style": "statement",
+      "fingerprint": "910bc8e4974f48ff",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
