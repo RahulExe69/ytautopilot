@@ -49,6 +49,7 @@ jobs:
       SCENE_WORKERS: "2"
       TORCH_NUM_THREADS: "0"
       FFMPEG_PRESET: "ultrafast"
+      INDICVOICE_VOICE: "af_bella"
 
     steps:
       - name: Check out source
@@ -97,7 +98,7 @@ jobs:
         run: |
           model_ready=0
           if find "$HF_HUB_CACHE" -type f -name 'indicvoice-v1_0.pth' -size +1000000 2>/dev/null | grep -q .; then
-            if find "$HF_HUB_CACHE" -type f -path '*/voices/hf_beta.pt' -size +100000 2>/dev/null | grep -q .; then
+            if find "$HF_HUB_CACHE" -type f -path '*/voices/af_bella.pt' -size +100000 2>/dev/null | grep -q .; then
               model_ready=1
             fi
           fi
@@ -184,7 +185,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
-          INDICVOICE_VOICE: hf_beta
+          INDICVOICE_VOICE: af_bella
           INDICVOICE_MODEL: ${{ vars.INDICVOICE_MODEL }}
           INDICVOICE_SPEED: "1.20"
           INDICVOICE_VOICE_FALLBACK_REPO: "hexgrad/Kokoro-82M"
