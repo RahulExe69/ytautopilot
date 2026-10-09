@@ -10,7 +10,7 @@ This repository and its source code are proprietary. No permission is granted to
 
 The generation/render pipeline currently:
 1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration. Generated copy also passes a spoken-naturalness lint and can receive up to two repair passes before the renderer accepts it.
-2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using the fixed female `hf_beta` voice preset and a Devanagari TTS text layer, avoiding paid TTS APIs.
+2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using the fixed female `af_bella` voice preset and a Devanagari TTS text layer, avoiding paid TTS APIs.
 3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
 4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. The script word budget is automatically based on the total available gameplay duration, and rendering refuses to create a Short longer than its source footage. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
 5. Mutes gameplay audio completely and automatically selects one supplied track from `assets/music/` as low-volume background music. The workflow normalizes arbitrary music filenames to `music_01`, `music_02`, `music_03`, and so on.
@@ -37,7 +37,7 @@ Performance collection uses the official YouTube Data API statistics available t
 1. Open **Settings → Secrets and variables → Actions**.
 2. Add a repository secret named GEMINI_API_KEY using your own Gemini API key. Never place API keys in source files or commit them.
 3. Optionally add a repository variable named GEMINI_MODEL with a model currently available to your Gemini API project.
-4. The narrator is fixed to the female `hf_beta` voice, with a default speaking speed of 1.20x. No voice selector is exposed in the workflow.
+4. The narrator is fixed to the female `af_bella` voice, with a default speaking speed of 1.20x. No voice selector is exposed in the workflow.
    - INDICVOICE_MODEL — defaults to `Bindkushal/IndicVoice-82M`.
    - Hindi voice tensors are sourced from `hexgrad/Kokoro-82M` when the IndicVoice repository does not contain a usable copy.
 5. Put your own/licensed gameplay videos in assets/gameplay/. One clip is enough for the first test; multiple clips give the renderer more visual variety.
