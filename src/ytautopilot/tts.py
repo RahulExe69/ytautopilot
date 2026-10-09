@@ -584,9 +584,12 @@ def generate_indicvoice_tts(
             "IndicVoice dependencies are missing. Install requirements.txt before rendering."
         ) from exc
 
-    # Fixed narrator: hf_beta is the requested female voice. Do not silently
-    # switch to a different voice if this preset fails to load.
-    voice_candidates = ["hf_beta"]
+    # Use a voice preset documented by IndicVoice itself. hf_beta is a Kokoro
+    # English voice preset and produced badly mismatched Hindi speech in this
+    # pipeline; af_bella is the documented female preset and works with the
+    # Hindi G2P frontend.
+    configured_voice = (os.getenv("INDICVOICE_VOICE") or "af_bella").strip()
+    voice_candidates = [configured_voice]
 
     repo_id = (os.getenv("INDICVOICE_MODEL") or "Bindkushal/IndicVoice-82M").strip()
     sample_rate = 24_000
@@ -699,7 +702,7 @@ def generate_indicvoice_tts(
 
     if not chunks or voice is None:
         raise RuntimeError(
-            "The fixed hf_beta female voice did not produce audio. "
+            f"The configured IndicVoice preset {configured_voice!r} did not produce audio. "
             + " | ".join(voice_errors[-4:])
         )
 
