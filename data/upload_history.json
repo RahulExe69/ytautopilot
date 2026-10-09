@@ -138,6 +138,16 @@
       "status": "uploaded_private",
       "description_style": "challenge",
       "scheduled_publish_at": "2026-10-10T13:00:00+05:30"
+    },
+    {
+      "uploaded_at_utc": "2026-10-09T19:25:47.640842+00:00",
+      "fingerprint": "29c8bc8d3d94390d",
+      "youtube_video_id": "dHLU10FCsMU",
+      "title": "Cover Ke Peeche Crouch Karne Se Sach Mein Safe Ho?",
+      "topic": "Does crouching really change how exposed you are behind cover",
+      "status": "uploaded_private",
+      "description_style": "practical",
+      "scheduled_publish_at": "2026-10-10T20:30:00+05:30"
     }
   ]
 }

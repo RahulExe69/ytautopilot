@@ -187,6 +187,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_03.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.5,19.4,2.9],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",50.233,52.4,2.167],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",0.0,2.533,2.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",44.9,46.967,2.067]]",
       "composite_fingerprint": "0c223896290a29fc729bb863"
+    },
+    {
+      "generated_at_utc": "2026-10-09T19:25:38.467441+00:00",
+      "script_fingerprint": "29c8bc8d3d94390d",
+      "topic": "Does crouching really change how exposed you are behind cover",
+      "status": "generated_ready_for_upload",
+      "video_sha256": "10f162259f8eb7bbd0872e229d94d635913b39241d2d8eb1817837a3594b313f",
+      "narration_sha256": "ada5908505d5868f8835c7f6084d18c90c39896c1896c660dd518b11cc6e3f95",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",14.0,16.5,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",20.733,23.033,2.3],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",35.267,37.467,2.2],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",29.267,31.3,2.033],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.3,3.9],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",17.467,19.033,1.567]]",
+      "composite_fingerprint": "254dabe283f2dd6882253ea6"
     }
   ]
 }

@@ -481,6 +481,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-09T19:25:38.468265+00:00",
+      "weekday": 4,
+      "topic": "Does crouching really change how exposed you are behind cover",
+      "title": "Cover Ke Peeche Crouch Karne Se Sach Mein Safe Ho?",
+      "hook": "Cover ke peeche crouch karne se sach mein exposure kam hota hai kya?",
+      "topic_family": "close-range skills",
+      "hook_style": "question",
+      "fingerprint": "29c8bc8d3d94390d",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
