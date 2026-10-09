@@ -128,6 +128,16 @@
       "status": "uploaded_private",
       "description_style": "challenge",
       "scheduled_publish_at": "2026-10-09T20:30:00+05:30"
+    },
+    {
+      "uploaded_at_utc": "2026-10-09T13:34:59.495657+00:00",
+      "fingerprint": "c79359c8f93f1820",
+      "youtube_video_id": "G1Hvj4MxVT4",
+      "title": "Mid-Game Fight Jeetne Ke Liye High Ground Kyun Zaroori Hai",
+      "topic": "Why taking high ground early can change a mid-game fight",
+      "status": "uploaded_private",
+      "description_style": "challenge",
+      "scheduled_publish_at": "2026-10-10T13:00:00+05:30"
     }
   ]
 }

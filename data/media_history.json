@@ -176,6 +176,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",9.033,11.533,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",20.733,23.033,2.3],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",21.967,23.7,1.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",0.0,2.533,2.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",15.8,17.867,2.067]]",
       "composite_fingerprint": "181351933148abcb619a343e"
+    },
+    {
+      "generated_at_utc": "2026-10-09T13:34:54.396148+00:00",
+      "script_fingerprint": "c79359c8f93f1820",
+      "topic": "Why taking high ground early can change a mid-game fight",
+      "status": "generated_ready_for_upload",
+      "video_sha256": "426a90f9315968874c72be7edd6eba531a135bc5e3c71a1b2590049249558b71",
+      "narration_sha256": "26386b889e5724505ab47041445f079a2f5009bf8433903cc11e75096cfa7538",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_03.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",16.5,19.4,2.9],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",50.233,52.4,2.167],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",0.0,2.533,2.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",44.9,46.967,2.067]]",
+      "composite_fingerprint": "0c223896290a29fc729bb863"
     }
   ]
 }
