@@ -24,7 +24,7 @@ GitHub Actions
        -> AI-artifact sanitizer
   -> IndicVoice
        -> Hindi G2P
-       -> fixed hf_beta voice
+       -> fixed af_bella female preset
        -> sentence-aware synthesis
        -> punctuation-driven pacing
        -> controlled pauses
