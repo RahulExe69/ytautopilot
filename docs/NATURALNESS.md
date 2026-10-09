@@ -44,7 +44,7 @@ No single prompt can guarantee natural speech. The project therefore treats natu
 
 ## Current TTS behavior
 
-The fast path uses the fixed `hf_beta` IndicVoice voice. It does not synthesize one large paragraph and hope the model discovers every boundary. It splits the prepared text into sentence units, synthesizes each unit, adds a small terminal pause based on punctuation, concatenates the units, and applies the configured `INDICVOICE_SPEED` (currently 1.20x).
+The fast path uses the fixed `af_bella` female IndicVoice preset. It does not synthesize one large paragraph and hope the model discovers every boundary. It splits the prepared text into sentence units, synthesizes each unit, adds a small terminal pause based on punctuation, concatenates the units, and applies the configured `INDICVOICE_SPEED` (currently 1.20x).
 
 This intentionally spends some synthesis overhead to improve intelligibility and prosody.
 
