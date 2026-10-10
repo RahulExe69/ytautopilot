@@ -502,6 +502,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-10T12:48:37.848249+00:00",
+      "weekday": 5,
+      "topic": "How magazine size changes your decision in a 1v2",
+      "title": "1v2 Fight Mein Magazine Size Kaise Game Badalta Hai",
+      "hook": "1v2 fight mein magazine size dekh kar hi decide karo.",
+      "topic_family": "weapon tests",
+      "hook_style": "statement",
+      "fingerprint": "edb0f28b15798879",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }

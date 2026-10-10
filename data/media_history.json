@@ -198,6 +198,17 @@
       "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
       "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",1.833,4.567,2.733],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",14.0,16.5,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",20.733,23.033,2.3],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",35.267,37.467,2.2],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",29.267,31.3,2.033],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",39.333,43.867,4.533],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",8.4,12.3,3.9],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",17.467,19.033,1.567]]",
       "composite_fingerprint": "254dabe283f2dd6882253ea6"
+    },
+    {
+      "generated_at_utc": "2026-10-10T12:48:37.847583+00:00",
+      "script_fingerprint": "edb0f28b15798879",
+      "topic": "How magazine size changes your decision in a 1v2",
+      "status": "generated_ready_for_upload",
+      "video_sha256": "df988231ac257af6684e872b4b4f02ed23938bb1b8c1387226854fd75fff6d9b",
+      "narration_sha256": "c0f2debf21690cd5de3d9b37e3535dee90884cb31b5312197e1c78f9adbf3e08",
+      "music": "/home/runner/work/ytautopilot/ytautopilot/assets/music/music_01.mp3",
+      "segment_signature": "[[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",4.567,6.833,2.267],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",14.0,16.5,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",13.7,16.333,2.633],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",44.9,46.967,2.067],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4\",9.033,11.533,2.5],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4\",13.633,14.867,1.233],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4\",50.233,52.4,2.167],[\"/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4\",52.033,53.233,1.2]]",
+      "composite_fingerprint": "59542c18ff7f35d0a7c5c0e9"
     }
   ]
 }
