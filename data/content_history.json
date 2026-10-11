@@ -544,6 +544,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-11T13:12:57.010109+00:00",
+      "weekday": 6,
+      "topic": "A safer way to recover after getting caught in the open",
+      "title": "Open Mein Faste Hi Seedha Bhaagna Kyun Band Karo",
+      "hook": "Open mein faste hi panic karke seedha bhaagna band karo.",
+      "topic_family": "close-range skills",
+      "hook_style": "statement",
+      "fingerprint": "3e93c82d68934cb7",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
