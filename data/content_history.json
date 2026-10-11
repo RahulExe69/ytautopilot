@@ -565,6 +565,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-11T18:46:53.037642+00:00",
+      "weekday": 6,
+      "topic": "A practical weapon test for ranked players who keep losing trades",
+      "title": "Ranked Gun Fights Jeetne Ke Liye Yeh Weapon Test Karo",
+      "hook": "Ranked matches mein gun trades kyun haar jaate ho?",
+      "topic_family": "weapon tests",
+      "hook_style": "question",
+      "fingerprint": "ce59a0b366972f2d",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
