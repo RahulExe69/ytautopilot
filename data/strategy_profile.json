@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "updated_at_utc": "2026-10-12T15:50:44.568779+00:00",
+  "updated_at_utc": "2026-10-12T22:04:12.074176+00:00",
   "data_ready": true,
   "public_videos_measured": 15,
-  "baseline_performance_score": 2.153393,
+  "baseline_performance_score": 2.384433,
   "best_topic_families": [
-    "close-range skills",
     "weapon tests",
+    "close-range skills",
     "other"
   ],
   "best_hook_styles": [
@@ -21,85 +21,85 @@
   "topic_family_stats": {
     "close-range skills": {
       "samples": 7,
-      "avg_performance_score": 2.644357,
-      "avg_views_per_hour": 0.1439,
+      "avg_performance_score": 2.685457,
+      "avg_views_per_hour": 0.130514,
       "avg_engagement_rate": 0.017857
     },
     "other": {
       "samples": 2,
       "avg_performance_score": 1.7006,
-      "avg_views_per_hour": 0.04265,
+      "avg_views_per_hour": 0.04055,
       "avg_engagement_rate": 0.0
     },
     "myths and experiments": {
       "samples": 1,
       "avg_performance_score": 0.6931,
-      "avg_views_per_hour": 0.0083,
+      "avg_views_per_hour": 0.0079,
       "avg_engagement_rate": 0.0
     },
     "weapon tests": {
       "samples": 3,
-      "avg_performance_score": 2.2172,
-      "avg_views_per_hour": 0.460467,
+      "avg_performance_score": 3.045467,
+      "avg_views_per_hour": 0.823833,
       "avg_engagement_rate": 0.0
     },
     "characters and abilities": {
       "samples": 1,
       "avg_performance_score": 3.0445,
-      "avg_views_per_hour": 0.2065,
+      "avg_views_per_hour": 0.1941,
       "avg_engagement_rate": 0.0
     },
     "maps and tactics": {
       "samples": 1,
-      "avg_performance_score": 0.0,
-      "avg_views_per_hour": 0.0,
+      "avg_performance_score": 0.6931,
+      "avg_views_per_hour": 0.0322,
       "avg_engagement_rate": 0.0
     }
   },
   "hook_style_stats": {
     "statement": {
       "samples": 7,
-      "avg_performance_score": 2.571386,
-      "avg_views_per_hour": 0.125457,
+      "avg_performance_score": 2.653571,
+      "avg_views_per_hour": 0.120829,
       "avg_engagement_rate": 0.017857
     },
     "question": {
       "samples": 8,
-      "avg_performance_score": 1.78765,
-      "avg_views_per_hour": 0.226325,
+      "avg_performance_score": 2.148937,
+      "avg_views_per_hour": 0.356825,
       "avg_engagement_rate": 0.0
     }
   },
   "description_style_scores": {
     "default": 6.5722,
-    "challenge": 1.949262,
+    "challenge": 2.346512,
     "community": 0.0,
     "simple": 2.3026,
     "question": 0.6931,
-    "practical": 2.379633
+    "practical": 2.4755
   },
   "duration_bucket_scores": {
-    "medium": 2.119822,
-    "long": 2.28614,
-    "short": 1.7918
+    "medium": 2.2288,
+    "long": 2.72558,
+    "short": 2.0794
   },
   "duration_bucket_stats": {
     "medium": {
       "samples": 9,
-      "avg_performance_score": 2.119822,
-      "avg_views_per_hour": 0.101433,
+      "avg_performance_score": 2.2288,
+      "avg_views_per_hour": 0.094811,
       "avg_engagement_rate": 0.013889
     },
     "long": {
       "samples": 5,
-      "avg_performance_score": 2.28614,
-      "avg_views_per_hour": 0.32426,
+      "avg_performance_score": 2.72558,
+      "avg_views_per_hour": 0.53312,
       "avg_engagement_rate": 0.0
     },
     "short": {
       "samples": 1,
-      "avg_performance_score": 1.7918,
-      "avg_views_per_hour": 0.1546,
+      "avg_performance_score": 2.0794,
+      "avg_views_per_hour": 0.1815,
       "avg_engagement_rate": 0.0
     }
   },

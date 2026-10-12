@@ -607,6 +607,26 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-12T22:05:00.481159+00:00",
+      "weekday": 0,
+      "topic": "A practical way to review your own mistakes after a match",
+      "title": "Match Ke Baad Yeh Choti Si Habit Sudhar Lo",
+      "hook": "Match khatam hote hi seedha agla match start mat karo.",
+      "topic_family": "ranked mistakes and clutches",
+      "hook_style": "warning",
+      "fingerprint": "71fcd2f88c097cd5",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }
