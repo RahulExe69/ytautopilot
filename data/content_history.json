@@ -586,6 +586,27 @@
         "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4"
       ],
       "status": "generated"
+    },
+    {
+      "generated_at": "2026-10-12T15:51:35.274832+00:00",
+      "weekday": 0,
+      "topic": "Testing how quickly two different reload habits get you back into a fight",
+      "title": "Reload Habits Test: Which One Gets You Back Into the Fight Faster",
+      "hook": "Reload habit change karne se fight ka result sach mein badal sakta hai kya?",
+      "topic_family": "myths and experiments",
+      "hook_style": "question",
+      "fingerprint": "5ccd11354de1fd27",
+      "gameplay_files": [
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay3.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay4.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay1.mp4",
+        "/home/runner/work/ytautopilot/ytautopilot/assets/gameplay/gameplay2.mp4"
+      ],
+      "status": "generated"
     }
   ]
 }

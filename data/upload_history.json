@@ -188,6 +188,16 @@
       "status": "uploaded_private",
       "description_style": "challenge",
       "scheduled_publish_at": "2026-10-12T20:30:00+05:30"
+    },
+    {
+      "uploaded_at_utc": "2026-10-12T15:51:39.504010+00:00",
+      "fingerprint": "5ccd11354de1fd27",
+      "youtube_video_id": "iCWbv29Z_8g",
+      "title": "Reload Habits Test: Which One Gets You Back Into the Fight Faster",
+      "topic": "Testing how quickly two different reload habits get you back into a fight",
+      "status": "uploaded_private",
+      "description_style": "practical",
+      "scheduled_publish_at": "2026-10-13T13:00:00+05:30"
     }
   ]
 }
