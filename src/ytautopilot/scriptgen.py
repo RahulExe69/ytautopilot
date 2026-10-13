@@ -13,6 +13,13 @@ import requests
 
 
 
+_ROMANIZED_HINDI_MARKERS = (
+    "kya", "hai", "hain", "mein", "toh", "tum", "tumhara", "tumhe",
+    "nahi", "nahin", "karna", "karo", "pehle", "phir", "kaise", "kyun",
+    "yeh", "woh", "bahut", "accha", "acha",
+)
+
+
 _SPOKEN_STYLE_REPLACEMENTS: tuple[tuple[str, str], ...] = (
     ("in conclusion", "essay-style wrap-up"),
     ("it is important to note", "formal filler"),
@@ -34,6 +41,10 @@ def _spoken_style_warnings(hook: str, narration: str) -> list[str]:
 
     if re.search(r"[\u0900-\u097f]", combined):
         warnings.append("Hindi/Devanagari text detected; rewrite the spoken copy in English")
+    for marker in _ROMANIZED_HINDI_MARKERS:
+        if re.search(rf"(?<![a-z]){re.escape(marker)}(?![a-z])", combined):
+            warnings.append("Romanized Hindi detected; rewrite the spoken copy in English")
+            break
 
     for phrase, reason in _SPOKEN_STYLE_REPLACEMENTS:
         if re.search(rf"(?<![a-z]){re.escape(phrase)}(?![a-z])", combined):
@@ -51,6 +62,26 @@ def _spoken_style_warnings(hook: str, narration: str) -> list[str]:
         warnings.append("generic article-like phrasing")
 
     return warnings[:8]
+
+
+def _non_english_visible_copy_warning(data: dict[str, Any]) -> str | None:
+    """Reject Hindi leakage in viewer-facing fields beyond the spoken narration."""
+    values: list[str] = []
+    for key in ("topic", "title", "description", "hook", "narration", "tts_text"):
+        value = data.get(key)
+        if isinstance(value, str):
+            values.append(value)
+    for key in ("visual_plan", "fact_check_notes"):
+        value = data.get(key)
+        if isinstance(value, list):
+            values.extend(item for item in value if isinstance(item, str))
+    combined = " ".join(values).lower()
+    if re.search(r"[\u0900-\u097f]", combined):
+        return "Hindi/Devanagari detected in user-facing copy; rewrite all copy in English"
+    for marker in _ROMANIZED_HINDI_MARKERS:
+        if re.search(rf"(?<![a-z]){re.escape(marker)}(?![a-z])", combined):
+            return "Romanized Hindi detected in user-facing copy; rewrite all copy in English"
+    return None
 
 
 def _clean_ai_style_artifacts(value: str) -> str:
@@ -143,7 +174,7 @@ Requirements:
 <voice>
 - You are writing for ZynexPlayz, a gaming creator based in India. The narration must be natural, fluent English, like a real gaming creator speaking to viewers, not a script being read from an article.
 - Use clear, everyday conversational English with a confident, friendly tone. Contractions are welcome when they sound natural.
-- Do not use Hindi, Hinglish, Romanized Hindi, or Devanagari in the hook or narration. Do not add forced slang, fake hype, or an exaggerated announcer voice.
+- Write every user-facing field in English: topic, hook, narration, tts_text, title, description, visual_plan, and fact_check_notes. Do not use Hindi, Hinglish, Romanized Hindi, or Devanagari. Do not add forced slang, fake hype, or an exaggerated announcer voice.
 - Apply a read-aloud test: if a line sounds awkward or unnatural when spoken in one breath, rewrite it.
 </voice>
 <style>
@@ -251,6 +282,9 @@ Performance learning context (soft signal only):
             str(data.get("hook", "")),
             str(data.get("narration", "")),
         )
+        visible_copy_warning = _non_english_visible_copy_warning(data)
+        if visible_copy_warning:
+            style_warnings.append(visible_copy_warning)
         if not duplicate and not style_warnings:
             break
 
@@ -286,6 +320,9 @@ Current draft:
             str(data.get("hook", "")),
             str(data.get("narration", "")),
         )
+        visible_copy_warning = _non_english_visible_copy_warning(data)
+        if visible_copy_warning:
+            style_warnings.append(visible_copy_warning)
         if duplicate:
             raise RuntimeError(
                 "Gemini produced a Short that is too similar to a recent run after two repair passes."
@@ -302,7 +339,7 @@ Current draft:
     for key in ("topic", "language", "hook", "narration", "tts_text", "title", "description"):
         if isinstance(data.get(key), str):
             data[key] = clean_user_text(data[key])
-    required = ("topic", "hook", "narration", "tts_text", "title", "description")
+    required = ("topic", "hook", "narration", "title", "description")
     missing = [key for key in required if not isinstance(data.get(key), str) or not data[key].strip()]
     if missing:
         raise RuntimeError("Generated script is missing required fields: " + ", ".join(missing))
