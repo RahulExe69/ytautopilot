@@ -14,52 +14,43 @@ import requests
 
 
 _SPOKEN_STYLE_REPLACEMENTS: tuple[tuple[str, str], ...] = (
-    ("isse behtar hai", "essay-like comparison"),
-    ("jiske chalte", "formal causal connector"),
-    ("jiske karan", "formal causal connector"),
-    ("is prakar", "formal connector"),
-    ("is prakaar", "formal connector"),
-    ("prapt", "bookish Hindi"),
-    ("upyog", "bookish Hindi"),
-    ("upayog", "bookish Hindi"),
-    ("avashyak", "bookish Hindi"),
-    ("sunishchit", "bookish Hindi"),
-    ("dauran", "bookish Hindi"),
-    ("keval", "bookish Hindi"),
-    ("tatha", "bookish Hindi"),
-    ("yadi", "bookish Hindi"),
-    ("atah", "bookish Hindi"),
-    ("uparant", "bookish Hindi"),
+    ("in conclusion", "essay-style wrap-up"),
+    ("it is important to note", "formal filler"),
+    ("moreover", "formal connector"),
+    ("furthermore", "formal connector"),
+    ("subsequently", "formal transition"),
+    ("in order to", "wordy connector"),
+    ("with that being said", "formulaic transition"),
+    ("at the end of the day", "generic filler"),
+    ("as you can see", "generic narration"),
+    ("utilize", "prefer the simpler word 'use'"),
+    ("leverage", "corporate-sounding verb"),
 )
 
 def _spoken_style_warnings(hook: str, narration: str) -> list[str]:
-    """Flag phrasing that sounds written rather than spoken by a gaming creator."""
+    """Flag written, formulaic, or non-English wording before narration."""
     combined = re.sub(r"\s+", " ", f"{hook} {narration}".strip()).lower()
     warnings: list[str] = []
+
+    if re.search(r"[\u0900-\u097f]", combined):
+        warnings.append("Hindi/Devanagari text detected; rewrite the spoken copy in English")
 
     for phrase, reason in _SPOKEN_STYLE_REPLACEMENTS:
         if re.search(rf"(?<![a-z]){re.escape(phrase)}(?![a-z])", combined):
             warnings.append(f"{phrase!r}: {reason}")
 
-    if re.search(r"\bjab tak\b", combined) and re.search(r"\btab tak\b", combined):
-        warnings.append("'jab tak ... tab tak': sounds formulaic; use a shorter spoken construction")
-
     sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", combined) if part.strip()]
     for sentence in sentences:
         words = re.findall(r"[a-z0-9]+", sentence)
-        # Spoken Hindi/Hinglish can comfortably contain a 20-28 word sentence.
-        # Treat only genuinely long sentences as a repair signal so a perfectly
-        # natural line does not cause an otherwise healthy scheduled run to fail.
         if len(words) > 28:
-            warnings.append(f"long sentence ({len(words)} words): break it into two spoken beats")
-        if len(re.findall(r"\b(aur|phir|toh|bas)\b", sentence)) >= 4:
-            warnings.append("too many connector/filler words in one sentence")
+            warnings.append(f"long sentence ({len(words)} words): break it into two natural spoken beats")
+        if len(re.findall(r"\b(so|basically|literally|actually|really|just)\b", sentence)) >= 4:
+            warnings.append("too many filler words in one sentence")
 
-    if re.search(r"\b(gameplay|content|video|strategy)\s+(ka|ki|ke)\s+(anubhav|upyog|sandarbh)\b", combined):
-        warnings.append("generic article-like gaming language")
+    if re.search(r"\b(when it comes to|the fact of the matter is|needless to say)\b", combined):
+        warnings.append("generic article-like phrasing")
 
     return warnings[:8]
-
 
 
 def _clean_ai_style_artifacts(value: str) -> str:
@@ -98,28 +89,26 @@ def _clean_generated_fields(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def fallback_script(topic: str) -> dict[str, Any]:
-    """Safe sample used only for dry-run checks; it is not ready to publish."""
+    """Safe English sample used only for dry-run checks; it is not ready to publish."""
+    hook = "Still losing close-range fights in Free Fire? Try this."
+    narration = (
+        "Low on HP? Do not force the push. Break line of sight, heal up, "
+        "then re-peek when you have an opening. Try it in training first. "
+        "What weapon should I cover next?"
+    )
     return {
         "topic": topic,
-        "language": "Hindi",
-        "hook": "Free Fire khelte ho? Toh ye trick shayad tumne notice hi nahi ki hogi!",
-        "narration": (
-            "Ek chhoti si Free Fire trick hai jo gameplay mein kaafi kaam aa sakti hai. "
-            "Pehle training ground mein test kar lena, phir ranked mein try karna. "
-            "Tumhari favourite trick kya hai? Comment mein batao."
-        ),
-        "tts_text": (
-            "एक छोटी सी Free Fire trick है, जो gameplay में काफी काम आ सकती है। "
-            "पहले training ground में test कर लेना, फिर ranked में try करना। "
-            "तुम्हारी favourite trick क्या है? Comment में बताओ।"
-        ),
+        "language": "English",
+        "hook": hook,
+        "narration": narration,
+        "tts_text": f"{hook} {narration}",
         "visual_plan": [
             "Open with self-recorded or properly licensed gameplay.",
-            "Show original captions synced to the Hindi narration.",
+            "Show original captions synced to the English narration.",
             "End with a short question for viewers.",
         ],
-        "title": "Free Fire ki interesting baat 🔥 #shorts",
-        "description": "Hindi gaming commentary with original narration. Verify factual claims and footage permissions before publishing.",
+        "title": "Stop forcing low-HP fights in Free Fire 🔥 #shorts",
+        "description": "Natural English Free Fire commentary with original narration. Verify factual claims and footage permissions before publishing.",
         "hashtags": ["#FreeFire", "#Gaming", "#Shorts"],
         "fact_check_notes": ["Sample fallback only; research and verify before publishing."],
     }
@@ -147,59 +136,51 @@ def generate_script(
     target_seconds = max(10.0, min(52.0, float(target_seconds or 30.0)))
     target_words = max(24, min(90, int(target_seconds * 1.8)))
     prompt = f"""
-Create an original Hindi/Hinglish gaming YouTube Short plan about: {topic!r}.
+Create an original English-language gaming YouTube Short plan about: {topic!r}.
 Return ONLY valid JSON with these keys:
 topic, language, hook, narration, tts_text, visual_plan, title, description, hashtags, fact_check_notes.
 Requirements:
 <voice>
-- You are writing for ZynexPlayz, a young Indian gaming creator. Every spoken line should sound like something a real player would say in a casual voice note to a friend.
-- Use everyday Hindi/Hinglish, not "shuddh Hindi". Keep it confident and useful, but never theatrical or over-written.
-- Run a mental "voice-note test": if a line would feel awkward when spoken aloud in one breath, rewrite it before returning the JSON.
+- You are writing for ZynexPlayz, a gaming creator based in India. The narration must be natural, fluent English, like a real gaming creator speaking to viewers, not a script being read from an article.
+- Use clear, everyday conversational English with a confident, friendly tone. Contractions are welcome when they sound natural.
+- Do not use Hindi, Hinglish, Romanized Hindi, or Devanagari in the hook or narration. Do not add forced slang, fake hype, or an exaggerated announcer voice.
+- Apply a read-aloud test: if a line sounds awkward or unnatural when spoken in one breath, rewrite it.
 </voice>
 <style>
-- Vary sentence openings and sentence length. Prefer short spoken beats over polished essay sentences.
-- Use contractions and natural phrasing such as "HP low hai", "fight force mat karo", "peeche ho jao", "cover le lo", and "phir wapas peek karo" when they fit the meaning.
-- Do not stack formal connectors like "isse behtar hai", "isliye", "is prakar", "jiske karan", "dauran", or "keval" just to connect ideas.
-- Avoid constructions that feel translated from English, such as "agar tum ... karte rahoge, toh..." when a simpler spoken line works.
-- Do not make every sentence start with "Agar", "Jab", "Pehle", or "Phir".
+- Vary sentence openings and length. Prefer short spoken beats and specific wording over polished essay sentences.
+- Use natural gaming language where it fits: low HP, take cover, heal up, aim, crosshair, enemy, damage, close range, re-peek, ranked, and training ground.
+- Avoid stiff phrases such as "in conclusion", "moreover", "furthermore", "it is important to note", "subsequently", "in order to", and "at the end of the day".
+- Do not start every sentence with "If", "When", "First", or "Then". Connect ideas only when the transition sounds natural aloud.
 </style>
 <before_after_examples>
-- Robotic: "Isse behtar hai ki ek second ke liye piche hato, koi paas ka cover lo, aur pehle heal karo."
-  Natural: "Better hai ek second peeche ho jao, cover lo... aur pehle heal kar lo."
-- Robotic: "Agar tum low HP ke saath bhi push karte rahoge, toh enemy tumhe aasaani se eliminate kar dega."
-  Natural: "HP low hai toh fight force mat karo. Warna enemy ko easy knock mil jayega."
-- Robotic: "Jab tak tumhara health bar full nahi hota, tab tak bas defensive khelo."
-  Natural: "HP full hone tak bas thoda defensive khelo."
-- Keep the same gaming fact and advice; only make the delivery sound more like a real creator.
+- Robotic: "In order to survive the encounter, it is important to make use of nearby cover."
+  Natural: "Low on HP? Get behind cover, heal up, and take the fight when you have an opening."
+- Robotic: "Furthermore, you should refrain from engaging the enemy at close range."
+  Natural: "Don't force a close-range fight when you're not ready for it."
+- Robotic: "It is important to note that practice is essential for improving your aim."
+  Natural: "Want steadier aim? Spend a few minutes practising in the training ground."
+- Keep the same gaming fact and advice; only make the delivery sound more natural.
 </before_after_examples>
-- Address the viewer as "tum/tumhara/tumhe", never "tu/tujhe/tera/teri"; keep it friendly and respectful, not over-familiar.
-- Use natural Hinglish freely: common English words such as "body", "use", "side", "aim", "enemy", "damage", "fight", "timing", "movement", "cover", "game", "match", "push", "try", and "practice" are welcome when they sound more natural than formal Hindi.
-- Avoid formal/bookish wording such as "sharir", "upayog/istamal" when "body/use" would sound natural, "dauran", "nuksan uthana", "prapt", "avsar", "pratyaksh", "sahayata", or other unnecessarily Sanskritised vocabulary. Prefer simple spoken forms like "body", "use", "karte waqt", "damage", "mil jata hai", "dikhta hai", and "try karna".
-- Do not force Hindi words just to make the script look Hindi. Natural Hinglish is the goal.
-- Also output a separate "tts_text" field containing the exact same spoken content as hook + narration, converted into natural Devanagari for Hindi words. Do not omit the hook from tts_text.
-- In tts_text, transliterate the actual spoken Hinglish naturally for pronunciation, for example "बॉडी", "यूज़", "साइड", "एम", "एनेमी", "डैमेज", "फाइट", "टाइमिंग", "मूवमेंट", "कवर", "गेम", "मैच", and "ट्राय" when those are used in narration. Do not rewrite the meaning into more formal Hindi while converting to Devanagari.
-- Prefer Devanagari for ordinary Hindi and common gaming terms when that improves Indian-Hindi pronunciation, for example "फ्री फायर", "ग्लू वॉल", "हेडशॉट", "रैंक्ड", "स्कोप", "स्नाइपर", and "गेमप्ले". Keep product or weapon names in Latin only when their pronunciation is clearly better that way.
-- Example style: "Cover ke peeche ho toh body pura bahar mat nikalo. Thoda side se peek karo, bas jitna aim karne ke liye chahiye." This is the target feel: natural spoken Hinglish, not formal Hindi.
-- Keep personality subtle: don't cram "bhai", "sun", "dekho", "matlab", or "na" into every script.
-- Prefer the smallest natural sentence that can carry the point. Two short lines are better than one polished paragraph.
-- Stay tightly grounded in the supplied topic. Do not invent or introduce a named technique, hidden mechanic, weapon behaviour, percentage, pro-player habit, or special jargon that the topic does not call for. In particular, do not turn a vague topic into a made-up "secret" mechanic just to make the Short sound interesting.
+- The final audience is gaming Shorts viewers. Avoid generic intros like "Hey guys, welcome back" and filler that delays the useful point.
+- Keep personality subtle. Do not cram "bro", "literally", "insane", or "trust me" into every script.
+- Keep every spoken sentence easy to say aloud. Use natural contractions, varied rhythm, clean punctuation, and a clear thought per sentence.
+- Stay grounded in the supplied topic. Do not invent hidden mechanics, percentages, weapon behaviour, pro-player habits, or guaranteed results. If a claim cannot be supported, omit it or flag it in fact_check_notes.
 - Start with a specific curiosity or gameplay situation, not a generic clickbait promise. Keep the hook around 6-12 spoken words.
-- Keep combined hook + narration close to {target_words} spoken words for a target of about {target_seconds:.0f} seconds. The footage duration is a hard limit: be concise, do not add filler, and finish the thought naturally.
-- Build around 2-3 clear beats, and explain each in a way that sounds natural when read aloud by a Hindi TTS voice.
-- Prefer demonstrable, useful tips over vague "facts". Never invent percentages, hidden mechanics, pro-player habits, or guaranteed results. If a claim cannot be supported, omit it or clearly flag it in fact_check_notes.
-- Use punctuation for spoken rhythm, but don't write stage directions that the voice would read aloud.
-- Treat punctuation as acting instructions for the narrator: a period means finish the thought and reset; a comma means a small breath; a question mark is for a real question and should sound like one; use exclamation marks sparingly for genuine emphasis.
-- Keep punctuation clean and human-looking. Never use em dashes, en dashes, repeated hyphens, underscore separators, markdown dividers, or decorative punctuation in user-visible copy.
-- Make the sentence boundaries in `tts_text` match the sentence boundaries of hook + narration. The TTS layer uses those boundaries to create natural pauses, so do not merge several complete thoughts into one sentence.
-- The renderer will split the timed speech into short animated caption phrases; do not format narration as a visible paragraph.
+- Keep combined hook + narration close to {target_words} spoken words for a target of about {target_seconds:.0f} seconds. The footage duration is a hard limit: be concise, avoid filler, and finish the thought naturally.
+- Build around 2-3 clear beats, with practical advice or a useful observation viewers can actually follow.
+- Use punctuation for spoken rhythm, but do not write stage directions or phonetic spellings that the narrator would read aloud.
+- In the "language" field, write "English".
+- The "tts_text" field must contain the exact same spoken words as hook + narration, in plain English. Do not transliterate, rewrite, or add any words to tts_text.
+- Make tts_text sentence boundaries match the spoken hook and narration so the TTS layer can create natural pauses.
+- Never use em dashes, en dashes, markdown dividers, repeated hyphens, underscore separators, or decorative punctuation in user-visible copy.
+- The renderer splits the timed speech into short animated caption phrases; do not format narration as a visible paragraph.
 - Flag uncertain claims for verification in fact_check_notes.
-- Do not imitate a named creator's voice or copy another video's script. Match only the broad pacing and editing conventions of professional gaming Shorts.
+- Do not imitate a named creator's voice or copy another video's script. Match only broad pacing and editing conventions of professional gaming Shorts.
 - Suggest practical visual beats that can be created from owned/licensed gameplay footage.
 - Keep the title accurate, punchy, and non-misleading.
-- Do not reuse the same core idea, title, or hook from the recent history below. Choose a clearly different angle even when the broad weekly format is the same.
-- Avoid repeating distinctive opening phrases from recent titles, especially repeated templates like "Close-Range Fight Mein ..." or "Free Fire Mein ...". A new topic must feel packaged differently, not just have one word changed.
-- Prefer a different topic family from the most recent Shorts when a reasonable candidate is supplied. Do not force several consecutive Shorts into the same narrow sub-topic.
-- Do not put decorative separators, markdown dividers, repeated hyphens, underscores, em dashes, or en dashes in the title, description, hook, or narration.
+- Do not reuse the same core idea, title, or hook from recent history below. Choose a clearly different angle even when the broad weekly format is the same.
+- Avoid repeated title templates; a new topic must feel packaged differently, not just have one word changed.
+- Prefer a different topic family from the most recent Shorts when a reasonable candidate is supplied. Do not force consecutive Shorts into the same narrow sub-topic.
 - Recent Shorts to avoid repeating:
 {history_prompt_context()}
 Performance learning context (soft signal only):
@@ -280,7 +261,7 @@ Performance learning context (soft signal only):
             )
         if style_warnings:
             repair_reasons.append(
-                "The spoken wording sounds written or formulaic. Rewrite it in natural everyday Indian gaming Hinglish. Fix these signals: "
+                "The spoken wording sounds written, formulaic, or non-English. Rewrite it in natural, conversational English. Fix these signals: "
                 + "; ".join(style_warnings)
             )
 
@@ -328,7 +309,8 @@ Current draft:
     data["topic"] = re.sub(r"\s+", " ", str(data["topic"])).strip()
     data["hook"] = re.sub(r"\s+", " ", str(data["hook"])).strip()
     data["narration"] = re.sub(r"\s+", " ", data["narration"]).strip()
-    data["tts_text"] = re.sub(r"\s+", " ", str(data["tts_text"])).strip()
+    data["language"] = "English"
+    data["tts_text"] = f"{data['hook']} {data['narration']}".strip()
     data["topic_family"] = topic_family(str(data["topic"]))
     data["hook_style"] = classify_hook_style(str(data["hook"]))
     return data
