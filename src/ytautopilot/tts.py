@@ -394,7 +394,7 @@ def generate_indicvoice_tts(
     prepared_text = _prepare_english_tts_text(text)
     print(f"[tts] English TTS input: {prepared_text}")
 
-    pipeline = IndicPipeline(lang_code="en", repo_id=repo_id)
+    pipeline = IndicPipeline(lang_code="en-us", repo_id=repo_id)
     spoken_sentences = _split_tts_sentences(prepared_text)
     if not spoken_sentences:
         spoken_sentences = [prepared_text]
