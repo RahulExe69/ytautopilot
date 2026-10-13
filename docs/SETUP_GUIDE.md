@@ -97,6 +97,7 @@ The current Stage 2 workflow intentionally does not use those YouTube secrets.
 | GEMINI_MODEL | Project-supported model | Gemini script generation |
 | INDICVOICE_VOICE | af_bella | Local English voice style |
 | INDICVOICE_MODEL | Bindkushal/IndicVoice-82M | Local Apache-2.0 TTS model |
+| INDICVOICE_SPEED | 1.08 | Natural English speaking rate |
 
 EDGE_TTS_VOICE and EDGE_TTS_RATE are not secrets.
 
@@ -219,7 +220,7 @@ Check that at least one supported video exists inside assets/gameplay/.
 
 Check the job log around the TTS step. The first run needs network access to download the open-source model from Hugging Face; later runs can reuse the GitHub Actions model cache. The workflow also installs espeak-ng for the model's phonemizer fallback.
 
-If a voice style is unavailable, remove INDICVOICE_VOICE and retry with the default am_adam.
+If a voice style is unavailable, confirm `INDICVOICE_VOICE=af_bella` and check the voice-cache download in the job log.
 
 ### FFmpeg subtitles failed
 
