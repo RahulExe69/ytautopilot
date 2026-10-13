@@ -1,58 +1,38 @@
-# Natural spoken Hinglish
+# Natural spoken English
 
-The narrator now treats spoken naturalness as a quality gate rather than only a prompt preference.
+YTAutoPilot creates English-language gaming Shorts with a native English text-to-speech path. Script quality is checked before rendering rather than relying on one prompt to produce a natural take every time.
 
 ## Pipeline
 
-1. Gemini is instructed to write for a real Indian gaming creator and to apply a "voice-note test" before returning the draft.
-2. The generator checks for common essay-like Hindi connectors, over-long spoken sentences, formulaic constructions, and stacked filler words.
-3. A flagged draft gets up to two targeted repair passes. The repair keeps the topic and factual scope instead of inventing new mechanics just to make the line more exciting.
-4. The TTS layer normalizes common gaming shorthand and punctuation for the Hindi voice, including HP, 1v2, Gloo Wall, ADS, and similar speech-pronunciation cases.
-5. The fast IndicVoice path still synthesizes the full prepared text in one call; the naturalness improvements do not add a second TTS engine or paid API.
+1. Gemini is instructed to write like a real gaming creator talking to viewers, using concise and conversational English.
+2. The generator checks for Hindi/Devanagari leakage, formal essay connectors, corporate-sounding wording, excessive filler and over-long spoken sentences.
+3. A flagged draft gets up to two targeted repair passes. The repairs preserve the requested topic and factual scope rather than inventing game mechanics for excitement.
+4. The English TTS text is derived directly from the cleaned hook and narration. This prevents a separate phonetic/transliteration field from changing the spoken words.
+5. IndicVoice runs with `lang_code="en"` and the fixed `af_bella` female voice preset. Sentence boundaries receive short punctuation-aware pauses; the workflow uses a conservative `INDICVOICE_SPEED=1.08`.
 
-## Research basis
+## Prompting principles
 
-Google's current Gemini prompting guidance recommends concise, precise instructions and explicitly steering the model when a conversational or chatty persona is desired. It also recommends clear prompt structure and examples for style control.
+The script prompt asks for:
 
-IndicVoice documents Hindi and English support and uses a native Indic phonemizer, while code-switching research treats Hindi-English mixed speech as a distinct linguistic phenomenon. For this project, that means keeping the language mix natural in the script while making the TTS input phonetic and pronunciation-friendly.
+- Everyday English and naturally used contractions.
+- Short, varied sentences with one clear thought per beat.
+- Normal gaming vocabulary without forced slang or fake hype.
+- Specific, useful hooks rather than generic introductions.
+- Plain English in the hook, narration, captions and TTS input.
+- Claims grounded in the supplied topic, with uncertain details flagged for review.
 
-References:
-- https://ai.google.dev/gemini-api/docs/prompting-strategies
-- https://ai.google.dev/gemini-api/docs/gemini-3
-- https://github.com/Bindkushal/indic-voice
-- https://arxiv.org/abs/1810.00662
-- https://arxiv.org/abs/2105.08807
-
-
-## Prompting principles used
-
-The current implementation follows Google's Gemini guidance to use clear, specific constraints, consistent prompt structure, explicit conversational steering, and a small number of concrete examples. Gemini's documentation also recommends structured JSON output when the response has a more complex schema. The project currently validates its generated JSON locally and can be migrated to native structured output if the selected Gemini API path makes that advantageous.
+It also includes before/after examples so the model can distinguish natural spoken lines from stiff, article-like narration.
 
 ## Why this is layered
 
-No single prompt can guarantee natural speech. The project therefore treats naturalness as a pipeline property:
+No single prompt guarantees natural speech. The generation prompt controls voice and vocabulary; linting catches recurring written patterns; repair passes give Gemini another chance; sanitization removes visible AI artifacts; sentence-aware synthesis improves pacing; and human listening remains the final quality check.
 
-- generation prompt controls vocabulary and creator persona
-- examples demonstrate the desired spoken style
-- linting catches recurring written-language patterns
-- repair passes give Gemini a chance to rewrite
-- sanitization removes visual AI artifacts
-- TTS sentence segmentation creates explicit thought boundaries
-- punctuation-aware pauses preserve those boundaries
-- pronunciation rules handle gaming shorthand
-- human listening remains the final quality check
+## TTS and captions
 
-## Current TTS behavior
+The same English hook and narration are sent to the TTS layer and displayed in captions. Text is cleaned for punctuation and spacing only; the TTS layer does not translate or transliterate the words. The fast path synthesizes sentence units, inserts short pauses between them, concatenates the audio and encodes the final MP3 at the configured speed.
 
-The fast path uses the fixed `af_bella` female IndicVoice preset. It does not synthesize one large paragraph and hope the model discovers every boundary. It splits the prepared text into sentence units, synthesizes each unit, adds a small terminal pause based on punctuation, concatenates the units, and applies the configured `INDICVOICE_SPEED` (currently 1.20x).
+English-language support is documented by the [IndicVoice project](https://github.com/Bindkushal/indic-voice). The generator's style and structure follow the general guidance in Google's [Gemini prompting documentation](https://ai.google.dev/gemini-api/docs/prompting-strategies).
 
-This intentionally spends some synthesis overhead to improve intelligibility and prosody.
+## Human review
 
-## Research references
-
-- Google Gemini prompt design: https://ai.google.dev/gemini-api/docs/prompting-strategies
-- Google Gemini 3 developer guide: https://ai.google.dev/gemini-api/docs/gemini-3
-- Google Gemini structured outputs: https://ai.google.dev/gemini-api/docs/structured-output
-- IndicVoice: https://github.com/Bindkushal/indic-voice
-- Hindi-English code-switching research: https://arxiv.org/abs/1810.00662
-- Code-switching ASR research: https://arxiv.org/abs/2105.08807
+Before publishing, listen to the entire render rather than relying on a successful build alone. Check pronunciation of weapon names and abbreviations, natural stress, speed, sentence endings, caption timing, factual claims, footage/music rights and title accuracy.

@@ -29,7 +29,7 @@ Never commit these values.
 | `TORCH_NUM_THREADS` | `0` | resolves to CPU count |
 | `FFMPEG_PRESET` | `ultrafast` | fast encode |
 | `INDICVOICE_VOICE` | `af_bella` | fixed narrator |
-| `INDICVOICE_SPEED` | `1.20` | default speech speed |
+| `INDICVOICE_SPEED` | `1.08` | natural English speech rate |
 | `INDICVOICE_VOICE_FALLBACK_REPO` | `hexgrad/Kokoro-82M` | voice fallback |
 | `INCLUDE_HOOK_IN_NARRATION` | `true` | include hook in speech |
 

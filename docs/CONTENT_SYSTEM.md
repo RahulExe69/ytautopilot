@@ -39,7 +39,7 @@ Hooks are classified as question, list, warning, test_challenge, curiosity, dire
 
 ## Naturalness gate
 
-The generator checks for formal/bookish Hindi, formulaic constructions, long spoken sentences, excessive connectors, article-like gaming language and near-duplicate topics/titles/hooks. A failed draft receives up to two targeted repair passes.
+The generator checks for Hindi/Devanagari leakage, stiff or formulaic English, long spoken sentences, excessive filler, generic article-like wording and near-duplicate topics/titles/hooks. A failed draft receives up to two targeted repair passes.
 
 ## AI-artifact cleanup
 

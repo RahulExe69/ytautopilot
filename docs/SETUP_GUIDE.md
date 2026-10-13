@@ -2,7 +2,7 @@
 
 This guide documents how to set up the current YTAutoPilot stages, troubleshoot them, and help another creator build a separate project inspired by the workflow.
 
-> **Current status:** The repository is in the scheduled-generation stage. Prepare mode renders a reviewable 9:16 Short with natural spoken Hindi/Hinglish, sentence-aware local IndicVoice TTS, scene-safe gameplay cuts, animated captions, generated publish metadata, and a gameplay-derived thumbnail candidate. Publish mode uploads privately through YouTube OAuth, while scheduled Actions runs calculate future `publishAt` targets. See `ARCHITECTURE.md`, `CONFIGURATION.md`, and `OPERATIONS.md` for the current system rather than the historical stage descriptions below.
+> **Current status:** The repository is in the scheduled-generation stage. Prepare mode renders a reviewable 9:16 Short with natural spoken English, sentence-aware local IndicVoice TTS, scene-safe gameplay cuts, animated captions, generated publish metadata, and a gameplay-derived thumbnail candidate. Publish mode uploads privately through YouTube OAuth, while scheduled Actions runs calculate future `publishAt` targets. See `ARCHITECTURE.md`, `CONFIGURATION.md`, and `OPERATIONS.md` for the current system rather than the historical stage descriptions below.
 
 ## 1. What you need
 
@@ -12,7 +12,7 @@ This guide documents how to set up the current YTAutoPilot stages, troubleshoot 
 - A Gemini API key for live script generation.
 - Self-recorded gameplay or footage with permission/license to reuse.
 - A phone or computer with a modern browser.
-- For local rendering: Python 3.11+, FFmpeg, and a Devanagari font such as Noto Sans Devanagari.
+- For local rendering: Python 3.11+, FFmpeg, and Noto Sans or another readable caption font.
 
 Never commit API keys, OAuth client JSON files, client secrets, refresh tokens, passwords, or private media to Git.
 
@@ -95,8 +95,9 @@ The current Stage 2 workflow intentionally does not use those YouTube secrets.
 | Name | Default | Purpose |
 |---|---|---|
 | GEMINI_MODEL | Project-supported model | Gemini script generation |
-| INDICVOICE_VOICE | am_adam | Local Hindi voice style |
+| INDICVOICE_VOICE | af_bella | Local English voice style |
 | INDICVOICE_MODEL | Bindkushal/IndicVoice-82M | Local Apache-2.0 TTS model |
+| INDICVOICE_SPEED | 1.08 | Natural English speaking rate |
 
 EDGE_TTS_VOICE and EDGE_TTS_RATE are not secrets.
 
@@ -190,9 +191,9 @@ Prepare mode does **not** publish to YouTube.
 
 ## 8. How Stage 4 works
 
-1. Gemini creates the script JSON in conversational Hindi/Hinglish, using short spoken beats and casual "tum" phrasing.
-2. Gemini creates both Roman-Hinglish caption text and a Devanagari TTS text layer so Hindi words such as "hume" can be spoken as "हमें".
-3. IndicVoice renders the Hindi narration locally using the Apache-2.0 IndicVoice-82M model; no paid TTS API is required.
+1. Gemini creates English script JSON with short spoken beats and a natural gaming-creator voice.
+2. The TTS text is kept identical to the English hook and narration, so speech and captions stay in sync.
+3. IndicVoice renders English narration locally using the Apache-2.0 IndicVoice-82M model's English G2P path; no paid TTS API is required.
 4. The renderer estimates caption timing from the spoken text and converts it into short 1-3 word caption events.
 5. Each caption event pops up from below, scales into place, fades out, and highlights important gaming keywords rather than leaving a paragraph on screen.
 6. PySceneDetect finds complete gameplay scenes, and the renderer selects those scenes instead of cutting at arbitrary timestamps.
@@ -219,7 +220,7 @@ Check that at least one supported video exists inside assets/gameplay/.
 
 Check the job log around the TTS step. The first run needs network access to download the open-source model from Hugging Face; later runs can reuse the GitHub Actions model cache. The workflow also installs espeak-ng for the model's phonemizer fallback.
 
-If a voice style is unavailable, remove INDICVOICE_VOICE and retry with the default am_adam.
+If a voice style is unavailable, confirm `INDICVOICE_VOICE=af_bella` and check the voice-cache download in the job log.
 
 ### FFmpeg subtitles failed
 
@@ -235,7 +236,7 @@ Landscape gameplay is center-cropped into portrait. Vertical recordings usually 
 
 ### Captions look wrong
 
-The renderer uses Noto Sans Devanagari and converts estimated speech timing into short animated ASS caption events. Inspect captions.ass for the event timing. The Roman-Hinglish caption layer is intentionally separate from the Devanagari TTS layer.
+The renderer uses Noto Sans and converts estimated speech timing into short animated ASS caption events. Inspect captions.ass for event timing. English caption text is also the text sent to TTS.
 
 ### Workflow succeeds but no YouTube video appears
 

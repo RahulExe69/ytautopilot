@@ -9,8 +9,8 @@ This repository and its source code are proprietary. No permission is granted to
 **Stage 7 scheduled generation, duplicate-proof media rotation, descriptions, performance learning, and automated YouTube scheduling are now wired in.** The workflow supports manual dry-run, prepare, and an explicit **publish** mode. Scheduled runs calculate a future YouTube publishAt target; manual publish runs intentionally omit that target.
 
 The generation/render pipeline currently:
-1. Generates a conversational Hindi/Hinglish script with Gemini, targeting short spoken beats rather than article-style narration. Generated copy also passes a spoken-naturalness lint and can receive up to two repair passes before the renderer accepts it.
-2. Generates Hindi narration locally with the Apache-2.0 IndicVoice model using the fixed female `af_bella` voice preset and a Devanagari TTS text layer, avoiding paid TTS APIs.
+1. Generates a conversational English-language script with Gemini, targeting short spoken beats rather than article-style narration. Generated copy also passes a spoken-naturalness lint and can receive up to two repair passes before the renderer accepts it.
+2. Generates English narration locally with the Apache-2.0 IndicVoice model using the fixed `af_bella` female voice and English-language G2P, avoiding paid TTS APIs.
 3. Builds estimated caption timing from the spoken text, then renders 1-3 word animated lower-middle pop-ins with highlighted keywords.
 4. Detects scene boundaries in every file under `assets/gameplay/` and builds the 1080x1920, 30 fps montage only from complete detected scenes, while preferring unused source files before reusing one. The script word budget is automatically based on the total available gameplay duration, and rendering refuses to create a Short longer than its source footage. Add `gameplay5.mp4`, `gameplay6.mp4`, and so on without changing code.
 5. Mutes gameplay audio completely and automatically selects one supplied track from `assets/music/` as low-volume background music. The workflow normalizes arbitrary music filenames to `music_01`, `music_02`, `music_03`, and so on.
@@ -37,9 +37,9 @@ Performance collection uses the official YouTube Data API statistics available t
 1. Open **Settings → Secrets and variables → Actions**.
 2. Add a repository secret named GEMINI_API_KEY using your own Gemini API key. Never place API keys in source files or commit them.
 3. Optionally add a repository variable named GEMINI_MODEL with a model currently available to your Gemini API project.
-4. The narrator is fixed to the female `af_bella` voice, with a default speaking speed of 1.20x. No voice selector is exposed in the workflow.
+4. The narrator is fixed to the female `af_bella` voice, with a default speaking speed of 1.08x. No voice selector is exposed in the workflow.
    - INDICVOICE_MODEL — defaults to `Bindkushal/IndicVoice-82M`.
-   - Hindi voice tensors are sourced from `hexgrad/Kokoro-82M` when the IndicVoice repository does not contain a usable copy.
+   - Voice tensors are sourced from `hexgrad/Kokoro-82M` when the IndicVoice repository does not contain a usable copy.
 5. Put your own/licensed gameplay videos in assets/gameplay/. One clip is enough for the first test; multiple clips give the renderer more visual variety.
 6. Open **Actions → ytautopilot → Run workflow**. Use topic `auto` for the next unused topic from the weekly Free Fire content rotation. Successful prepare runs are recorded in `data/content_history.json`, allowing the generator to avoid repeating recent titles, hooks, and topics.
 
@@ -115,7 +115,7 @@ The project documentation is split by concern so future changes can be made with
 |---|---|
 | [Architecture](docs/ARCHITECTURE.md) | Complete pipeline, module responsibilities, state, retries and artifacts |
 | [Content System](docs/CONTENT_SYSTEM.md) | Topic families, diversity, naturalness, title packaging and history |
-| [Naturalness](docs/NATURALNESS.md) | Spoken Hinglish, TTS pronunciation and prosody design |
+| [Naturalness](docs/NATURALNESS.md) | Natural English narration, TTS pacing and prosody design |
 | [Configuration](docs/CONFIGURATION.md) | Secrets, variables, workflow inputs, local requirements and schedules |
 | [Setup Guide](docs/SETUP_GUIDE.md) | Initial GitHub/Gemini/YouTube setup |
 | [Operations](docs/OPERATIONS.md) | Day-to-day workflow operation and recovery |
@@ -129,7 +129,7 @@ The project documentation is split by concern so future changes can be made with
 The pipeline now has four independent quality gates before publication:
 
 1. **Content diversity** — recent topic families, phrase overlap and template similarity are penalized.
-2. **Spoken naturalness** — Gemini drafts are checked for formal/robotic Hinglish and repaired when necessary.
+2. **Spoken naturalness** — Gemini drafts are checked for stiff or robotic English and repaired when necessary.
 3. **Speech prosody** — TTS uses sentence boundaries, punctuation-aware pauses and controlled speech speed.
 4. **Publish sanitization** — titles, descriptions and metadata are cleaned again at the final YouTube boundary.
 

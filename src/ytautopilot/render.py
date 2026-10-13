@@ -293,7 +293,7 @@ def write_animated_ass(srt_path: Path, ass_path: Path, duration_ms: int) -> dict
         "",
         "[V4+ Styles]",
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, TertiaryColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel",
-        "Style: Caption,Noto Sans Devanagari,68,&H00FFFFFF,&H00FFFFFF,&H00FFFFFF,&H78000000,-1,0,1,5,2,5,50,50,50,0",
+        "Style: Caption,Noto Sans,68,&H00FFFFFF,&H00FFFFFF,&H00FFFFFF,&H78000000,-1,0,1,5,2,5,50,50,50,0",
         "",
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
@@ -672,7 +672,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     if not narration:
         raise RuntimeError("Generated script has no narration text.")
     if not tts_text:
-        raise RuntimeError("Generated script has no Devanagari tts_text. Regenerate the script.")
+        raise RuntimeError("Generated script has no English tts_text. Regenerate the script.")
 
     caption_text = f"{hook} {narration}".strip() if hook else narration
     spoken_text = tts_text

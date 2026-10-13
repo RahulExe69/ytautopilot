@@ -7,241 +7,23 @@ from pathlib import Path
 from typing import Any
 
 
-_DEVANAGARI_PRONUNCIATIONS = (
-    # Multi-word Free Fire terms first; replacements are case-insensitive and
-    # token-boundary-aware in _prepare_hindi_tts_text.
-    ("one v one", "वन वी वन"),
-    ("one v two", "वन वी टू"),
-    ("one v three", "वन वी थ्री"),
-    ("two v one", "टू वी वन"),
-    ("two v two", "टू वी टू"),
-    ("1v1", "वन वी वन"),
-    ("1v2", "वन वी टू"),
-    ("1v3", "वन वी थ्री"),
-    ("2v1", "टू वी वन"),
-    ("2v2", "टू वी टू"),
-    ("low hp", "लो एच पी"),
-    ("full hp", "फुल एच पी"),
-    ("hp bar", "एच पी बार"),
-    ("glue wall", "ग्लू वॉल"),
-    ("gloo-wall", "ग्लू वॉल"),
-    ("op", "ओ पी"),
-    ("ads", "ए डी एस"),
-    ("battle royale", "बैटल रॉयल"),
-    ("free fire max", "फ्री फायर मैक्स"),
-    ("training ground", "ट्रेनिंग ग्राउंड"),
-    ("clash squad", "क्लैश स्क्वाड"),
-    ("rank push", "रैंक पुश"),
-    ("one tap", "वन टैप"),
-    ("one-tap", "वन टैप"),
-    ("drag shot", "ड्रैग शॉट"),
-    ("drag headshot", "ड्रैग हेडशॉट"),
-    ("head level", "हेड लेवल"),
-    ("red dot", "रेड डॉट"),
-    ("2x scope", "टू एक्स स्कोप"),
-    ("4x scope", "फोर एक्स स्कोप"),
-    ("free look", "फ्री लुक"),
-    ("aim assist", "एम असिस्ट"),
-    ("med kit", "मेडकिट"),
-    ("medkit", "मेडकिट"),
-    ("gloo wall", "ग्लू वॉल"),
-    ("free fire", "फ्री फायर"),
-    ("crosshair", "क्रॉसहेयर"),
-    ("cross-hair", "क्रॉस हेयर"),
-    ("cross hair", "क्रॉस हेयर"),
-    ("headshot", "हेडशॉट"),
-    ("head shot", "हेडशॉट"),
-    ("sensitivity", "सेंसिटिविटी"),
-    ("bermuda", "बरमूडा"),
-    ("kalahari", "कलाहारी"),
-    ("purgatory", "पर्गेटरी"),
-    ("booyah", "बूयाह"),
-    ("m1887", "एम अठारह अट्ठासी"),
-    ("mp40", "एम पी चालीस"),
-    ("ak47", "ए के सैंतालीस"),
-    ("awm", "ए डब्ल्यू एम"),
-    ("smg", "एस एम जी"),
-    ("hp", "एच पी"),
-    ("hud", "एच यू डी"),
-    ("fps", "एफ पी एस"),
-    ("loot", "लूट"),
-    ("lobby", "लॉबी"),
-    ("grenade", "ग्रेनेड"),
-    ("revive", "रिवाइव"),
-    ("backpack", "बैकपैक"),
-    ("armor", "आर्मर"),
-    ("armour", "आर्मर"),
-    ("vest", "वेस्ट"),
-    ("booyah", "बूयाह"),
-    ("headshot", "हेडशॉट"),
-    ("crosshair", "क्रॉसहेयर"),
-    ("cross-hair", "क्रॉस हेयर"),
-    ("cross hair", "क्रॉस हेयर"),
-    ("shotgun", "शॉटगन"),
-    ("sniper", "स्नाइपर"),
-    ("scope", "स्कोप"),
-    ("enemy", "एनिमी"),
-    ("gameplay", "गेमप्ले"),
-    ("ranked", "रैंक्ड"),
-    ("movement", "मूवमेंट"),
-    ("damage", "डैमेज"),
-    ("reload", "रीलोड"),
-    ("clutch", "क्लच"),
-    ("weapon", "वेपन"),
-    ("weapons", "वेपन्स"),
-    ("ability", "एबिलिटी"),
-    ("abilities", "एबिलिटीज"),
-    ("solo", "सोलो"),
-    ("squad", "स्क्वाड"),
-    ("smg", "एसएमजी"),
-    ("awm", "एडब्ल्यूएम"),
-    ("push", "पुश"),
-    ("rush", "रश"),
-    ("heal", "हील"),
-    ("cover", "कवर"),
-    ("fight", "फाइट"),
-    ("peek", "पीक"),
-    ("rotate", "रोटेट"),
-    ("rotation", "रोटेशन"),
-    ("zone", "ज़ोन"),
-    ("close range", "क्लोज़ रेंज"),
-    ("long range", "लॉन्ग रेंज"),
-    ("body shot", "बॉडी शॉट"),
-    ("knock", "नॉक"),
-    ("loot", "लूट"),
-    ("loadout", "लोडआउट"),
-    ("aim", "एम"),
-    ("recoil", "रिकॉइल"),
-    ("tumhara", "तुम्हारा"),
-    ("tumhe", "तुम्हें"),
-    ("tumne", "तुमने"),
-    ("tumko", "तुमको"),
-    ("tum", "तुम"),
-    ("toh", "तो"),
-    ("yeh", "ये"),
-    ("ye", "ये"),
-    ("woh", "वो"),
-    ("kya", "क्या"),
-    ("kyun", "क्यों"),
-    ("kaise", "कैसे"),
-    ("kaafi", "काफी"),
-    ("sirf", "सिर्फ"),
-    ("thoda", "थोड़ा"),
-    ("pehle", "पहले"),
-    ("phir", "फिर"),
-    ("abhi", "अभी"),
-    ("agar", "अगर"),
-    ("lekin", "लेकिन"),
-    ("aur", "और"),
-    ("ek", "एक"),
-    ("do", "दो"),
-    ("teen", "तीन"),
-    ("wala", "वाला"),
-    ("wali", "वाली"),
-    ("wale", "वाले"),
-    ("karna", "करना"),
-    ("karo", "करो"),
-    ("karte", "करते"),
-    ("kar", "कर"),
-    ("hai", "है"),
-    ("hain", "हैं"),
-    ("hoga", "होगा"),
-    ("hogi", "होगी"),
-    ("hota", "होता"),
-    ("nahi", "नहीं"),
-    ("nahin", "नहीं"),
-    ("mat", "मत"),
-    ("matlab", "मतलब"),
-    ("bas", "बस"),
-    ("bhi", "भी"),
-    ("bahut", "बहुत"),
-    ("zyada", "ज़्यादा"),
-    ("sahi", "सही"),
-    ("galat", "गलत"),
-    ("sakta", "सकता"),
-    ("sakti", "सकती"),
-    ("chahiye", "चाहिए"),
-    ("dekho", "देखो"),
-    ("sun", "सुन"),
-    ("waise", "वैसे"),
-    ("apna", "अपना"),
-    ("apni", "अपनी"),
-    ("apne", "अपने"),
-    ("liye", "लिए"),
-    ("mein", "में"),
-    ("me", "में"),
-    ("se", "से"),
-    ("par", "पर"),
-    ("pe", "पे"),
-    ("ko", "को"),
-    ("jo", "जो"),
-    ("jab", "जब"),
-    ("tab", "तब"),
-    ("har", "हर"),
-    ("koi", "कोई"),
-    ("kuch", "कुछ"),
-    ("accha", "अच्छा"),
-    ("acha", "अच्छा"),
-    ("best", "बेस्ट"),
-    ("better", "बेटर"),
-    ("easy", "ईज़ी"),
-    ("simple", "सिंपल"),
-    ("basic", "बेसिक"),
-    ("timing", "टाइमिंग"),
-    ("time", "टाइम"),
-    ("trick", "ट्रिक"),
-    ("tip", "टिप"),
-    ("tips", "टिप्स"),
-    ("comment", "कमेंट"),
-    ("comments", "कमेंट्स"),
-    ("favorite", "फेवरेट"),
-    ("favourite", "फेवरेट"),
-    ("try", "ट्राय"),
-    ("test", "टेस्ट"),
-    ("tested", "टेस्टेड"),
-    ("notice", "नोटिस"),
-    ("actually", "एक्चुअली"),
-    ("really", "रियली"),
-    ("quick", "क्विक"),
-    ("quickly", "क्विकली"),
-    ("because", "बिकॉज़"),
-    ("before", "बिफोर"),
-    ("after", "आफ्टर"),
-    ("again", "अगेन"),
-    ("always", "ऑलवेज़"),
-    ("never", "नेवर"),
-    ("inside", "इनसाइड"),
-    ("outside", "आउटसाइड"),
-    ("front", "फ्रंट"),
-    ("back", "बैक"),
-    ("start", "स्टार्ट"),
-    ("stop", "स्टॉप"),
-)
-
 def _normalise_tts_punctuation(text: str) -> str:
-    """Keep punctuation easy for an Indian Hindi TTS voice to deliver naturally."""
+    """Normalize punctuation and spacing for clear spoken English."""
     prepared = text.replace("\u2014", ", ").replace("\u2013", ", ").replace(";", ",")
     prepared = prepared.replace(":", ",")
     prepared = re.sub(r"\.{4,}", "...", prepared)
     prepared = re.sub(r"!{2,}", "!", prepared)
     prepared = re.sub(r"\?{2,}", "?", prepared)
     prepared = re.sub(r"\s*([,])\s*", r"\1 ", prepared)
-    prepared = re.sub(r"\s+([.!?।！？])", r"\1", prepared)
+    prepared = re.sub(r"\s+([.!?])", r"\1", prepared)
     prepared = re.sub(r"[ \t]+", " ", prepared)
     return prepared.strip()
 
 
-def _prepare_hindi_tts_text(text: str) -> str:
-    prepared = _normalise_tts_punctuation(text.strip())
-    for source, replacement in sorted(_DEVANAGARI_PRONUNCIATIONS, key=lambda item: len(item[0]), reverse=True):
-        prepared = re.sub(
-            rf"(?<![A-Za-z]){re.escape(source)}(?![A-Za-z])",
-            replacement,
-            prepared,
-            flags=re.IGNORECASE,
-        )
+def _prepare_english_tts_text(text: str) -> str:
+    """Clean an English TTS input without transliterating or rewriting words."""
+    prepared = _normalise_tts_punctuation(str(text or "").strip())
     return re.sub(r"\s+", " ", prepared).strip()
-
 
 
 def _spoken_segments(text: str) -> list[tuple[str, str]]:
@@ -446,7 +228,7 @@ def generate_indicvoice_tts(
     caption_text: str,
     subtitle_path: Path,
 ) -> dict[str, Any]:
-    """Render Hindi/Indic speech locally with the Apache-2.0 IndicVoice model."""
+    """Render English narration locally with the Apache-2.0 IndicVoice model."""
     try:
         import numpy as np
         import soundfile as sf
@@ -584,10 +366,7 @@ def generate_indicvoice_tts(
             "IndicVoice dependencies are missing. Install requirements.txt before rendering."
         ) from exc
 
-    # Use a voice preset documented by IndicVoice itself. hf_beta is a Kokoro
-    # English voice preset and produced badly mismatched Hindi speech in this
-    # pipeline; af_bella is the documented female preset and works with the
-    # Hindi G2P frontend.
+    # Use IndicVoice's documented af_bella female voice with its English G2P path.
     configured_voice = (os.getenv("INDICVOICE_VOICE") or "af_bella").strip()
     voice_candidates = [configured_voice]
 
@@ -612,17 +391,16 @@ def generate_indicvoice_tts(
         pass
 
     fast_mode = os.getenv("YTAP_FAST_MODE", "").lower() in {"1", "true", "yes", "on"}
-    prepared_text = _prepare_hindi_tts_text(text)
-    print(f"[tts] Hindi TTS input: {prepared_text}")
+    prepared_text = _prepare_english_tts_text(text)
+    print(f"[tts] English TTS input: {prepared_text}")
 
-    pipeline = IndicPipeline(lang_code="hi", repo_id=repo_id)
+    pipeline = IndicPipeline(lang_code="en-us", repo_id=repo_id)
     spoken_sentences = _split_tts_sentences(prepared_text)
     if not spoken_sentences:
         spoken_sentences = [prepared_text]
 
-    # IndicVoice already chunks Hindi internally into manageable pieces and
-    # reuses the loaded model/voice. Calling the pipeline once avoids repeated
-    # G2P setup and Python-loop overhead for every sentence on the fast path.
+    # IndicVoice handles English text through its language-specific G2P frontend.
+    # Sentence-level calls preserve pacing and make pauses measurable for captions.
     pause_seconds = 0.025
     chunks: list[np.ndarray] = []
     sentence_durations: list[float] = []
@@ -631,7 +409,7 @@ def generate_indicvoice_tts(
 
     for candidate_voice in voice_candidates:
         try:
-            print(f"[tts] Trying Hindi voice: {candidate_voice}")
+            print(f"[tts] Trying English voice: {candidate_voice}")
             candidate_chunks: list[np.ndarray] = []
             candidate_sentence_durations: list[float] = []
 
@@ -643,7 +421,7 @@ def generate_indicvoice_tts(
                 segments = _spoken_segments(prepared_text)
                 if not segments:
                     raise RuntimeError("IndicVoice returned no speech segments.")
-                for segment_text, terminal in segments:
+                for segment_index, (segment_text, terminal) in enumerate(segments):
                     segment_arrays: list[np.ndarray] = []
                     for result in pipeline(segment_text, voice=candidate_voice):
                         audio = result.audio
@@ -657,12 +435,13 @@ def generate_indicvoice_tts(
                     if not segment_arrays:
                         raise RuntimeError("IndicVoice returned no audio for a speech segment.")
                     candidate_chunks.append(np.concatenate(segment_arrays).astype(np.float32))
-                    candidate_chunks.append(
-                        np.zeros(
-                            int(sample_rate * _sentence_pause_seconds(terminal)),
-                            dtype=np.float32,
+                    if segment_index < len(segments) - 1:
+                        candidate_chunks.append(
+                            np.zeros(
+                                int(sample_rate * _sentence_pause_seconds(terminal)),
+                                dtype=np.float32,
+                            )
                         )
-                    )
                 if not candidate_chunks:
                     raise RuntimeError("IndicVoice returned no audio.")
             else:
@@ -702,7 +481,7 @@ def generate_indicvoice_tts(
 
     if not chunks or voice is None:
         raise RuntimeError(
-            f"The configured IndicVoice preset {configured_voice!r} did not produce audio. "
+            f"The configured English IndicVoice preset {configured_voice!r} did not produce audio. "
             + " | ".join(voice_errors[-4:])
         )
 
@@ -714,9 +493,9 @@ def generate_indicvoice_tts(
     # FFmpeg is used only for consistent MP3 output in the workflow artifact.
     mp3_path = audio_path.with_suffix(".mp3")
     try:
-        speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.20"))
+        speech_speed = float(os.getenv("INDICVOICE_SPEED", "1.08"))
     except ValueError:
-        speech_speed = 1.28
+        speech_speed = 1.08
     speech_speed = min(1.35, max(0.90, speech_speed))
     subprocess.run(
         [
@@ -752,6 +531,7 @@ def generate_indicvoice_tts(
 
     return {
         "engine": "indicvoice",
+        "language": "en",
         "model": str(repo_id),
         "voice": str(voice),
         "tts_input": prepared_text,
