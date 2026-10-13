@@ -8,17 +8,17 @@ The workflow explicitly installs/checks ffmpeg, ffprobe, fonts-noto-core, espeak
 
 `.github/workflows/python-quality.yml` runs `python -m compileall -q src`. Fix syntax before media testing.
 
-## Robotic Hinglish
+## Robotic or unnatural English
 
-Inspect `output/script.json`. The pipeline is Gemini generation -> spoken-style lint -> up to two repair passes -> cleanup. Improve the prompt/quality rules before replacing the voice model.
+Inspect `output/script.json`. The pipeline is English-only Gemini generation -> spoken-style lint -> up to two repair passes -> cleanup. Inspect `output/script.json`; improve the style rules before replacing the voice model.
 
 ## TTS rushes or ignores sentence endings
 
-The fast path synthesizes sentence-by-sentence, inserts punctuation-aware pauses and encodes at `INDICVOICE_SPEED=1.20`. Check `tts_input` in the TTS manifest and inspect punctuation before increasing pauses.
+The fast path synthesizes sentence-by-sentence, inserts punctuation-aware pauses and encodes at `INDICVOICE_SPEED=1.08`. Check `tts_input` in the TTS manifest and inspect punctuation before increasing pauses.
 
 ## Pronunciation problems
 
-The TTS layer normalizes common gaming shorthand including HP, low/full HP, 1v1/1v2/1v3, Gloo Wall, ADS and OP. Add repeatable vocabulary rules in `tts.py`.
+English words are sent to the English G2P frontend without Devanagari transliteration. Check spelling and punctuation in `tts_input` before adding pronunciation exceptions.
 
 ## Repeated titles/topics
 
