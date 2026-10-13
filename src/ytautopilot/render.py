@@ -293,7 +293,7 @@ def write_animated_ass(srt_path: Path, ass_path: Path, duration_ms: int) -> dict
         "",
         "[V4+ Styles]",
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, TertiaryColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel",
-        "Style: Caption,Noto Sans Devanagari,68,&H00FFFFFF,&H00FFFFFF,&H00FFFFFF,&H78000000,-1,0,1,5,2,5,50,50,50,0",
+        "Style: Caption,Noto Sans,68,&H00FFFFFF,&H00FFFFFF,&H00FFFFFF,&H78000000,-1,0,1,5,2,5,50,50,50,0",
         "",
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
