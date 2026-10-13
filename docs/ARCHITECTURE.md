@@ -1,6 +1,6 @@
 # YTAutoPilot Architecture
 
-YTAutoPilot is a GitHub Actions based Free Fire Shorts production pipeline. It turns a topic into a script, local Hindi/Hinglish narration, scene-safe vertical gameplay, captions, music, a publish package, and optionally a private/scheduled YouTube upload.
+YTAutoPilot is a GitHub Actions based Free Fire Shorts production pipeline. It turns a topic into a script, local English narration, scene-safe vertical gameplay, captions, music, a publish package, and optionally a private/scheduled YouTube upload.
 
 ## End-to-end flow
 
@@ -17,14 +17,14 @@ GitHub Actions
        -> phrase-overlap penalty
        -> performance learning
   -> Gemini script generation
-       -> natural spoken Hinglish prompt
+       -> natural spoken English prompt
        -> recent title/topic context
        -> duplicate/style quality gate
        -> up to two repair passes
        -> AI-artifact sanitizer
   -> IndicVoice
-       -> Hindi G2P
-       -> fixed af_bella female preset
+       -> English G2P
+       -> fixed af_bella female English preset
        -> sentence-aware synthesis
        -> punctuation-driven pacing
        -> controlled pauses
@@ -60,7 +60,7 @@ GitHub Actions
 | `__main__.py` | orchestration and retry loop |
 | `content.py` | topic bank, diversity, history, fingerprints |
 | `scriptgen.py` | Gemini generation, quality gates, repair and cleanup |
-| `tts.py` | IndicVoice synthesis, pronunciation and prosody |
+| `tts.py` | IndicVoice English synthesis, pacing and prosody |
 | `render.py` | scene selection, captions, music and FFmpeg |
 | `media.py` | media fingerprints/history |
 | `descriptions.py` | description/CTA rotation |
