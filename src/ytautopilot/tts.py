@@ -399,9 +399,8 @@ def generate_indicvoice_tts(
     if not spoken_sentences:
         spoken_sentences = [prepared_text]
 
-    # IndicVoice handles English text through its language-specific G2P frontend;
-    # reuses the loaded model/voice. Sentence-level calls preserve pacing and
-    # make pauses measurable for caption timing.
+    # IndicVoice handles English text through its language-specific G2P frontend.
+    # Sentence-level calls preserve pacing and make pauses measurable for captions.
     pause_seconds = 0.025
     chunks: list[np.ndarray] = []
     sentence_durations: list[float] = []
