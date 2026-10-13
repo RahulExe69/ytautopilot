@@ -672,7 +672,7 @@ def render_short(script: dict[str, Any]) -> dict[str, Any]:
     if not narration:
         raise RuntimeError("Generated script has no narration text.")
     if not tts_text:
-        raise RuntimeError("Generated script has no Devanagari tts_text. Regenerate the script.")
+        raise RuntimeError("Generated script has no English tts_text. Regenerate the script.")
 
     caption_text = f"{hook} {narration}".strip() if hook else narration
     spoken_text = tts_text
