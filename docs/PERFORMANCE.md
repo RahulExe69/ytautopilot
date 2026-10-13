@@ -15,7 +15,7 @@ The workflow now has a dedicated fast path aimed at reducing wall-clock time on 
 - The renderer selects scenes once and feeds those source segments directly into the final FFmpeg graph.
 - The old intermediate gameplay MP4 encode is bypassed on the main path, leaving one final video encode.
 - Fast rendering uses x264 `ultrafast`, a lighter audio filter chain, no `+faststart`, and a lower AAC bitrate.
-- IndicVoice is called once for the complete prepared Hindi text in fast mode instead of one Python pipeline call per sentence.
+- The fast path sends English narration sentence-by-sentence through the English G2P frontend and inserts short pauses only between sentences.
 - Gemini 3.x requests use `thinkingLevel=minimal`; Gemini 2.5 requests use `thinkingBudget=0`.
 - Gameplay duration probes are reused between target calculation and rendering.
 
@@ -33,4 +33,4 @@ Use a GitHub Actions **prepare** run before and after changing the fast-path set
 5. final FFmpeg encode,
 6. artifact upload.
 
-The first run after a cache miss will still be slower because the Python environment and Hugging Face model files have to be downloaded. The current narrator speed target is 1.20x, and the fast path synthesizes sentence-by-sentence with controlled pauses; benchmark warm and cold runs separately. Warm runs are the meaningful benchmark for the daily scheduled workflow.
+The first run after a cache miss will still be slower because the Python environment and Hugging Face model files have to be downloaded. The current narrator speed target is 1.08x, and the fast path synthesizes sentence-by-sentence with controlled pauses; benchmark warm and cold runs separately. Warm runs are the meaningful benchmark for the daily scheduled workflow.
